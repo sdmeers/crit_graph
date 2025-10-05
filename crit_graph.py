@@ -17,6 +17,7 @@ import re
 from collections import defaultdict
 import json
 import time
+import urllib.parse
 
 class CampaignFourGraphBuilder:
     def __init__(self):
@@ -28,6 +29,7 @@ class CampaignFourGraphBuilder:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
+        self.alias_map = {}
         
         # Campaign 4 main cast characters (from the Cast table)
         self.main_characters = [
@@ -47,17 +49,25 @@ class CampaignFourGraphBuilder:
         ]
     
     def fetch_page(self, page_title):
-        """Fetch a wiki page with rate limiting."""
+        """Fetch a wiki page with rate limiting and handle redirects."""
         time.sleep(0.5)  # Be respectful to the server
         url = f"{self.base_url}/wiki/{page_title}"
         try:
             print(f"  Fetching: {page_title}")
             response = self.session.get(url, timeout=10)
             response.raise_for_status()
-            return BeautifulSoup(response.content, 'html.parser')
+            
+            final_url = response.url
+            canonical_name = urllib.parse.unquote(final_url.split('/wiki/')[-1]).replace(' ', '_')
+            
+            if page_title != canonical_name:
+                print(f"    Redirected to: {canonical_name}")
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            return soup, canonical_name
         except Exception as e:
             print(f"  ⚠ Error fetching {page_title}: {e}")
-            return None
+            return None, None
     
     def extract_infobox_data(self, soup):
         """Extract structured data from the infobox."""
@@ -137,7 +147,7 @@ class CampaignFourGraphBuilder:
                                 '?' not in href and 
                                 'action=edit' not in href):
                                 
-                                target_page = href.replace('/wiki/', '')
+                                target_page = urllib.parse.unquote(href).replace('/wiki/', '').replace(' ', '_')
                                 # Get the description
                                 desc_elem = current.find_next_sibling('p')
                                 if desc_elem:
@@ -187,7 +197,7 @@ class CampaignFourGraphBuilder:
                         'action=edit' not in href and
                         not href.startswith('http')):
                         
-                        linked_page = href.replace('/wiki/', '')
+                        linked_page = urllib.parse.unquote(href).replace('/wiki/', '').replace(' ', '_')
                         # Get surrounding text for context
                         text = elem.get_text()
                         
@@ -230,7 +240,7 @@ class CampaignFourGraphBuilder:
                         ':' not in href and 
                         '?' not in href):
                         
-                        linked_page = href.replace('/wiki/', '')
+                        linked_page = urllib.parse.unquote(href).replace('/wiki/', '').replace(' ', '_')
                         link_text = link.get_text()
                         
                         # Check if it's likely an organization
@@ -524,31 +534,32 @@ class CampaignFourGraphBuilder:
             })
     
     def process_page(self, page_title):
-        """Process a single wiki page."""
-        soup = self.fetch_page(page_title)
-        if not soup:
-            return []
+        """Process a single wiki page, handling redirects."""
+        soup, canonical_name = self.fetch_page(page_title)
         
-        # Extract data
+        # Store alias mapping
+        if canonical_name:
+            self.alias_map[page_title] = canonical_name
+        else: # Fetch failed
+            return []
+
+        # If the canonical entity is already in the graph, we're done with this page.
+        if canonical_name in self.entities:
+            print(f"    Skipping already processed entity: {canonical_name}")
+            return []
+
+        # Add entity using canonical name
         infobox_data = self.extract_infobox_data(soup)
         categories = self.extract_categories(soup)
-        entity_type = self.determine_entity_type(page_title, infobox_data, categories)
-        
-        # Add to graph
-        self.add_entity(page_title, infobox_data, entity_type)
-        
-        # Priority 1: Organization affiliations
-        org_affiliations = self.extract_organization_affiliations(soup, page_title)
+        entity_type = self.determine_entity_type(canonical_name, infobox_data, categories)
+        self.add_entity(canonical_name, infobox_data, entity_type)
 
-        # Extract relationships from dedicated Relationships section (better quality)
+        # Extract relationships (these still contain un-resolved aliases)
+        org_affiliations = self.extract_organization_affiliations(soup, canonical_name)
         relationships = self.extract_relationships_section(soup)
+        bio_relationships = self.extract_biography_relationships(soup, canonical_name)
         
-        # Also get relationships from biography (for additional context)
-        bio_relationships = self.extract_biography_relationships(soup, page_title)
-        
-        # Combine all, with organization affiliations first
         all_relationships = org_affiliations + relationships + bio_relationships
-        
         return all_relationships
     
     def build_graph(self):
@@ -556,35 +567,53 @@ class CampaignFourGraphBuilder:
         print("Building Campaign Four Knowledge Graph")
         print("=" * 50)
         
-        # Phase 1: Process all main characters
-        print("\n[Phase 1] Processing main characters...")
+        # Phase 1: Process entities and collect relationships
+        print("\n[Phase 1] Processing entities and collecting relationships...")
         all_relationships = {}
-        discovered_entities = set()
+        queue = list(self.main_characters)
+        processed_aliases = set()
         
-        for character in self.main_characters:
-            print(f"\n→ {character}")
-            relationships = self.process_page(character)
-            all_relationships[character] = relationships
+        limit = 50 # Set a hard limit to avoid crawling the whole wiki
+        count = 0
+
+        while queue and count < limit:
+            page_title_alias = queue.pop(0)
+            if page_title_alias in processed_aliases:
+                continue
             
-            # Collect entities mentioned in relationships
+            count += 1
+            print(f"\n→ Processing {page_title_alias} ({count}/{limit})")
+            processed_aliases.add(page_title_alias)
+
+            relationships = self.process_page(page_title_alias)
+            all_relationships[page_title_alias] = relationships
+            
+            # Get the canonical name for the page we just processed
+            canonical_source = self.alias_map.get(page_title_alias)
+
             for rel in relationships:
-                discovered_entities.add(rel['target'])
-        
-        # Phase 2: Process discovered entities (organizations, NPCs, etc.)
-        print(f"\n[Phase 2] Processing {len(discovered_entities)} discovered entities...")
-        new_entities = discovered_entities - set(self.main_characters)
-        
-        for entity in list(new_entities)[:20]:  # Limit to prevent explosion
-            if entity not in self.entities:
-                print(f"\n→ {entity}")
-                relationships = self.process_page(entity)
-                all_relationships[entity] = relationships
-        
-        # Phase 3: Add all relationships
-        print("\n[Phase 3] Adding relationships to graph...")
-        for source, relationships in all_relationships.items():
+                target_alias = rel['target']
+                # Check if we've already processed the alias or its canonical name
+                canonical_target = self.alias_map.get(target_alias)
+                if (target_alias not in processed_aliases and 
+                    target_alias not in queue and 
+                    (not canonical_target or canonical_target not in self.entities)):
+                    queue.append(target_alias)
+
+        # Phase 2: Add all relationships using canonical names
+        print("\n[Phase 2] Adding relationships to graph...")
+        for source_alias, relationships in all_relationships.items():
+            canonical_source = self.alias_map.get(source_alias)
+            if not canonical_source:
+                print(f"  ⚠ Could not find canonical name for source: {source_alias}. Skipping.")
+                continue
+
             for rel in relationships:
-                self.add_relationship(source, rel['target'], rel['type'])
+                target_alias = rel['target']
+                canonical_target = self.alias_map.get(target_alias)
+                
+                if canonical_target:
+                    self.add_relationship(canonical_source, canonical_target, rel['type'])
         
         print("\n✓ Graph building complete!")
     
