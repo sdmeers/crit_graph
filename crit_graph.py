@@ -37,7 +37,7 @@ class CampaignFourGraphBuilder:
             'Thaisha_Lloy',          # Aabria Iyengar
             'Bolaire_Lathalia',      # Taliesin Jaffe
             'Vaelus',                # Ashley Johnson
-            'Julien_Davinos',        # Matthew Mercer
+            'Julien_Davinos',        # Matthew Mercer (no "Sir_" prefix)
             'Tyranny',               # Whitney Moore
             'Halandil_Fang',         # Liam O\'Brien
             'Murray_Mag\'Nesson',    # Marisha Ray
@@ -90,6 +90,48 @@ class CampaignFourGraphBuilder:
         
         return data
     
+    def extract_relationships_section(self, soup):
+        """Extract relationships from the dedicated Relationships section."""
+        relationships = []
+        
+        content = soup.find('div', class_='mw-parser-output')
+        if not content:
+            return relationships
+        
+        # Find the Relationships header
+        for header in content.find_all(['h2', 'h3']):
+            header_text = header.get_text(strip=True).lower()
+            if 'relationship' in header_text:
+                # Get all content until next h2/h3
+                current = header.find_next_sibling()
+                while current and current.name not in ['h2']:
+                    # Look for h3 subsections (individual relationships)
+                    if current.name == 'h3':
+                        relationship_name_elem = current.find('a', href=True)
+                        if relationship_name_elem:
+                            href = relationship_name_elem['href']
+                            # Filter out edit links and special pages
+                            if (href.startswith('/wiki/') and 
+                                ':' not in href and 
+                                '?' not in href and 
+                                'action=edit' not in href):
+                                
+                                target_page = href.replace('/wiki/', '')
+                                # Get the description
+                                desc_elem = current.find_next_sibling('p')
+                                if desc_elem:
+                                    desc_text = desc_elem.get_text()
+                                    rel_type = self.infer_relationship_type(desc_text, relationship_name_elem.get_text())
+                                    relationships.append({
+                                        'target': target_page,
+                                        'type': rel_type,
+                                        'description': desc_text[:200]
+                                    })
+                    current = current.find_next_sibling()
+                break
+        
+        return relationships
+    
     def extract_biography_relationships(self, soup, current_page):
         """Extract relationships from Biography/Background sections."""
         relationships = []
@@ -117,7 +159,13 @@ class CampaignFourGraphBuilder:
             for elem in biography_section:
                 for link in elem.find_all('a', href=True):
                     href = link['href']
-                    if href.startswith('/wiki/') and ':' not in href:
+                    # Filter out non-wiki links and special pages
+                    if (href.startswith('/wiki/') and 
+                        ':' not in href and 
+                        '?' not in href and 
+                        'action=edit' not in href and
+                        not href.startswith('http')):
+                        
                         linked_page = href.replace('/wiki/', '')
                         # Get surrounding text for context
                         text = elem.get_text()
@@ -204,6 +252,81 @@ class CampaignFourGraphBuilder:
         
         return categories
     
+    def add_metadata_nodes(self, character_page, entity_data):
+        """Add nodes for race, class, and other metadata as separate entities."""
+        character_name = entity_data.get('name', character_page.replace('_', ' '))
+        
+        # Add Race node and connection
+        if 'Race' in entity_data:
+            race = entity_data['Race']
+            race_id = f"race_{race.replace(' ', '_')}"
+            
+            if race_id not in self.graph:
+                self.graph.add_node(
+                    race_id,
+                    label=race,
+                    title=f"<b>Race: {race}</b>",
+                    color='#16A085',  # Teal
+                    size=15,
+                    shape='box'
+                )
+            
+            self.graph.add_edge(
+                character_page,
+                race_id,
+                title='Race',
+                color='#16A085',
+                width=2
+            )
+        
+        # Add Class node(s) and connection
+        if 'Class' in entity_data:
+            classes = entity_data['Class']
+            # Handle multi-class (e.g., "Fighter/Rogue")
+            for class_name in classes.split('/'):
+                class_name = class_name.strip()
+                class_id = f"class_{class_name.replace(' ', '_')}"
+                
+                if class_id not in self.graph:
+                    self.graph.add_node(
+                        class_id,
+                        label=class_name,
+                        title=f"<b>Class: {class_name}</b>",
+                        color='#8E44AD',  # Purple
+                        size=15,
+                        shape='box'
+                    )
+                
+                self.graph.add_edge(
+                    character_page,
+                    class_id,
+                    title='Class',
+                    color='#8E44AD',
+                    width=2
+                )
+        
+        # Add Actor node and connection (for main characters)
+        if 'Actor' in entity_data:
+            actor = entity_data['Actor']
+            actor_id = f"actor_{actor.replace(' ', '_')}"
+            
+            if actor_id not in self.graph:
+                self.graph.add_node(
+                    actor_id,
+                    label=actor,
+                    title=f"<b>Player: {actor}</b>",
+                    color='#E67E22',  # Orange
+                    size=20,
+                    shape='dot'
+                )
+            
+            self.graph.add_edge(
+                actor_id,
+                character_page,
+                title='Plays',
+                color='#E67E22',
+                width=2
+            )
     def add_entity(self, page_title, entity_data, entity_type):
         """Add an entity to the graph."""
         display_name = entity_data.get('name', page_title.replace('_', ' '))
@@ -254,6 +377,10 @@ class CampaignFourGraphBuilder:
             color=color_map.get(entity_type, '#95A5A6'),
             size=size_map.get(entity_type, 15)
         )
+        
+        # Add metadata nodes for main characters
+        if entity_type in ['Main Character', 'Player Character']:
+            self.add_metadata_nodes(page_title, entity_data)
     
     def add_relationship(self, source_page, target_page, rel_type='associated_with'):
         """Add an edge between entities."""
@@ -286,10 +413,16 @@ class CampaignFourGraphBuilder:
         # Add to graph
         self.add_entity(page_title, infobox_data, entity_type)
         
-        # Extract relationships from biography
-        relationships = self.extract_biography_relationships(soup, page_title)
+        # Extract relationships from dedicated Relationships section (better quality)
+        relationships = self.extract_relationships_section(soup)
         
-        return relationships
+        # Also get relationships from biography (for additional context)
+        bio_relationships = self.extract_biography_relationships(soup, page_title)
+        
+        # Combine both, preferring the dedicated relationships section
+        all_relationships = relationships + bio_relationships
+        
+        return all_relationships
     
     def build_graph(self):
         """Build the complete Campaign 4 graph."""
@@ -383,18 +516,29 @@ class CampaignFourGraphBuilder:
         print("Campaign Four Summary:")
         print(f"{'=' * 50}")
         
+        # Main characters with their details
+        print(f"\nMain Characters ({len([n for n, d in self.entities.items() if d['type'] == 'Main Character'])}):")
+        for char in self.main_characters:
+            if char in self.entities:
+                data = self.entities[char]['data']
+                name = self.entities[char]['name']
+                race = data.get('Race', 'Unknown')
+                char_class = data.get('Class', 'Unknown')
+                actor = data.get('Actor', 'Unknown')
+                print(f"  • {name:<25} ({race:<15} {char_class:<20}) - {actor}")
+        
         # Organizations found
         orgs = [name for name, data in self.entities.items() if data['type'] == 'Organization']
         if orgs:
             print(f"\nOrganizations ({len(orgs)}):")
-            for org in orgs[:10]:
+            for org in orgs[:15]:
                 print(f"  • {self.entities[org]['name']}")
         
         # Key NPCs
         npcs = [name for name, data in self.entities.items() if data['type'] == 'NPC']
         if npcs:
             print(f"\nNPCs ({len(npcs)}):")
-            for npc in npcs[:10]:
+            for npc in npcs[:15]:
                 print(f"  • {self.entities[npc]['name']}")
         
         # Relationship types
@@ -404,7 +548,7 @@ class CampaignFourGraphBuilder:
         
         if rel_types:
             print(f"\nRelationship Types:")
-            for rel_type, count in sorted(rel_types.items(), key=lambda x: x[1], reverse=True):
+            for rel_type, count in sorted(rel_types.items(), key=lambda x: x[1], reverse=True)[:10]:
                 print(f"  • {rel_type.replace('_', ' ').title()}: {count}")
 
 
