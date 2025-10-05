@@ -67,6 +67,27 @@ class CampaignFourGraphBuilder:
         if not infobox:
             return data
         
+        # Extract image from infobox - try multiple locations
+        # Method 1: Look for image in pi-image section
+        image_container = infobox.find('figure', class_='pi-item pi-image')
+        if image_container:
+            image_elem = image_container.find('img')
+            if image_elem:
+                # Get the src or data-src attribute
+                img_url = image_elem.get('src') or image_elem.get('data-src')
+                if img_url:
+                    data['image_url'] = img_url
+                    print(f"    Found image: {img_url[:80]}...")
+        
+        # Method 2: Any img tag in infobox
+        if 'image_url' not in data:
+            image_elem = infobox.find('img')
+            if image_elem:
+                img_url = image_elem.get('src') or image_elem.get('data-src')
+                if img_url:
+                    data['image_url'] = img_url
+                    print(f"    Found image (fallback): {img_url[:80]}...")
+        
         # Extract title
         title_elem = infobox.find('h2', class_='pi-title')
         if title_elem:
@@ -370,13 +391,40 @@ class CampaignFourGraphBuilder:
         if 'Class' in entity_data:
             title_parts.append(f"Class: {entity_data['Class']}")
         
-        self.graph.add_node(
-            page_title,
-            label=display_name,
-            title='<br>'.join(title_parts),
-            color=color_map.get(entity_type, '#95A5A6'),
-            size=size_map.get(entity_type, 15)
-        )
+        # Add image to hover tooltip if available
+        image_url = entity_data.get('image_url')
+        if image_url:
+            # Ensure we have full URL
+            if image_url.startswith('//'):
+                image_url = 'https:' + image_url
+            title_parts.append(f'<img src="{image_url}" width="200" />')
+        
+        # Node configuration
+        node_config = {
+            'label': display_name,
+            'title': '<br>'.join(title_parts),
+            'color': color_map.get(entity_type, '#95A5A6'),
+            'size': size_map.get(entity_type, 15)
+        }
+        
+        # For main characters with images, use circular image nodes
+        if entity_type in ['Main Character', 'Player Character'] and image_url:
+            if image_url.startswith('//'):
+                image_url = 'https:' + image_url
+            
+            # Debug: print the image URL we're using
+            print(f"    Setting image for {display_name}: {image_url[:80]}...")
+            
+            node_config['shape'] = 'circularImage'
+            node_config['image'] = image_url
+            node_config['size'] = 40  # Larger for better visibility
+            node_config['borderWidth'] = 3
+            node_config['borderWidthSelected'] = 5
+        else:
+            if entity_type in ['Main Character', 'Player Character']:
+                print(f"    ⚠ No image found for {display_name}")
+        
+        self.graph.add_node(page_title, **node_config)
         
         # Add metadata nodes for main characters
         if entity_type in ['Main Character', 'Player Character']:
