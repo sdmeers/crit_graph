@@ -201,7 +201,60 @@ class CampaignFourGraphBuilder:
         
         return relationships
     
-    def infer_relationship_type(self, context_text, link_text):
+    def extract_organization_affiliations(self, soup, current_page):
+        """Extract organization affiliations from the page."""
+        affiliations = []
+        
+        # Organizations to look for (known from the wiki)
+        org_keywords = [
+            'House', 'Creed', 'Guard', 'Council', 'Order', 'Sisters',
+            'Revolutionary', 'Sundered', 'Candescent', 'Sylandri'
+        ]
+        
+        content = soup.find('div', class_='mw-parser-output')
+        if not content:
+            return affiliations
+        
+        # Look in the first few paragraphs (Description/Appearance/Biography)
+        paragraphs = content.find_all('p', limit=10)
+        
+        for para in paragraphs:
+            text = para.get_text().lower()
+            
+            # Check if this paragraph mentions organizations
+            if any(keyword.lower() in text for keyword in org_keywords):
+                # Extract all links from this paragraph
+                for link in para.find_all('a', href=True):
+                    href = link['href']
+                    if (href.startswith('/wiki/') and 
+                        ':' not in href and 
+                        '?' not in href):
+                        
+                        linked_page = href.replace('/wiki/', '')
+                        link_text = link.get_text()
+                        
+                        # Check if it's likely an organization
+                        if any(keyword.lower() in link_text.lower() for keyword in org_keywords):
+                            # Determine relationship type from context
+                            rel_type = 'member_of'
+                            if 'aspirant' in text:
+                                rel_type = 'aspirant_of'
+                            elif 'founded' in text or 'created' in text:
+                                rel_type = 'founded'
+                            elif 'serves' in text or 'marshal' in text:
+                                rel_type = 'serves_in'
+                            elif 'member' in text:
+                                rel_type = 'member_of'
+                            
+                            affiliations.append({
+                                'target': linked_page,
+                                'type': rel_type,
+                                'context': text[:150]
+                            })
+        
+        return affiliations
+
+    def infer_relationship_type(self, context_text, target_name):
         """Infer relationship type from context."""
         context_lower = context_text.lower()
         
@@ -433,13 +486,36 @@ class CampaignFourGraphBuilder:
     def add_relationship(self, source_page, target_page, rel_type='associated_with'):
         """Add an edge between entities."""
         if target_page in self.entities:
-            # Add edge with relationship type
             edge_label = rel_type.replace('_', ' ').title()
+
+            # Visual distinction for edges
+            color = '#95A5A6'  # Default gray
+            width = 1
+            
+            # Organization affiliations
+            if rel_type in ['member_of', 'aspirant_of', 'serves_in', 'founded']:
+                color = '#F39C12'  # Orange
+                width = 3
+            # Allies/served with
+            elif rel_type in ['allied_with', 'served_with']:
+                color = '#2ECC71'  # Green
+                width = 2
+            # Family
+            elif rel_type == 'family':
+                color = '#E74C3C'  # Red
+                width = 2
+            # Enemies
+            elif rel_type == 'opposed_to':
+                color = '#C0392B'  # Dark Red
+                width = 2
+
             self.graph.add_edge(
                 source_page, 
                 target_page, 
                 title=edge_label,
-                label=edge_label if rel_type != 'associated_with' else ''
+                label=edge_label if rel_type != 'associated_with' else '',
+                color=color,
+                width=width
             )
             self.relationships.append({
                 'source': source_page,
@@ -461,14 +537,17 @@ class CampaignFourGraphBuilder:
         # Add to graph
         self.add_entity(page_title, infobox_data, entity_type)
         
+        # Priority 1: Organization affiliations
+        org_affiliations = self.extract_organization_affiliations(soup, page_title)
+
         # Extract relationships from dedicated Relationships section (better quality)
         relationships = self.extract_relationships_section(soup)
         
         # Also get relationships from biography (for additional context)
         bio_relationships = self.extract_biography_relationships(soup, page_title)
         
-        # Combine both, preferring the dedicated relationships section
-        all_relationships = relationships + bio_relationships
+        # Combine all, with organization affiliations first
+        all_relationships = org_affiliations + relationships + bio_relationships
         
         return all_relationships
     
