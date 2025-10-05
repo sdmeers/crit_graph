@@ -1,6 +1,6 @@
 """
-Critical Role Wiki Graph Builder
-A starter project for building an interactive knowledge graph from Critical Role wiki pages.
+Critical Role Campaign 4 Wiki Graph Builder
+Extracts characters, organizations, NPCs, and their relationships from Campaign 4 wiki pages.
 
 Required installations:
 pip install requests beautifulsoup4 networkx pyvis
@@ -16,26 +16,47 @@ from pyvis.network import Network
 import re
 from collections import defaultdict
 import json
+import time
 
-class CriticalRoleGraphBuilder:
+class CampaignFourGraphBuilder:
     def __init__(self):
         self.base_url = "https://criticalrole.fandom.com"
-        self.graph = nx.Graph()
+        self.graph = nx.DiGraph()  # Directed graph for better relationship tracking
         self.entities = {}
+        self.relationships = []
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
-
+        
+        # Campaign 4 main cast characters (from the Cast table)
+        self.main_characters = [
+            'Thimble',               # Laura Bailey
+            'Azune_Nayar',           # Luis Carazo
+            'Kattigan_Vale',         # Robbie Daymond
+            'Thaisha_Lloy',          # Aabria Iyengar
+            'Bolaire_Lathalia',      # Taliesin Jaffe
+            'Vaelus',                # Ashley Johnson
+            'Julien_Davinos',        # Matthew Mercer
+            'Tyranny',               # Whitney Moore
+            'Halandil_Fang',         # Liam O\'Brien
+            'Murray_Mag\'Nesson',    # Marisha Ray
+            'Wicander_Halovar',      # Sam Riegel
+            'Occtis_Tachonis',       # Alexander Ward
+            'Teor_Pridesire'         # Travis Willingham
+        ]
+    
     def fetch_page(self, page_title):
-        """Fetch a wiki page and return BeautifulSoup object."""
+        """Fetch a wiki page with rate limiting."""
+        time.sleep(0.5)  # Be respectful to the server
         url = f"{self.base_url}/wiki/{page_title}"
         try:
+            print(f"  Fetching: {page_title}")
             response = self.session.get(url, timeout=10)
             response.raise_for_status()
             return BeautifulSoup(response.content, 'html.parser')
         except Exception as e:
-            print(f"Error fetching {page_title}: {e}")
+            print(f"  ⚠ Error fetching {page_title}: {e}")
             return None
     
     def extract_infobox_data(self, soup):
@@ -58,30 +79,118 @@ class CriticalRoleGraphBuilder:
             
             if label_elem and value_elem:
                 label = label_elem.get_text(strip=True)
+                # Get text but also preserve links
                 value = value_elem.get_text(strip=True)
                 data[label] = value
+                
+                # Also extract linked entities (for Actor, Class, Race, etc.)
+                links = [a.get('href') for a in value_elem.find_all('a', href=True)]
+                if links:
+                    data[f'{label}_links'] = links
         
         return data
     
-    def extract_links(self, soup, current_page):
-        """Extract links to other wiki pages (potential relationships)."""
-        links = set()
+    def extract_biography_relationships(self, soup, current_page):
+        """Extract relationships from Biography/Background sections."""
+        relationships = []
         
-        # Focus on main content area
+        # Find Biography or Background section
         content = soup.find('div', class_='mw-parser-output')
         if not content:
-            return links
+            return relationships
         
-        # Get all internal wiki links
-        for link in content.find_all('a', href=True):
-            href = link['href']
-            if href.startswith('/wiki/') and ':' not in href:
-                page_name = href.replace('/wiki/', '')
-                # Filter out common pages
-                if page_name not in ['Critical_Role', 'Campaign_Four'] and page_name != current_page:
-                    links.add(page_name)
+        # Get all text from the Biography/Background section
+        biography_section = None
+        for header in content.find_all(['h2', 'h3']):
+            header_text = header.get_text(strip=True).lower()
+            if 'biography' in header_text or 'background' in header_text:
+                # Get content until next header
+                biography_section = []
+                for sibling in header.find_next_siblings():
+                    if sibling.name in ['h2', 'h3']:
+                        break
+                    biography_section.append(sibling)
+                break
         
-        return links
+        if biography_section:
+            # Extract links from biography (these are potential relationships)
+            for elem in biography_section:
+                for link in elem.find_all('a', href=True):
+                    href = link['href']
+                    if href.startswith('/wiki/') and ':' not in href:
+                        linked_page = href.replace('/wiki/', '')
+                        # Get surrounding text for context
+                        text = elem.get_text()
+                        
+                        # Look for relationship keywords
+                        rel_type = self.infer_relationship_type(text, link.get_text())
+                        relationships.append({
+                            'target': linked_page,
+                            'type': rel_type,
+                            'source_text': text[:200]  # Keep some context
+                        })
+        
+        return relationships
+    
+    def infer_relationship_type(self, context_text, link_text):
+        """Infer relationship type from context."""
+        context_lower = context_text.lower()
+        
+        # Check for specific relationship patterns
+        if any(word in context_lower for word in ['served with', 'fought alongside', 'comrade']):
+            return 'served_with'
+        elif any(word in context_lower for word in ['member of', 'part of', 'joined']):
+            return 'member_of'
+        elif any(word in context_lower for word in ['friend', 'ally', 'companion']):
+            return 'allied_with'
+        elif any(word in context_lower for word in ['family', 'brother', 'sister', 'parent', 'child']):
+            return 'family'
+        elif any(word in context_lower for word in ['enemy', 'opponent', 'against']):
+            return 'opposed_to'
+        elif any(word in context_lower for word in ['works for', 'employed by']):
+            return 'employed_by'
+        else:
+            return 'associated_with'
+    
+    def determine_entity_type(self, page_title, data, categories):
+        """Determine what type of entity this is."""
+        # Check if it's a main character
+        if page_title in self.main_characters:
+            return 'Main Character'
+        
+        # Check categories
+        cat_text = ' '.join(categories).lower()
+        
+        if 'player character' in cat_text or 'pc' in cat_text:
+            return 'Player Character'
+        elif 'non-player character' in cat_text or 'npc' in cat_text:
+            return 'NPC'
+        elif 'location' in cat_text or 'city' in cat_text or 'region' in cat_text:
+            return 'Location'
+        elif 'organization' in cat_text or 'faction' in cat_text or 'house' in cat_text or 'group' in cat_text:
+            return 'Organization'
+        elif 'cast' in cat_text or 'crew' in cat_text:
+            return 'Cast Member'
+        elif 'episode' in cat_text:
+            return 'Episode'
+        elif 'event' in cat_text:
+            return 'Event'
+        
+        # Check infobox data
+        if 'Actor' in data or 'Portrayed by' in data:
+            return 'Character'
+        elif 'Type' in data:
+            type_val = data['Type'].lower()
+            if 'city' in type_val or 'town' in type_val or 'region' in type_val:
+                return 'Location'
+            elif 'organization' in type_val or 'faction' in type_val:
+                return 'Organization'
+        
+        # Look at the page title
+        if any(word in page_title.lower() for word in ['house', 'council', 'guard', 'creed', 'rebellion']):
+            return 'Organization'
+        
+        return 'Unknown'
     
     def extract_categories(self, soup):
         """Extract categories/tags from the page."""
@@ -95,179 +204,224 @@ class CriticalRoleGraphBuilder:
         
         return categories
     
-    def determine_entity_type(self, data, categories):
-        """Determine what type of entity this is."""
-        # Check categories first
-        cat_text = ' '.join(categories).lower()
-        
-        if 'player character' in cat_text or 'pc' in cat_text:
-            return 'Player Character'
-        elif 'non-player character' in cat_text or 'npc' in cat_text:
-            return 'NPC'
-        elif 'location' in cat_text or 'city' in cat_text or 'region' in cat_text:
-            return 'Location'
-        elif 'organization' in cat_text or 'group' in cat_text:
-            return 'Organization'
-        elif 'cast' in cat_text or 'crew' in cat_text:
-            return 'Cast Member'
-        elif 'episode' in cat_text:
-            return 'Episode'
-        
-        # Check infobox data
-        if 'Actor' in data or 'Portrayed by' in data:
-            return 'Character'
-        elif 'Type' in data:
-            type_val = data['Type'].lower()
-            if 'city' in type_val or 'town' in type_val:
-                return 'Location'
-            elif 'organization' in type_val:
-                return 'Organization'
-        
-        return 'Unknown'
-    
     def add_entity(self, page_title, entity_data, entity_type):
         """Add an entity to the graph."""
+        display_name = entity_data.get('name', page_title.replace('_', ' '))
+        
         self.entities[page_title] = {
-            'name': entity_data.get('name', page_title.replace('_', ' ')),
+            'name': display_name,
             'type': entity_type,
             'data': entity_data
         }
         
-        # Determine node color based on type
+        # Determine node properties based on type
         color_map = {
-            'Player Character': '#FF6B6B',
-            'NPC': '#4ECDC4',
-            'Location': '#45B7D1',
-            'Organization': '#FFA07A',
-            'Cast Member': '#98D8C8',
-            'Episode': '#F7DC6F',
-            'Character': '#BB8FCE',
-            'Unknown': '#95A5A6'
+            'Main Character': '#E74C3C',      # Red
+            'Player Character': '#E74C3C',     # Red
+            'NPC': '#3498DB',                  # Blue
+            'Location': '#2ECC71',             # Green
+            'Organization': '#F39C12',         # Orange
+            'Cast Member': '#9B59B6',          # Purple
+            'Event': '#E67E22',                # Dark Orange
+            'Character': '#1ABC9C',            # Turquoise
+            'Unknown': '#95A5A6'               # Gray
         }
+        
+        size_map = {
+            'Main Character': 30,
+            'Player Character': 25,
+            'NPC': 20,
+            'Organization': 25,
+            'Location': 20,
+            'Event': 20,
+            'Character': 15,
+            'Unknown': 15
+        }
+        
+        # Build hover title with key info
+        title_parts = [f"<b>{display_name}</b>", f"Type: {entity_type}"]
+        if 'Actor' in entity_data:
+            title_parts.append(f"Played by: {entity_data['Actor']}")
+        if 'Race' in entity_data:
+            title_parts.append(f"Race: {entity_data['Race']}")
+        if 'Class' in entity_data:
+            title_parts.append(f"Class: {entity_data['Class']}")
         
         self.graph.add_node(
             page_title,
-            label=entity_data.get('name', page_title.replace('_', ' ')),
-            title=f"{entity_type}: {entity_data.get('name', page_title)}",
+            label=display_name,
+            title='<br>'.join(title_parts),
             color=color_map.get(entity_type, '#95A5A6'),
-            size=25 if entity_type == 'Player Character' else 15
+            size=size_map.get(entity_type, 15)
         )
     
-    def add_relationships(self, source_page, related_pages):
-        """Add edges between entities."""
-        for target_page in related_pages:
-            if target_page in self.entities:
-                self.graph.add_edge(source_page, target_page, weight=1)
+    def add_relationship(self, source_page, target_page, rel_type='associated_with'):
+        """Add an edge between entities."""
+        if target_page in self.entities:
+            # Add edge with relationship type
+            edge_label = rel_type.replace('_', ' ').title()
+            self.graph.add_edge(
+                source_page, 
+                target_page, 
+                title=edge_label,
+                label=edge_label if rel_type != 'associated_with' else ''
+            )
+            self.relationships.append({
+                'source': source_page,
+                'target': target_page,
+                'type': rel_type
+            })
     
     def process_page(self, page_title):
         """Process a single wiki page."""
-        print(f"Processing: {page_title}")
-        
         soup = self.fetch_page(page_title)
         if not soup:
-            return
+            return []
         
         # Extract data
         infobox_data = self.extract_infobox_data(soup)
         categories = self.extract_categories(soup)
-        entity_type = self.determine_entity_type(infobox_data, categories)
+        entity_type = self.determine_entity_type(page_title, infobox_data, categories)
         
         # Add to graph
         self.add_entity(page_title, infobox_data, entity_type)
         
-        # Extract relationships
-        links = self.extract_links(soup, page_title)
+        # Extract relationships from biography
+        relationships = self.extract_biography_relationships(soup, page_title)
         
-        return links
+        return relationships
     
-    def build_graph(self, starting_pages, max_depth=2):
-        """Build the graph starting from a list of pages."""
-        to_process = set(starting_pages)
-        processed = set()
-        depth = 0
+    def build_graph(self):
+        """Build the complete Campaign 4 graph."""
+        print("Building Campaign Four Knowledge Graph")
+        print("=" * 50)
         
-        while to_process and depth < max_depth:
-            print(f"\n--- Depth {depth} ({len(to_process)} pages) ---")
-            current_batch = list(to_process)
-            to_process = set()
-            
-            for page in current_batch:
-                if page in processed:
-                    continue
-                
-                links = self.process_page(page)
-                processed.add(page)
-                
-                if links and depth < max_depth - 1:
-                    # Add some linked pages for next depth (limit to prevent explosion)
-                    to_process.update(list(links)[:5])
-            
-            depth += 1
+        # Phase 1: Process all main characters
+        print("\n[Phase 1] Processing main characters...")
+        all_relationships = {}
+        discovered_entities = set()
         
-        # Add all relationships after all entities are collected
-        print("\n--- Adding relationships ---")
-        for page in processed:
-            soup = self.fetch_page(page)
-            if soup:
-                links = self.extract_links(soup, page)
-                self.add_relationships(page, links)
+        for character in self.main_characters:
+            print(f"\n→ {character}")
+            relationships = self.process_page(character)
+            all_relationships[character] = relationships
+            
+            # Collect entities mentioned in relationships
+            for rel in relationships:
+                discovered_entities.add(rel['target'])
+        
+        # Phase 2: Process discovered entities (organizations, NPCs, etc.)
+        print(f"\n[Phase 2] Processing {len(discovered_entities)} discovered entities...")
+        new_entities = discovered_entities - set(self.main_characters)
+        
+        for entity in list(new_entities)[:20]:  # Limit to prevent explosion
+            if entity not in self.entities:
+                print(f"\n→ {entity}")
+                relationships = self.process_page(entity)
+                all_relationships[entity] = relationships
+        
+        # Phase 3: Add all relationships
+        print("\n[Phase 3] Adding relationships to graph...")
+        for source, relationships in all_relationships.items():
+            for rel in relationships:
+                self.add_relationship(source, rel['target'], rel['type'])
+        
+        print("\n✓ Graph building complete!")
     
-    def visualize(self, output_file='cr_graph.html'):
+    def visualize(self, output_file='campaign4_graph.html'):
         """Create an interactive visualization."""
-        net = Network(height='800px', width='100%', bgcolor='#222222', font_color='white')
+        net = Network(
+            height='900px', 
+            width='100%', 
+            bgcolor='#1a1a1a', 
+            font_color='white',
+            directed=True
+        )
         
         # Configure physics for better layout
-        net.barnes_hut(gravity=-8000, central_gravity=0.3, spring_length=200)
+        net.barnes_hut(
+            gravity=-15000,
+            central_gravity=0.5,
+            spring_length=150,
+            spring_strength=0.01,
+            damping=0.09
+        )
         
         # Add graph data
         net.from_nx(self.graph)
         
-        # Add legend
+        # Enable physics controls
         net.show_buttons(filter_=['physics'])
         
         # Save
         net.save_graph(output_file)
+        
+        # Print statistics
+        print(f"\n{'=' * 50}")
+        print("Graph Statistics:")
+        print(f"  Total Nodes: {self.graph.number_of_nodes()}")
+        print(f"  Total Edges: {self.graph.number_of_edges()}")
+        print(f"  Main Characters: {sum(1 for n, d in self.graph.nodes(data=True) if d.get('size', 0) >= 25)}")
+        print(f"  Organizations: {len([n for n, d in self.entities.items() if d['type'] == 'Organization'])}")
+        print(f"  NPCs: {len([n for n, d in self.entities.items() if d['type'] == 'NPC'])}")
         print(f"\n✓ Graph saved to {output_file}")
-        print(f"  Nodes: {self.graph.number_of_nodes()}")
-        print(f"  Edges: {self.graph.number_of_edges()}")
+        print(f"  Open this file in your browser to explore!")
     
-    def save_data(self, output_file='cr_data.json'):
-        """Save entity data for later use."""
+    def save_data(self, output_file='campaign4_data.json'):
+        """Save entity and relationship data."""
+        data = {
+            'entities': self.entities,
+            'relationships': self.relationships
+        }
         with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(self.entities, f, indent=2)
-        print(f"✓ Entity data saved to {output_file}")
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        print(f"✓ Data saved to {output_file}")
+    
+    def print_summary(self):
+        """Print a summary of key findings."""
+        print(f"\n{'=' * 50}")
+        print("Campaign Four Summary:")
+        print(f"{'=' * 50}")
+        
+        # Organizations found
+        orgs = [name for name, data in self.entities.items() if data['type'] == 'Organization']
+        if orgs:
+            print(f"\nOrganizations ({len(orgs)}):")
+            for org in orgs[:10]:
+                print(f"  • {self.entities[org]['name']}")
+        
+        # Key NPCs
+        npcs = [name for name, data in self.entities.items() if data['type'] == 'NPC']
+        if npcs:
+            print(f"\nNPCs ({len(npcs)}):")
+            for npc in npcs[:10]:
+                print(f"  • {self.entities[npc]['name']}")
+        
+        # Relationship types
+        rel_types = {}
+        for rel in self.relationships:
+            rel_types[rel['type']] = rel_types.get(rel['type'], 0) + 1
+        
+        if rel_types:
+            print(f"\nRelationship Types:")
+            for rel_type, count in sorted(rel_types.items(), key=lambda x: x[1], reverse=True):
+                print(f"  • {rel_type.replace('_', ' ').title()}: {count}")
 
 
 def main():
-    # Initialize builder
-    builder = CriticalRoleGraphBuilder()
+    builder = CampaignFourGraphBuilder()
     
-    # Starting pages - main Campaign 4 characters
-    # You can find these on the Campaign Four wiki page
-    starting_pages = [
-        'Ashton_Greymoore',
-        'Fearne_Calloway',
-        'Fresh_Cut_Grass',
-        'Imogen_Temult',
-        'Laudna',
-        'Orym',
-        'Chetney_Pock_O\'Pea',
-        'Campaign_Four'  # Include the campaign page itself
-    ]
-    
-    print("Critical Role Campaign 4 Knowledge Graph Builder")
-    print("=" * 50)
-    
-    # Build the graph
-    builder.build_graph(starting_pages, max_depth=2)
+    # Build the complete graph
+    builder.build_graph()
     
     # Create visualization
-    builder.visualize('cr_campaign4_graph.html')
+    builder.visualize('campaign4_graph.html')
     
     # Save data
-    builder.save_data('cr_campaign4_data.json')
+    builder.save_data('campaign4_data.json')
     
-    print("\n✓ Done! Open cr_campaign4_graph.html in your browser to view the graph.")
+    # Print summary
+    builder.print_summary()
 
 
 if __name__ == "__main__":
