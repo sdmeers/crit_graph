@@ -524,12 +524,16 @@ class CampaignFourGraphBuilder:
                 image_url = 'https:' + image_url
             title_parts.append(f'<img src="{image_url}" width="200" />')
         
+        # Add click instruction
+        title_parts.append("<br><i>Click to open wiki page</i>")
+        
         # Node configuration
         node_config = {
             'label': display_name,
             'title': '<br>'.join(title_parts),
             'color': color_map.get(entity_type, '#95A5A6'),
-            'size': size_map.get(entity_type, 15)
+            'size': size_map.get(entity_type, 15),
+            'url': f"{self.base_url}/wiki/{page_title}"  # Add wiki URL
         }
         
         # For main characters with images, use circular image nodes
@@ -773,8 +777,75 @@ class CampaignFourGraphBuilder:
         # Enable physics controls
         net.show_buttons(filter_=['physics'])
         
-        # Save
+        # Save the initial graph
         net.save_graph(output_file)
+        
+        # Now modify the HTML to add click handler
+        try:
+            with open(output_file, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            
+            # Try multiple possible insertion points
+            inserted = False
+            
+            # Try finding the script section that creates the network
+            patterns = [
+                ('var network = new vis.Network(container, data, options);', 
+                 'var network = new vis.Network(container, data, options);\n        network.on("click", function(params) {\n            if (params.nodes.length > 0) {\n                var nodeId = params.nodes[0];\n                var clickedNode = nodes.get(nodeId);\n                if (clickedNode && clickedNode.url) {\n                    window.open(clickedNode.url, "_blank");\n                }\n            }\n        });'),
+                
+                ('</script>\n</body>', 
+                 '<script type="text/javascript">\n        network.on("click", function(params) {\n            if (params.nodes.length > 0) {\n                var nodeId = params.nodes[0];\n                var clickedNode = nodes.get(nodeId);\n                if (clickedNode && clickedNode.url) {\n                    window.open(clickedNode.url, "_blank");\n                }\n            }\n        });\n        </script>\n</body>'),
+            ]
+            
+            for pattern, replacement in patterns:
+                if pattern in html_content:
+                    if pattern.startswith('var network'):
+                        html_content = html_content.replace(pattern, replacement)
+                    else:
+                        html_content = html_content.replace(pattern, replacement)
+                    inserted = True
+                    print("  ✓ Added click-to-open-wiki functionality")
+                    break
+            
+            if not inserted:
+                print("  ⚠ Could not find insertion point for click handler")
+                print("  Trying fallback method...")
+                # Fallback: just add before closing body tag
+                click_handler = '''
+<script type="text/javascript">
+// Wait for network to be defined
+setTimeout(function() {
+    if (typeof network !== 'undefined') {
+        network.on("click", function(params) {
+            if (params.nodes.length > 0) {
+                var nodeId = params.nodes[0];
+                var clickedNode = nodes.get(nodeId);
+                console.log("Clicked node:", nodeId, clickedNode);
+                if (clickedNode && clickedNode.url) {
+                    console.log("Opening URL:", clickedNode.url);
+                    window.open(clickedNode.url, "_blank");
+                } else {
+                    console.log("No URL found for node");
+                }
+            }
+        });
+        console.log("Click handler registered successfully");
+    } else {
+        console.log("Network not found!");
+    }
+}, 1000);
+</script>
+'''
+                html_content = html_content.replace('</body>', click_handler + '</body>')
+                print("  ✓ Added click handler with fallback method")
+            
+            with open(output_file, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+                    
+        except Exception as e:
+            print(f"  ⚠ Error adding click handler: {e}")
+            import traceback
+            traceback.print_exc()
         
         # Print statistics
         print(f"\n{'=' * 50}")
@@ -786,6 +857,8 @@ class CampaignFourGraphBuilder:
         print(f"  NPCs: {len([n for n, d in self.entities.items() if d['type'] == 'NPC'])}")
         print(f"\n✓ Graph saved to {output_file}")
         print(f"  Open this file in your browser to explore!")
+        print(f"  💡 Tip: Click on any node to open its wiki page in a new tab")
+        print(f"  💡 Check browser console (F12) for debugging info if clicks don't work")
     
     def save_data(self, output_file='campaign4_data.json'):
         """Save entity and relationship data."""
