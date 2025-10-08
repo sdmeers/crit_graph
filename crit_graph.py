@@ -133,7 +133,6 @@ class CampaignFourGraphBuilder:
                 img_url = image_elem.get('src') or image_elem.get('data-src')
                 if img_url:
                     data['image_url'] = img_url
-                    print(f"    Found image: {img_url[:80]}...")
         
         # Method 2: Any img tag in infobox
         if 'image_url' not in data:
@@ -142,7 +141,6 @@ class CampaignFourGraphBuilder:
                 img_url = image_elem.get('src') or image_elem.get('data-src')
                 if img_url:
                     data['image_url'] = img_url
-                    print(f"    Found image (fallback): {img_url[:80]}...")
         
         # Extract title
         title_elem = infobox.find('h2', class_='pi-title')
@@ -477,12 +475,6 @@ class CampaignFourGraphBuilder:
     
     def add_entity(self, page_title, entity_data, entity_type):
         """Add an entity to the graph."""
-        # DEBUG: Check if page_title has a fragment
-        if '#' in page_title:
-            print(f"    ⚠ WARNING: Adding entity with fragment in ID: {page_title}")
-            import traceback
-            traceback.print_stack(limit=5)
-        
         display_name = entity_data.get('name', page_title.replace('_', ' '))
         
         self.entities[page_title] = {
@@ -545,17 +537,11 @@ class CampaignFourGraphBuilder:
             if image_url.startswith('//'):
                 image_url = 'https:' + image_url
             
-            # Debug: print the image URL we're using
-            print(f"    Setting image for {display_name}: {image_url[:80]}...")
-            
             node_config['shape'] = 'circularImage'
             node_config['image'] = image_url
             node_config['size'] = 40  # Larger for better visibility
             node_config['borderWidth'] = 3
             node_config['borderWidthSelected'] = 5
-        else:
-            if entity_type in ['Main Character', 'Player Character']:
-                print(f"    ⚠ No image found for {display_name}")
         
         self.graph.add_node(page_title, **node_config)
         
@@ -743,13 +729,7 @@ class CampaignFourGraphBuilder:
         
         # Fetch each unresolved target just to get its canonical name (don't process fully)
         for target in unresolved_targets:
-            # Double check no fragments made it through
-            if '#' in target:
-                print(f"  ⚠ Fragment found in unresolved target: {target}")
-                target = target.split('#')[0]
-            
             if self.get_canonical_name(target) not in self.entities:
-                print(f"  Resolving: {target}")
                 soup, canonical = self.fetch_page(target)
                 # We don't need to process it, just needed to populate alias_map
         
@@ -770,18 +750,6 @@ class CampaignFourGraphBuilder:
     
     def visualize(self, output_file='campaign4_graph.html'):
         """Create an interactive visualization."""
-        
-        # DEBUG: Check for duplicate node IDs
-        node_names = {}
-        for node_id in self.graph.nodes():
-            display_name = self.graph.nodes[node_id].get('label', node_id)
-            if display_name in node_names:
-                print(f"⚠ WARNING: Duplicate display name '{display_name}':")
-                print(f"    Node 1: {node_names[display_name]}")
-                print(f"    Node 2: {node_id}")
-            else:
-                node_names[display_name] = node_id
-        
         net = Network(
             height='900px', 
             width='100%', 
