@@ -48,20 +48,66 @@ class CampaignFourGraphBuilder:
             'Teor_Pridesire'         # Travis Willingham
         ]
     
+    def normalize_page_title(self, page_title):
+        """Normalize a page title to a standard format."""
+        # Remove any URL fragments or query parameters first
+        if '#' in page_title:
+            page_title = page_title.split('#')[0]
+        if '?' in page_title:
+            page_title = page_title.split('?')[0]
+        
+        # Decode URL encoding
+        normalized = urllib.parse.unquote(page_title)
+        # Replace spaces with underscores
+        normalized = normalized.replace(' ', '_')
+        # Remove /wiki/ prefix if present
+        normalized = normalized.replace('/wiki/', '')
+        # Remove trailing slashes
+        normalized = normalized.rstrip('/')
+        
+        return normalized
+    
+    def get_canonical_name(self, page_title):
+        """Get the canonical name for a page, using alias map if available."""
+        normalized = self.normalize_page_title(page_title)
+        # Check if we've already fetched this and know its canonical name
+        if normalized in self.alias_map:
+            return self.alias_map[normalized]
+        return normalized
+    
     def fetch_page(self, page_title):
         """Fetch a wiki page with rate limiting and handle redirects."""
         time.sleep(0.5)  # Be respectful to the server
+        
+        # Normalize the input
+        page_title = self.normalize_page_title(page_title)
+        
         url = f"{self.base_url}/wiki/{page_title}"
         try:
             print(f"  Fetching: {page_title}")
             response = self.session.get(url, timeout=10)
             response.raise_for_status()
             
+            # Get the final URL after any redirects
             final_url = response.url
-            canonical_name = urllib.parse.unquote(final_url.split('/wiki/')[-1]).replace(' ', '_')
+            
+            # Extract the page name from the URL
+            url_path = final_url.split('/wiki/')[-1]
+            
+            # CRITICAL: Remove fragment from the URL before processing
+            if '#' in url_path:
+                url_path = url_path.split('#')[0]
+            
+            canonical_name = urllib.parse.unquote(url_path)
+            canonical_name = canonical_name.replace(' ', '_')
             
             if page_title != canonical_name:
                 print(f"    Redirected to: {canonical_name}")
+                # Store the alias mapping
+                self.alias_map[page_title] = canonical_name
+            else:
+                # Even if no redirect, store identity mapping
+                self.alias_map[page_title] = canonical_name
             
             soup = BeautifulSoup(response.content, 'html.parser')
             return soup, canonical_name
@@ -144,10 +190,15 @@ class CampaignFourGraphBuilder:
                             # Filter out edit links and special pages
                             if (href.startswith('/wiki/') and 
                                 ':' not in href and 
-                                '?' not in href and 
                                 'action=edit' not in href):
                                 
-                                target_page = urllib.parse.unquote(href).replace('/wiki/', '').replace(' ', '_')
+                                # Remove fragment BEFORE normalizing
+                                if '#' in href:
+                                    href = href.split('#')[0]
+                                if '?' in href:
+                                    href = href.split('?')[0]
+                                
+                                target_page = self.normalize_page_title(href)
                                 # Get the description
                                 desc_elem = current.find_next_sibling('p')
                                 if desc_elem:
@@ -193,11 +244,16 @@ class CampaignFourGraphBuilder:
                     # Filter out non-wiki links and special pages
                     if (href.startswith('/wiki/') and 
                         ':' not in href and 
-                        '?' not in href and 
                         'action=edit' not in href and
                         not href.startswith('http')):
                         
-                        linked_page = urllib.parse.unquote(href).replace('/wiki/', '').replace(' ', '_')
+                        # Remove fragment BEFORE normalizing
+                        if '#' in href:
+                            href = href.split('#')[0]
+                        if '?' in href:
+                            href = href.split('?')[0]
+                        
+                        linked_page = self.normalize_page_title(href)
                         # Get surrounding text for context
                         text = elem.get_text()
                         
@@ -237,10 +293,15 @@ class CampaignFourGraphBuilder:
                 for link in para.find_all('a', href=True):
                     href = link['href']
                     if (href.startswith('/wiki/') and 
-                        ':' not in href and 
-                        '?' not in href):
+                        ':' not in href):
                         
-                        linked_page = urllib.parse.unquote(href).replace('/wiki/', '').replace(' ', '_')
+                        # Remove fragment BEFORE normalizing
+                        if '#' in href:
+                            href = href.split('#')[0]
+                        if '?' in href:
+                            href = href.split('?')[0]
+                        
+                        linked_page = self.normalize_page_title(href)
                         link_text = link.get_text()
                         
                         # Check if it's likely an organization
@@ -271,15 +332,17 @@ class CampaignFourGraphBuilder:
         # Check for specific relationship patterns
         if any(word in context_lower for word in ['served with', 'fought alongside', 'comrade']):
             return 'served_with'
-        elif any(word in context_lower for word in ['member of', 'part of', 'joined']):
+        elif any(word in context_lower for word in ['member of', 'part of', 'joined', 'belongs to']):
             return 'member_of'
+        elif any(word in context_lower for word in ['aspirant', 'novice', 'initiate']):
+            return 'aspirant_of'
         elif any(word in context_lower for word in ['friend', 'ally', 'companion']):
             return 'allied_with'
         elif any(word in context_lower for word in ['family', 'brother', 'sister', 'parent', 'child']):
             return 'family'
         elif any(word in context_lower for word in ['enemy', 'opponent', 'against']):
             return 'opposed_to'
-        elif any(word in context_lower for word in ['works for', 'employed by']):
+        elif any(word in context_lower for word in ['works for', 'employed by', 'serves']):
             return 'employed_by'
         else:
             return 'associated_with'
@@ -411,8 +474,15 @@ class CampaignFourGraphBuilder:
                 color='#E67E22',
                 width=2
             )
+    
     def add_entity(self, page_title, entity_data, entity_type):
         """Add an entity to the graph."""
+        # DEBUG: Check if page_title has a fragment
+        if '#' in page_title:
+            print(f"    ⚠ WARNING: Adding entity with fragment in ID: {page_title}")
+            import traceback
+            traceback.print_stack(limit=5)
+        
         display_name = entity_data.get('name', page_title.replace('_', ' '))
         
         self.entities[page_title] = {
@@ -494,39 +564,74 @@ class CampaignFourGraphBuilder:
             self.add_metadata_nodes(page_title, entity_data)
     
     def add_relationship(self, source_page, target_page, rel_type='associated_with'):
-        """Add an edge between entities."""
-        if target_page in self.entities:
-            edge_label = rel_type.replace('_', ' ').title()
-
-            # Visual distinction for edges
-            color = '#95A5A6'  # Default gray
-            width = 1
+        """Add an edge between entities, avoiding duplicates."""
+        if target_page not in self.entities:
+            return
             
-            # Organization affiliations
-            if rel_type in ['member_of', 'aspirant_of', 'serves_in', 'founded']:
-                color = '#F39C12'  # Orange
-                width = 3
-            # Allies/served with
-            elif rel_type in ['allied_with', 'served_with']:
-                color = '#2ECC71'  # Green
-                width = 2
-            # Family
-            elif rel_type == 'family':
-                color = '#E74C3C'  # Red
-                width = 2
-            # Enemies
-            elif rel_type == 'opposed_to':
-                color = '#C0392B'  # Dark Red
-                width = 2
-
-            self.graph.add_edge(
-                source_page, 
-                target_page, 
-                title=edge_label,
-                label=edge_label if rel_type != 'associated_with' else '',
-                color=color,
-                width=width
-            )
+        # Check if this exact relationship already exists
+        if self.graph.has_edge(source_page, target_page):
+            # Edge already exists - check if we should update it
+            existing_edge = self.graph[source_page][target_page]
+            existing_type = existing_edge.get('title', '').lower().replace(' ', '_')
+            
+            # Prioritize more specific relationship types
+            priority = {
+                'member_of': 3,
+                'aspirant_of': 3,
+                'serves_in': 3,
+                'founded': 3,
+                'family': 2,
+                'allied_with': 2,
+                'served_with': 2,
+                'opposed_to': 2,
+                'employed_by': 1,
+                'associated_with': 0
+            }
+            
+            if priority.get(rel_type, 0) > priority.get(existing_type, 0):
+                # New relationship is more specific, update it
+                pass
+            else:
+                # Keep existing relationship
+                return
+        
+        # Determine edge styling based on relationship type
+        edge_color = '#999999'  # Default gray
+        edge_width = 1
+        
+        if rel_type in ['member_of', 'aspirant_of', 'serves_in']:
+            edge_color = '#F39C12'  # Orange for organizations
+            edge_width = 3
+        elif rel_type == 'family':
+            edge_color = '#E74C3C'  # Red for family
+            edge_width = 2
+        elif rel_type in ['allied_with', 'served_with']:
+            edge_color = '#2ECC71'  # Green for allies
+            edge_width = 2
+        elif rel_type == 'opposed_to':
+            edge_color = '#C0392B'  # Dark red for enemies
+            edge_width = 2
+        
+        # Add edge with relationship type
+        edge_label = rel_type.replace('_', ' ').title()
+        self.graph.add_edge(
+            source_page, 
+            target_page, 
+            title=edge_label,
+            label=edge_label if rel_type != 'associated_with' else '',
+            color=edge_color,
+            width=edge_width
+        )
+        
+        # Only add to relationships list if not already there
+        rel_exists = any(
+            r['source'] == source_page and 
+            r['target'] == target_page and 
+            r['type'] == rel_type 
+            for r in self.relationships
+        )
+        
+        if not rel_exists:
             self.relationships.append({
                 'source': source_page,
                 'target': target_page,
@@ -535,17 +640,24 @@ class CampaignFourGraphBuilder:
     
     def process_page(self, page_title):
         """Process a single wiki page, handling redirects."""
+        # Normalize input
+        page_title = self.normalize_page_title(page_title)
+        
+        # Check if we already know the canonical name (from a previous fetch)
+        if page_title in self.alias_map:
+            canonical_name = self.alias_map[page_title]
+            if canonical_name in self.entities:
+                print(f"    Already processed (via alias): {canonical_name}")
+                return []
+        
         soup, canonical_name = self.fetch_page(page_title)
         
-        # Store alias mapping
-        if canonical_name:
-            self.alias_map[page_title] = canonical_name
-        else: # Fetch failed
+        if not canonical_name:  # Fetch failed
             return []
 
         # If the canonical entity is already in the graph, we're done with this page.
         if canonical_name in self.entities:
-            print(f"    Skipping already processed entity: {canonical_name}")
+            print(f"    Already processed: {canonical_name}")
             return []
 
         # Add entity using canonical name
@@ -554,7 +666,7 @@ class CampaignFourGraphBuilder:
         entity_type = self.determine_entity_type(canonical_name, infobox_data, categories)
         self.add_entity(canonical_name, infobox_data, entity_type)
 
-        # Extract relationships (these still contain un-resolved aliases)
+        # Extract relationships (targets are now normalized)
         org_affiliations = self.extract_organization_affiliations(soup, canonical_name)
         relationships = self.extract_relationships_section(soup)
         bio_relationships = self.extract_biography_relationships(soup, canonical_name)
@@ -571,54 +683,105 @@ class CampaignFourGraphBuilder:
         print("\n[Phase 1] Processing entities and collecting relationships...")
         all_relationships = {}
         queue = list(self.main_characters)
-        processed_aliases = set()
+        processed = set()  # Track what we've already processed (canonical names)
         
-        limit = 50 # Set a hard limit to avoid crawling the whole wiki
+        limit = 50  # Set a hard limit to avoid crawling the whole wiki
         count = 0
 
         while queue and count < limit:
-            page_title_alias = queue.pop(0)
-            if page_title_alias in processed_aliases:
+            page_title = queue.pop(0)
+            
+            # Normalize the page title
+            normalized = self.normalize_page_title(page_title)
+            
+            # Check if we've already processed this canonical entity
+            canonical = self.get_canonical_name(normalized)
+            if canonical in processed:
                 continue
             
             count += 1
-            print(f"\n→ Processing {page_title_alias} ({count}/{limit})")
-            processed_aliases.add(page_title_alias)
+            print(f"\n→ Processing {normalized} ({count}/{limit})")
 
-            relationships = self.process_page(page_title_alias)
-            all_relationships[page_title_alias] = relationships
+            relationships = self.process_page(normalized)
             
-            # Get the canonical name for the page we just processed
-            canonical_source = self.alias_map.get(page_title_alias)
-
-            for rel in relationships:
-                target_alias = rel['target']
-                # Check if we've already processed the alias or its canonical name
-                canonical_target = self.alias_map.get(target_alias)
-                if (target_alias not in processed_aliases and 
-                    target_alias not in queue and 
-                    (not canonical_target or canonical_target not in self.entities)):
-                    queue.append(target_alias)
-
-        # Phase 2: Add all relationships using canonical names
-        print("\n[Phase 2] Adding relationships to graph...")
-        for source_alias, relationships in all_relationships.items():
-            canonical_source = self.alias_map.get(source_alias)
-            if not canonical_source:
-                print(f"  ⚠ Could not find canonical name for source: {source_alias}. Skipping.")
-                continue
-
-            for rel in relationships:
-                target_alias = rel['target']
-                canonical_target = self.alias_map.get(target_alias)
+            # Mark the canonical name as processed
+            canonical = self.get_canonical_name(normalized)
+            if canonical:
+                processed.add(canonical)
+                all_relationships[canonical] = relationships
                 
-                if canonical_target:
-                    self.add_relationship(canonical_source, canonical_target, rel['type'])
+                # Add related entities to queue
+                for rel in relationships:
+                    target = self.normalize_page_title(rel['target'])
+                    # Extra safety: strip fragments again
+                    if '#' in target:
+                        target = target.split('#')[0]
+                    
+                    target_canonical = self.get_canonical_name(target)
+                    
+                    # Only add to queue if not already processed and not in queue
+                    if target_canonical not in processed and target not in queue:
+                        queue.append(target)
+
+        # Phase 2: Resolve all relationship targets by fetching them
+        print("\n[Phase 2] Resolving canonical names for all relationships...")
+        unresolved_targets = set()
+        
+        # Collect all unique targets that we haven't processed yet
+        for source_canonical, relationships in all_relationships.items():
+            for rel in relationships:
+                target = self.normalize_page_title(rel['target'])
+                target_canonical = self.get_canonical_name(target)
+                
+                # If the target wasn't processed (not in entities), we need to resolve it
+                if target_canonical not in self.entities:
+                    # Make sure we strip fragments before adding to unresolved
+                    clean_target = target.split('#')[0] if '#' in target else target
+                    unresolved_targets.add(clean_target)
+        
+        print(f"  Found {len(unresolved_targets)} unresolved targets")
+        
+        # Fetch each unresolved target just to get its canonical name (don't process fully)
+        for target in unresolved_targets:
+            # Double check no fragments made it through
+            if '#' in target:
+                print(f"  ⚠ Fragment found in unresolved target: {target}")
+                target = target.split('#')[0]
+            
+            if self.get_canonical_name(target) not in self.entities:
+                print(f"  Resolving: {target}")
+                soup, canonical = self.fetch_page(target)
+                # We don't need to process it, just needed to populate alias_map
+        
+        # Phase 3: Add all relationships using fully resolved canonical names
+        print("\n[Phase 3] Adding relationships to graph...")
+        for source_canonical, relationships in all_relationships.items():
+            for rel in relationships:
+                target = self.normalize_page_title(rel['target'])
+                
+                # Now get the canonical name (should be in alias_map from Phase 2)
+                target_canonical = self.get_canonical_name(target)
+                
+                # Only add relationship if both entities exist in the graph
+                if source_canonical in self.entities and target_canonical in self.entities:
+                    self.add_relationship(source_canonical, target_canonical, rel['type'])
         
         print("\n✓ Graph building complete!")
     
     def visualize(self, output_file='campaign4_graph.html'):
         """Create an interactive visualization."""
+        
+        # DEBUG: Check for duplicate node IDs
+        node_names = {}
+        for node_id in self.graph.nodes():
+            display_name = self.graph.nodes[node_id].get('label', node_id)
+            if display_name in node_names:
+                print(f"⚠ WARNING: Duplicate display name '{display_name}':")
+                print(f"    Node 1: {node_names[display_name]}")
+                print(f"    Node 2: {node_id}")
+            else:
+                node_names[display_name] = node_id
+        
         net = Network(
             height='900px', 
             width='100%', 
@@ -675,9 +838,10 @@ class CampaignFourGraphBuilder:
         # Main characters with their details
         print(f"\nMain Characters ({len([n for n, d in self.entities.items() if d['type'] == 'Main Character'])}):")
         for char in self.main_characters:
-            if char in self.entities:
-                data = self.entities[char]['data']
-                name = self.entities[char]['name']
+            canonical = self.get_canonical_name(char)
+            if canonical in self.entities:
+                data = self.entities[canonical]['data']
+                name = self.entities[canonical]['name']
                 race = data.get('Race', 'Unknown')
                 char_class = data.get('Class', 'Unknown')
                 actor = data.get('Actor', 'Unknown')
