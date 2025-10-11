@@ -952,7 +952,7 @@ def main():
     builder.build_graph()
     
     # Create visualization
-    builder.visualize('campaign4_graph.html')
+    builder.visualize('docs/index.html')
     
     # Save data
     builder.save_data('campaign4_data.json')
