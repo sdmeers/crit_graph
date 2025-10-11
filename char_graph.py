@@ -48,6 +48,17 @@ class CampaignFourGraphBuilder:
             'Teor_Pridesire'         # Travis Willingham
         ]
     
+    def clean_display_text(self, text):
+        """Remove wiki reference brackets [1], [2], etc. from display text."""
+        import re
+        # Remove reference markers like [1], [2], [citation needed], [presumed], etc.
+        cleaned = re.sub(r'\[\d+\]', '', text)  # Remove numbered references
+        cleaned = re.sub(r'\[citation needed\]', '', cleaned)  # Remove citation needed
+        cleaned = re.sub(r'\[presumed.*?\]', '', cleaned, flags=re.IGNORECASE)  # Remove [presumed...]
+        # Clean up any extra whitespace
+        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+        return cleaned
+    
     def normalize_page_title(self, page_title):
         """Normalize a page title to a standard format."""
         # Remove any URL fragments or query parameters first
@@ -403,8 +414,8 @@ class CampaignFourGraphBuilder:
         
         # Add Race node and connection
         if 'Race' in entity_data:
-            race = entity_data['Race']
-            race_id = f"race_{race.replace(' ', '_')}"
+            race = self.clean_display_text(entity_data['Race'])
+            race_id = f"race_{race.replace(' ', '_').replace('(', '').replace(')', '')}"
             
             if race_id not in self.graph:
                 self.graph.add_node(
@@ -426,11 +437,11 @@ class CampaignFourGraphBuilder:
         
         # Add Class node(s) and connection
         if 'Class' in entity_data:
-            classes = entity_data['Class']
+            classes = self.clean_display_text(entity_data['Class'])
             # Handle multi-class (e.g., "Fighter/Rogue")
             for class_name in classes.split('/'):
                 class_name = class_name.strip()
-                class_id = f"class_{class_name.replace(' ', '_')}"
+                class_id = f"class_{class_name.replace(' ', '_').replace('(', '').replace(')', '')}"
                 
                 if class_id not in self.graph:
                     self.graph.add_node(
@@ -476,6 +487,8 @@ class CampaignFourGraphBuilder:
     def add_entity(self, page_title, entity_data, entity_type):
         """Add an entity to the graph."""
         display_name = entity_data.get('name', page_title.replace('_', ' '))
+        # Clean up reference brackets from display name
+        display_name = self.clean_display_text(display_name)
         
         self.entities[page_title] = {
             'name': display_name,
@@ -507,14 +520,16 @@ class CampaignFourGraphBuilder:
             'Unknown': 15
         }
         
-        # Build hover title with key info
+        # Build hover title with key info (also clean these)
         title_parts = [f"<b>{display_name}</b>", f"Type: {entity_type}"]
         if 'Actor' in entity_data:
             title_parts.append(f"Played by: {entity_data['Actor']}")
         if 'Race' in entity_data:
-            title_parts.append(f"Race: {entity_data['Race']}")
+            cleaned_race = self.clean_display_text(entity_data['Race'])
+            title_parts.append(f"Race: {cleaned_race}")
         if 'Class' in entity_data:
-            title_parts.append(f"Class: {entity_data['Class']}")
+            cleaned_class = self.clean_display_text(entity_data['Class'])
+            title_parts.append(f"Class: {cleaned_class}")
         
         # Add image to hover tooltip if available
         image_url = entity_data.get('image_url')
