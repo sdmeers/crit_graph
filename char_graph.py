@@ -785,6 +785,8 @@ class CampaignFourGraphBuilder:
             with open(output_file, 'r', encoding='utf-8') as f:
                 html_content = f.read()
             
+            print(f"  Original HTML length: {len(html_content)} characters")
+            
             # Add CSS for removing white margin
             css_additions = '''
 <style>
@@ -799,63 +801,111 @@ body {
 }
 </style>
 '''
-            html_content = html_content.replace('</head>', css_additions + '</head>')
+            if '</head>' in html_content:
+                html_content = html_content.replace('</head>', css_additions + '</head>')
+                print("  ✓ CSS added")
+            else:
+                print("  ⚠ Could not find </head> tag")
             
-            # Add JavaScript for click handling and cursor changes
+            # Add JavaScript - try to find where to insert it
             js_additions = '''
 <script type="text/javascript">
-// Wait for network to be fully loaded
-setTimeout(function() {
-    if (typeof network !== 'undefined' && typeof nodes !== 'undefined') {
-        var container = document.getElementById('mynetwork');
+console.log("Custom script loaded!");
+
+// Wait for page to fully load
+window.addEventListener('load', function() {
+    console.log("Page loaded, waiting for network...");
+    
+    setTimeout(function() {
+        console.log("Checking for network object...");
+        console.log("network exists:", typeof network !== 'undefined');
+        console.log("nodes exists:", typeof nodes !== 'undefined');
         
-        // Handle node clicks to open wiki pages
-        network.on("click", function(params) {
-            if (params.nodes.length > 0) {
-                var nodeId = params.nodes[0];
-                var clickedNode = nodes.get(nodeId);
-                if (clickedNode && clickedNode.url) {
-                    window.open(clickedNode.url, "_blank");
+        if (typeof network !== 'undefined' && typeof nodes !== 'undefined') {
+            var canvas = document.querySelector('#mynetwork canvas');
+            var container = document.getElementById('mynetwork');
+            console.log("Canvas found:", canvas);
+            console.log("Container found:", container);
+            
+            // Handle node clicks to open wiki pages
+            network.on("click", function(params) {
+                console.log("Click detected, nodes:", params.nodes);
+                if (params.nodes.length > 0) {
+                    var nodeId = params.nodes[0];
+                    var clickedNode = nodes.get(nodeId);
+                    if (clickedNode && clickedNode.url) {
+                        console.log("Opening URL:", clickedNode.url);
+                        window.open(clickedNode.url, "_blank");
+                    }
                 }
+            });
+            
+            // Simpler cursor approach - track pointer position and check nodes
+            var currentlyOverNode = false;
+            
+            network.on("hoverNode", function(params) {
+                console.log("Hover node triggered:", params.node);
+                if (canvas) {
+                    canvas.style.cursor = 'pointer';
+                    currentlyOverNode = true;
+                }
+            });
+            
+            network.on("blurNode", function(params) {
+                console.log("Blur node triggered");
+                if (canvas) {
+                    canvas.style.cursor = 'default';
+                    currentlyOverNode = false;
+                }
+            });
+            
+            // Additional fallback using pointer position
+            if (canvas) {
+                var checkCursor = function(event) {
+                    // Get pointer position relative to canvas
+                    var pointer = {
+                        x: event.offsetX || (event.pageX - canvas.offsetLeft),
+                        y: event.offsetY || (event.pageY - canvas.offsetTop)
+                    };
+                    
+                    // Use vis network's built-in method
+                    var nodeId = network.getNodeAt(pointer);
+                    
+                    if (nodeId) {
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        canvas.style.cursor = 'default';
+                    }
+                };
+                
+                canvas.addEventListener('mousemove', checkCursor);
+                console.log("Direct mousemove handler attached");
+            } else {
+                console.log("Canvas not found!");
             }
-        });
-        
-        // Change cursor to pointer when hovering over nodes
-        network.on("hoverNode", function(params) {
-            container.style.cursor = 'pointer';
-        });
-        
-        // Reset cursor when mouse leaves a node
-        network.on("blurNode", function(params) {
-            container.style.cursor = 'default';
-        });
-        
-        // Ensure cursor is default when dragging canvas
-        network.on("dragStart", function(params) {
-            if (params.nodes.length === 0) {
-                container.style.cursor = 'move';
-            }
-        });
-        
-        network.on("dragEnd", function(params) {
-            container.style.cursor = 'default';
-        });
-        
-        // Reset cursor on general hover (when not over node)
-        network.on("hoverEdge", function(params) {
-            container.style.cursor = 'default';
-        });
-    }
-}, 500);
+        } else {
+            console.log("Network or nodes not available!");
+        }
+    }, 2000);
+});
 </script>
 '''
-            html_content = html_content.replace('</body>', js_additions + '</body>')
+            
+            if '</body>' in html_content:
+                html_content = html_content.replace('</body>', js_additions + '\n</body>')
+                print("  ✓ JavaScript added")
+            else:
+                print("  ⚠ Could not find </body> tag")
             
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(html_content)
+            
+            print(f"  Modified HTML length: {len(html_content)} characters")
                     
         except Exception as e:
             print(f"  ⚠ Error modifying HTML: {e}")
+            import traceback
+            traceback.print_exc()
         
         # Print statistics
         print(f"\n{'=' * 50}")
