@@ -143,6 +143,9 @@ class CampaignFourGraphBuilder:
                 # Get the src or data-src attribute
                 img_url = image_elem.get('src') or image_elem.get('data-src')
                 if img_url:
+                    # If it's a Fandom/Wikia thumbnail, try to get the original image URL
+                    if '/revision/latest' in img_url:
+                        img_url = img_url.split('/revision/latest')[0]
                     data['image_url'] = img_url
         
         # Method 2: Any img tag in infobox
