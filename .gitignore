@@ -19,5 +19,5 @@ cr_campaign4_data.json
 *.html
 *.json
 
-screenshots/
+#screenshots/
 transcripts/
