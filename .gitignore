@@ -14,8 +14,8 @@ ENV/
 .python-version
 
 # Project outputs
-cr_campaign4_graph.html
-cr_campaign4_data.json
+#cr_campaign4_graph.html
+#cr_campaign4_data.json
 *.html
 *.json
 
