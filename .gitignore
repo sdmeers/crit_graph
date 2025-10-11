@@ -16,8 +16,8 @@ ENV/
 # Project outputs
 #cr_campaign4_graph.html
 #cr_campaign4_data.json
-*.html
-*.json
+#.html
+#*.json
 
 #screenshots/
 transcripts/

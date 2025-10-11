@@ -1,0 +1,1634 @@
+{
+  "entities": {
+    "Thimble": {
+      "name": "Thimble",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/b/b6/Thimble_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915203449",
+        "name": "Thimble",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Laura Bailey",
+        "Actor_links": [
+          "/wiki/Laura_Bailey"
+        ],
+        "Pronouns": "she/her[1]",
+        "Pronouns_links": [
+          "#cite_note-vibe-2"
+        ],
+        "Creature type": "Fey",
+        "Creature type_links": [
+          "/wiki/Fey"
+        ],
+        "Race": "Fairy(Pixie)[2]",
+        "Race_links": [
+          "/wiki/Fairy",
+          "/wiki/Pixie",
+          "#cite_note-3"
+        ],
+        "Class": "Rogue[3]",
+        "Class_links": [
+          "#cite_note-4"
+        ],
+        "Age": "Appears about 18[4]",
+        "Age_links": [
+          "#cite_note-5"
+        ],
+        "Places": "Tír Cruthú(originally)Aramán",
+        "Places_links": [
+          "/wiki/T%C3%ADr_Cruth%C3%BA",
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Connections": "Thjazi Fang(partner)[5]House Royce[6]Crow Keepers[7]",
+        "Connections_links": [
+          "/wiki/Thjazi_Fang",
+          "#cite_note-6",
+          "/wiki/House_Royce",
+          "#cite_note-7",
+          "#cite_note-8"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[8]",
+        "Reference(s)_links": [
+          "#cite_note-StatsCard-9"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Azune_Nayar": {
+      "name": "Azune Nayar",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/f/f0/Azune_Nayar_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915203126",
+        "name": "Azune Nayar",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Luis Carazo",
+        "Actor_links": [
+          "/wiki/Luis_Carazo"
+        ],
+        "Pronouns": "he/him[1]",
+        "Pronouns_links": [
+          "#cite_note-2"
+        ],
+        "Titles": "Lieutenant[2]",
+        "Titles_links": [
+          "#cite_note-3"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Human[3][4]",
+        "Race_links": [
+          "/wiki/Human",
+          "#cite_note-4",
+          "#cite_note-5"
+        ],
+        "Class": "PaladinSorcerer",
+        "Age": "27 or 28[5]",
+        "Age_links": [
+          "#cite_note-6"
+        ],
+        "Languages": "Common",
+        "Languages_links": [
+          "/wiki/Common"
+        ],
+        "Place": "Dol-Makjar",
+        "Place_links": [
+          "/wiki/Dol-Makjar"
+        ],
+        "Family": "Unnamed mother[6]Unnamed father[7]",
+        "Family_links": [
+          "#cite_note-7",
+          "#cite_note-8"
+        ],
+        "Connections": "Revolutionary Guard[8]Horace and Groto (Enquirers, workmates)[9]Thjazi Fang(friend)[10]",
+        "Connections_links": [
+          "/wiki/Revolutionary_Council#Revolutionary_Guard",
+          "#cite_note-9",
+          "#cite_note-10",
+          "/wiki/Thjazi_Fang",
+          "#cite_note-11"
+        ],
+        "Profession": "Arcane Marshal[11]",
+        "Profession_links": [
+          "#cite_note-12"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[12]",
+        "Reference(s)_links": [
+          "#cite_note-13"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Kattigan_Vale": {
+      "name": "Kattigan Vale",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/0/0c/Kattigan_Vale_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915202758",
+        "name": "Kattigan Vale",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Robbie Daymond",
+        "Actor_links": [
+          "/wiki/Robbie_Daymond"
+        ],
+        "Pronouns": "he/him[1]",
+        "Pronouns_links": [
+          "#cite_note-2"
+        ],
+        "Also known as": "Kat[2]",
+        "Also known as_links": [
+          "#cite_note-3"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Human[3]",
+        "Race_links": [
+          "/wiki/Human",
+          "#cite_note-4"
+        ],
+        "Class": "Ranger[4](Beast Master[presumed])",
+        "Class_links": [
+          "#cite_note-5"
+        ],
+        "Age": "Mid-40s[5]",
+        "Age_links": [
+          "#cite_note-6"
+        ],
+        "Languages": "Common;Thieves' Cant[6]",
+        "Languages_links": [
+          "/wiki/Common",
+          "/wiki/Thieves%27_Cant",
+          "#cite_note-7"
+        ],
+        "Place": "Aramán",
+        "Place_links": [
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Connections": "TheTorn Banner[7]Teor PridesireWulfric(wolf companion)",
+        "Connections_links": [
+          "/wiki/Torn_Banner",
+          "#cite_note-whatis-8",
+          "/wiki/Teor_Pridesire",
+          "/wiki/Wulfric"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[8]",
+        "Reference(s)_links": [
+          "#cite_note-9"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Thaisha_Lloy": {
+      "name": "Thaisha Lloy",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/b/b3/Thaisha_Lloy_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915201704",
+        "name": "Thaisha Lloy",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Aabria Iyengar",
+        "Actor_links": [
+          "/wiki/Aabria_Iyengar"
+        ],
+        "Pronouns": "she/her[1]",
+        "Pronouns_links": [
+          "#cite_note-2"
+        ],
+        "Also known as": "Thai[2]",
+        "Also known as_links": [
+          "#cite_note-3"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Orc[3]",
+        "Race_links": [
+          "/wiki/Orc",
+          "#cite_note-4"
+        ],
+        "Class": "Druid[4]",
+        "Class_links": [
+          "/wiki/Druid",
+          "#cite_note-5"
+        ],
+        "Age": "At least 45[5]",
+        "Age_links": [
+          "#cite_note-6"
+        ],
+        "Languages": "Common,Orc,[6]Druidic[7]",
+        "Languages_links": [
+          "/wiki/Common",
+          "/wiki/Orc_language",
+          "#cite_note-7",
+          "/wiki/Druidic",
+          "#cite_note-8"
+        ],
+        "Place": "Dol-Makyar,Aramán",
+        "Place_links": [
+          "/wiki/Dol-Makyar",
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Family": "Alogar(son)[8]Shadia(daughter)[9]",
+        "Family_links": [
+          "/wiki/Alogar",
+          "#cite_note-9",
+          "/wiki/Shadia",
+          "#cite_note-10"
+        ],
+        "Connections": "Halandil Fang(father of her children)Thjazi Fang(friend)Hala(Wild Companion)[10]Occtis Tachonis(friend)Circle of Ancients[11]",
+        "Connections_links": [
+          "/wiki/Halandil_Fang",
+          "/wiki/Thjazi_Fang",
+          "/wiki/Hala",
+          "#cite_note-11",
+          "/wiki/Occtis_Tachonis",
+          "#cite_note-12"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[12]",
+        "Reference(s)_links": [
+          "#cite_note-13"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Bolaire_Lathalia": {
+      "name": "Bolaire Lathalia",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/8/86/Bolaire_Lathalia_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915202108",
+        "name": "Bolaire Lathalia",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Taliesin Jaffe",
+        "Actor_links": [
+          "/wiki/Taliesin_Jaffe"
+        ],
+        "Pronouns": "he/him[1]",
+        "Pronouns_links": [
+          "#cite_note-2"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Elf[2][presumed]",
+        "Race_links": [
+          "/wiki/Elf",
+          "#cite_note-whatis-3"
+        ],
+        "Class": "Warlock[3]",
+        "Class_links": [
+          "#cite_note-4"
+        ],
+        "Languages": "Elvish[presumed]",
+        "Languages_links": [
+          "/wiki/Elvish"
+        ],
+        "Place": "Dol-Makjar[2],Aramán",
+        "Place_links": [
+          "/wiki/Dol-Makjar",
+          "#cite_note-whatis-3",
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Connections": "Thjazi Fang",
+        "Connections_links": [
+          "/wiki/Thjazi_Fang"
+        ],
+        "Profession": "Curator[4]of the Lloy Wing at theArchanademuseum[5]",
+        "Profession_links": [
+          "#cite_note-vibe-5",
+          "/wiki/Archanade",
+          "#cite_note-6"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[6]",
+        "Reference(s)_links": [
+          "#cite_note-7"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Vaelus": {
+      "name": "Vaelus",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/8/85/Vaelus_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915202311",
+        "name": "Vaelus",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Ashley Johnson",
+        "Actor_links": [
+          "/wiki/Ashley_Johnson"
+        ],
+        "Pronouns": "she/her[1]",
+        "Pronouns_links": [
+          "#cite_note-vibe-2"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Elf[2](drow)[presumed]",
+        "Race_links": [
+          "/wiki/Elf",
+          "#cite_note-3",
+          "/wiki/Drow"
+        ],
+        "Class": "Paladin[3]",
+        "Class_links": [
+          "#cite_note-4"
+        ],
+        "Age": "800 years old[4]",
+        "Age_links": [
+          "#cite_note-5"
+        ],
+        "Languages": "Common,Elvish[presumed]",
+        "Languages_links": [
+          "/wiki/Common",
+          "/wiki/Elvish"
+        ],
+        "Places": "AramánThe Mournvale (formerly)[5]",
+        "Places_links": [
+          "/wiki/Aram%C3%A1n",
+          "#cite_note-6"
+        ],
+        "Connections": "Sylandri(goddess)Bolaire LathaliaSisters of Sylandri",
+        "Connections_links": [
+          "/wiki/Sylandri",
+          "/wiki/Bolaire_Lathalia"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[6]",
+        "Reference(s)_links": [
+          "#cite_note-7"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Julien_Davinos": {
+      "name": "Julien Davinos",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/9/90/Julien_Davinos_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915201931",
+        "name": "Julien Davinos",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Matthew Mercer",
+        "Actor_links": [
+          "/wiki/Matthew_Mercer"
+        ],
+        "Pronouns": "he/him[1]",
+        "Pronouns_links": [
+          "#cite_note-2"
+        ],
+        "Titles": "Sir",
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Human",
+        "Race_links": [
+          "/wiki/Human"
+        ],
+        "Class": "FighterRogue",
+        "Age": "\"about to crest into his 30s\"[2]",
+        "Age_links": [
+          "#cite_note-3"
+        ],
+        "Languages": "Common",
+        "Languages_links": [
+          "/wiki/Common"
+        ],
+        "Place": "Dol-Makjar,Kahad",
+        "Place_links": [
+          "/wiki/Dol-Makjar",
+          "/wiki/Kahad"
+        ],
+        "Family": "House DavinosGeneral Raimond Davinos(father)[3]",
+        "Family_links": [
+          "#cite_note-4"
+        ],
+        "Connections": "Sundered House of Royce[4]Aranessa Royce[4]Thjazi Fang(enemy)[5]Alogar(apprentice)[6]",
+        "Connections_links": [
+          "/wiki/Sundered_Houses",
+          "#cite_note-arrive-5",
+          "/wiki/Aranessa_Royce",
+          "#cite_note-arrive-5",
+          "/wiki/Thjazi_Fang",
+          "#cite_note-6",
+          "/wiki/Alogar",
+          "#cite_note-7"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[7]",
+        "Reference(s)_links": [
+          "#cite_note-8"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Tyranny": {
+      "name": "Tyranny",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/c/c0/Tyranny_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915201204",
+        "name": "Tyranny",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Whitney Moore",
+        "Actor_links": [
+          "/wiki/Whitney_Moore"
+        ],
+        "Pronouns": "she/her[1]",
+        "Pronouns_links": [
+          "#cite_note-2"
+        ],
+        "Creature type": "Fiend[2]",
+        "Creature type_links": [
+          "/wiki/Fiend",
+          "#cite_note-3"
+        ],
+        "Race": "Demon[3][4][5]",
+        "Race_links": [
+          "/wiki/Demon",
+          "#cite_note-4",
+          "#cite_note-5",
+          "#cite_note-6"
+        ],
+        "Class": "Warlock[6]",
+        "Class_links": [
+          "#cite_note-7"
+        ],
+        "Languages": "Common,Demonic[7]",
+        "Languages_links": [
+          "/wiki/Common",
+          "/wiki/Demonic",
+          "#cite_note-8"
+        ],
+        "Place": "Aramán",
+        "Place_links": [
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Family": "Enmity[8],Cruelty[9], andAgony[10](sisters)",
+        "Family_links": [
+          "/wiki/Enmity",
+          "#cite_note-9",
+          "/wiki/Cruelty",
+          "#cite_note-10",
+          "#cite_note-11"
+        ],
+        "Connections": "Candescent CreedWicander HalovarThjazi Fang",
+        "Connections_links": [
+          "/wiki/Candescent_Creed",
+          "/wiki/Wicander_Halovar",
+          "/wiki/Thjazi_Fang"
+        ],
+        "Profession": "Aspirant in the Candescent Creed",
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[11]",
+        "Reference(s)_links": [
+          "#cite_note-12"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Halandil_Fang": {
+      "name": "Halandil Fang",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/7/71/Halandil_Fang_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915202940",
+        "name": "Halandil Fang",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Liam O'Brien",
+        "Actor_links": [
+          "/wiki/Liam_O%27Brien"
+        ],
+        "Also known as": "Hal[1][2]",
+        "Also known as_links": [
+          "#cite_note-2",
+          "#cite_note-whatis-3"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Orc[3]",
+        "Race_links": [
+          "/wiki/Orc",
+          "#cite_note-4"
+        ],
+        "Class": "Bard[4]",
+        "Class_links": [
+          "#cite_note-5"
+        ],
+        "Age": "At least 45[5][6]",
+        "Age_links": [
+          "#cite_note-6",
+          "#cite_note-7"
+        ],
+        "Places": "Dol-Makyar,[2]Aramán",
+        "Places_links": [
+          "/wiki/Dol-Makyar",
+          "#cite_note-whatis-3",
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Family": "Thjazi Fang(half-brother)[7]Thaisha Lloy(ex-partner)[8]Alogar(son)[9][10]Shadia(daughter)[11]Elodie(partner)[12][presumed]Hero(daughter)[13]",
+        "Family_links": [
+          "/wiki/Thjazi_Fang",
+          "#cite_note-8",
+          "/wiki/Thaisha_Lloy",
+          "#cite_note-9",
+          "/wiki/Alogar",
+          "#cite_note-10",
+          "#cite_note-11",
+          "/wiki/Shadia",
+          "#cite_note-12",
+          "/wiki/Elodie",
+          "#cite_note-13",
+          "/wiki/Hero",
+          "#cite_note-14"
+        ],
+        "Connections": "Olgud Akarat(business partner)[14]",
+        "Connections_links": [
+          "/wiki/Olgud_Akarat",
+          "#cite_note-15"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[15]",
+        "Reference(s)_links": [
+          "#cite_note-16"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Murray_Mag'Nesson": {
+      "name": "Murray Mag'Nesson",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/0/04/Murray_Mag%27Nesson_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915201424",
+        "name": "Murray Mag'Nesson",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Marisha Ray",
+        "Actor_links": [
+          "/wiki/Marisha_Ray"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Dwarf[1]",
+        "Race_links": [
+          "/wiki/Dwarf",
+          "#cite_note-2"
+        ],
+        "Class": "Wizard[2]",
+        "Class_links": [
+          "#cite_note-3"
+        ],
+        "Place": "Aramán",
+        "Place_links": [
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Connections": "Penteveral[3]",
+        "Connections_links": [
+          "/wiki/Penteveral",
+          "#cite_note-4"
+        ],
+        "Profession": "Bursar of thePenteveral[4]",
+        "Profession_links": [
+          "/wiki/Penteveral",
+          "#cite_note-5"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[5]",
+        "Reference(s)_links": [
+          "#cite_note-6"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Wicander_Halovar": {
+      "name": "Wicander Halovar",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/6/6f/Wicander_Halovar_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915203307",
+        "name": "Wicander Halovar",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Sam Riegel",
+        "Actor_links": [
+          "/wiki/Sam_Riegel"
+        ],
+        "Pronouns": "he/him",
+        "Titles": "Light Priest[1]Bearer of the Filament[2]Your Radiance[3]",
+        "Titles_links": [
+          "#cite_note-2",
+          "#cite_note-3",
+          "#cite_note-4"
+        ],
+        "Also known as": "Wick[4][5]Wicky[6]",
+        "Also known as_links": [
+          "#cite_note-5",
+          "#cite_note-6",
+          "#cite_note-7"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Human[presumed, celestial ancestor could imply aasimar][7]",
+        "Race_links": [
+          "/wiki/Human",
+          "#cite_note-8"
+        ],
+        "Class": "Cleric (officially)[8]Sorcerer (Divine Soul)[presumed, power is revealed to come from his celestial ancestor.][9]",
+        "Class_links": [
+          "#cite_note-9",
+          "#cite_note-10"
+        ],
+        "Age": "Around 29[10][11]",
+        "Age_links": [
+          "#cite_note-11",
+          "#cite_note-12"
+        ],
+        "Place": "Aramán",
+        "Place_links": [
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Family": "PhotarchYanessa Halovar(grandmother)[12]Godard Halovar (father)Filoneus (uncle)MotherA 30-foot-tall feralangel(grandfather)[13]",
+        "Family_links": [
+          "/wiki/Yanessa_Halovar",
+          "#cite_note-13",
+          "/wiki/Angel",
+          "#cite_note-14"
+        ],
+        "Connections": "Candescent CreedTyranny(aspirant)Thjazi Fang",
+        "Connections_links": [
+          "/wiki/Candescent_Creed",
+          "/wiki/Tyranny",
+          "/wiki/Thjazi_Fang"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[14]",
+        "Reference(s)_links": [
+          "#cite_note-15"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Occtis_Tachonis": {
+      "name": "Occtis Tachonis",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/c/c5/Occtis_Tachonis_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915202558",
+        "name": "Occtis Tachonis",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Alexander Ward",
+        "Actor_links": [
+          "/wiki/Alexander_Ward"
+        ],
+        "Pronouns": "he/him",
+        "Creature type": "Humanoid[presumed]",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Human[presumed]",
+        "Race_links": [
+          "/wiki/Human"
+        ],
+        "Class": "Wizard (Necromancer)[1]",
+        "Class_links": [
+          "#cite_note-2"
+        ],
+        "Age": "Young adult[2]",
+        "Age_links": [
+          "#cite_note-3"
+        ],
+        "Languages": "Common",
+        "Languages_links": [
+          "/wiki/Common"
+        ],
+        "Place": "Aramán",
+        "Place_links": [
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Family": "Lord Primus Tachonis[3](father)",
+        "Family_links": [
+          "#cite_note-4"
+        ],
+        "Connections": "Pincushion(fox)[4]Thjazi Fang[5]",
+        "Connections_links": [
+          "/wiki/Pincushion",
+          "#cite_note-5",
+          "/wiki/Thjazi_Fang",
+          "#cite_note-6"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[6]",
+        "Reference(s)_links": [
+          "#cite_note-7"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Teor_Pridesire": {
+      "name": "Teor Pridesire",
+      "type": "Main Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/4/4b/Teor_Pridesire_-_Official.jpg/revision/latest/scale-to-width-down/268?cb=20250915200754",
+        "name": "Teor Pridesire",
+        "Type": "Player Character",
+        "Type_links": [
+          "/wiki/Category:Player_characters"
+        ],
+        "Actor": "Travis Willingham",
+        "Actor_links": [
+          "/wiki/Travis_Willingham"
+        ],
+        "Pronouns": "he/him",
+        "Creature type": "Humanoid[presumed]",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Nama(Lionfolk)[1]",
+        "Race_links": [
+          "/wiki/Nama",
+          "#cite_note-2"
+        ],
+        "Class": "Paladin[2]",
+        "Class_links": [
+          "#cite_note-StatCard-3"
+        ],
+        "Place": "Aramán",
+        "Place_links": [
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Family": "Talcydimir Pridesire(brother)[3]",
+        "Family_links": [
+          "/wiki/Talcydimir_Pridesire",
+          "#cite_note-4"
+        ],
+        "Connections": "Loza Blade[4]Thjazi Fang",
+        "Connections_links": [
+          "/wiki/Loza_Blade",
+          "#cite_note-5",
+          "/wiki/Thjazi_Fang"
+        ],
+        "Profession": "Vanguard Marshal[5]Mercenary soldier[6]",
+        "Profession_links": [
+          "#cite_note-6",
+          "#cite_note-7"
+        ],
+        "Status": "Alive",
+        "Level": "3",
+        "Reference(s)": "[7]",
+        "Reference(s)_links": [
+          "#cite_note-8"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Sundered_Houses": {
+      "name": "Sundered Houses",
+      "type": "Organization",
+      "data": {
+        "name": "Sundered Houses",
+        "Type": "Noble houses",
+        "Notable members": "House CormorayHouse EinfasenHarondus EinfasenHouse RoyceAranessa RoyceHouse TachonisOcctis TachonisHouse HalovarYanessa HalovarWicander Halovar",
+        "Notable members_links": [
+          "/wiki/Aranessa_Royce",
+          "/wiki/Occtis_Tachonis",
+          "/wiki/Yanessa_Halovar",
+          "/wiki/Wicander_Halovar"
+        ],
+        "Allies": "VassalsHouse DavinosHouse EgerionHouse Malterres",
+        "Enemies": "Torn Banner"
+      }
+    },
+    "Sylandri": {
+      "name": "Sylandri, the Green Mother",
+      "type": "Unknown",
+      "data": {
+        "name": "Sylandri, the Green Mother",
+        "Type": "Shaper",
+        "Type_links": [
+          "/wiki/Shaper"
+        ],
+        "Title": "The Green Mother[1]The Shaper of the Elves[1]",
+        "Title_links": [
+          "#cite_note-1st-1",
+          "#cite_note-1st-1"
+        ],
+        "Province": "Life[1]",
+        "Province_links": [
+          "#cite_note-1st-1"
+        ],
+        "Gender": "Feminine",
+        "Pronouns": "She/her/hers",
+        "Home plane": "Material Plane(Aramán)",
+        "Home plane_links": [
+          "/wiki/Material_Plane",
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Worshipers": "Sisters of SylandriVaelus",
+        "Worshipers_links": [
+          "/wiki/Vaelus"
+        ],
+        "Associated domains": "Life[1]",
+        "Associated domains_links": [
+          "#cite_note-1st-1"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01), mentioned only",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ]
+      }
+    },
+    "Thjazi_Fang": {
+      "name": "Thjazi Fang",
+      "type": "Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/d/de/Thjazi_blindfolded_-_Trailer_thumbnail.png/revision/latest/scale-to-width-down/268?cb=20251003012013",
+        "name": "Thjazi Fang",
+        "Type": "Non-Player Character",
+        "Type_links": [
+          "/wiki/Category:Non-player_characters"
+        ],
+        "Actor": "Brennan Lee Mulligan",
+        "Actor_links": [
+          "/wiki/Brennan_Lee_Mulligan"
+        ],
+        "Pronouns": "he/him",
+        "Also known as": "Thaz[1]",
+        "Also known as_links": [
+          "#cite_note-2"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Orc",
+        "Race_links": [
+          "/wiki/Orc"
+        ],
+        "Age": "Around 40[2]",
+        "Age_links": [
+          "#cite_note-3"
+        ],
+        "Languages": "Common,Orc[presumed]",
+        "Languages_links": [
+          "/wiki/Common",
+          "/wiki/Orc_language"
+        ],
+        "Place": "Dol-Makjar,Aramán",
+        "Place_links": [
+          "/wiki/Dol-Makjar",
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Family": "Halandil Fang(half-brother)[3]Aranessa Royce(wife)[4]Alogar(nephew)[5]Shadia(niece)[6]Hero(niece)[7]",
+        "Family_links": [
+          "/wiki/Halandil_Fang",
+          "#cite_note-4",
+          "/wiki/Aranessa_Royce",
+          "#cite_note-5",
+          "/wiki/Alogar",
+          "#cite_note-6",
+          "/wiki/Shadia",
+          "#cite_note-7",
+          "/wiki/Hero",
+          "#cite_note-8"
+        ],
+        "Connections": "Torn BannerThimble(partner)[8]Azune Nayar(friend)Kattigan ValeTeor Pridesire(served together)Loza BladeBolaire LathaliaVaelus(stole from her)Sir Julien Davinos(enemy)[9]Murray Mag'Nesson(friend)[10]Wicander HalovarOcctis Tachonis(mentee)[10]",
+        "Connections_links": [
+          "/wiki/Torn_Banner",
+          "/wiki/Thimble",
+          "#cite_note-9",
+          "/wiki/Azune_Nayar",
+          "/wiki/Kattigan_Vale",
+          "/wiki/Teor_Pridesire",
+          "/wiki/Loza_Blade",
+          "/wiki/Bolaire_Lathalia",
+          "/wiki/Vaelus",
+          "/wiki/Julien_Davinos",
+          "#cite_note-10",
+          "/wiki/Murray_Mag%27Nesson",
+          "#cite_note-recap4x1-11",
+          "/wiki/Wicander_Halovar",
+          "/wiki/Occtis_Tachonis",
+          "#cite_note-recap4x1-11"
+        ],
+        "Status": "Deceased",
+        "Cause of death": "Executed via hanging, by theRevolutionary Council[11]",
+        "Cause of death_links": [
+          "/wiki/Revolutionary_Council",
+          "#cite_note-12"
+        ],
+        "Death episode(s)": "\"The Fall of Thjazi Fang\"(4x01)",
+        "Death episode(s)_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Revolutionary_Council": {
+      "name": "Revolutionary Council",
+      "type": "Organization",
+      "data": {
+        "name": "Revolutionary Council",
+        "Type": "Governing body",
+        "Base": "The Grey Tower,[1]Dol-Makjar",
+        "Base_links": [
+          "#cite_note-1",
+          "/wiki/Dol-Makjar"
+        ],
+        "Allies": "The Chamber of the Lords-Advisory"
+      }
+    },
+    "Wulfric": {
+      "name": "Wulfric",
+      "type": "Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/4/49/Wulfric_-_Official.jpeg/revision/latest/scale-to-width-down/268?cb=20251005113442",
+        "name": "Wulfric",
+        "Type": "Companion(Kattigan)",
+        "Type_links": [
+          "/wiki/Category:Companions",
+          "/wiki/Kattigan_Vale"
+        ],
+        "Actor": "Brennan Lee MulliganRobbie Daymond",
+        "Actor_links": [
+          "/wiki/Brennan_Lee_Mulligan",
+          "/wiki/Robbie_Daymond"
+        ],
+        "Pronouns": "he/him",
+        "Creature type": "Beast",
+        "Creature type_links": [
+          "/wiki/Beast"
+        ],
+        "Race": "Wolf",
+        "Class": "Companion",
+        "Place": "Aramán",
+        "Place_links": [
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Connections": "Kattigan Vale(companion)[1]",
+        "Connections_links": [
+          "/wiki/Kattigan_Vale",
+          "#cite_note-2"
+        ],
+        "Status": "Alive",
+        "Reference(s)": "[2]",
+        "Reference(s)_links": [
+          "#cite_note--DandD:_Player-s_Handbook_(2024)-_122--3"
+        ],
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Candescent_Creed": {
+      "name": "Candescent Creed",
+      "type": "Organization",
+      "data": {
+        "name": "Candescent Creed",
+        "Type": "Religious order",
+        "Base": "Dol-Makjar",
+        "Base_links": [
+          "/wiki/Dol-Makjar"
+        ],
+        "Leaders": "The Photarch[1]",
+        "Leaders_links": [
+          "#cite_note-1"
+        ],
+        "Favored deity": "The Light[2]",
+        "Favored deity_links": [
+          "#cite_note-2"
+        ],
+        "Founders": "House Halovar",
+        "Founders_links": [
+          "/wiki/House_Halovar"
+        ],
+        "Formed": "70 years prior toCampaign Four",
+        "Formed_links": [
+          "/wiki/Campaign_Four"
+        ],
+        "Notable members": "Yanessa HalovarWicander HalovarTyranny",
+        "Notable members_links": [
+          "/wiki/Yanessa_Halovar",
+          "/wiki/Wicander_Halovar",
+          "/wiki/Tyranny"
+        ]
+      }
+    },
+    "Aranessa_Royce": {
+      "name": "Aranessa Royce",
+      "type": "Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/c/ca/Lady_Aranessa_Royce_by_Cryntart.png/revision/latest/scale-to-width-down/268?cb=20251004230240",
+        "name": "Aranessa Royce",
+        "Type": "Non-Player Character",
+        "Type_links": [
+          "/wiki/Category:Non-player_characters"
+        ],
+        "Actor": "Brennan Lee Mulligan",
+        "Actor_links": [
+          "/wiki/Brennan_Lee_Mulligan"
+        ],
+        "Pronouns": "she/her",
+        "Titles": "Lady",
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Race": "Human[presumed]",
+        "Race_links": [
+          "/wiki/Human"
+        ],
+        "Age": "40s",
+        "Place": "Dol-Makjar,Kahad",
+        "Place_links": [
+          "/wiki/Dol-Makjar",
+          "/wiki/Kahad"
+        ],
+        "Family": "House RoyceUnnamed grandfatherFang familyThjazi Fang(husband)Halandil Fang(brother-in-law)",
+        "Family_links": [
+          "/wiki/Sundered_Houses#House_Royce",
+          "/wiki/Thjazi_Fang",
+          "/wiki/Halandil_Fang"
+        ],
+        "Connections": "Sir Julien Davinos(friend and protector)[1]Thaisha Lloy(friend)",
+        "Connections_links": [
+          "/wiki/Julien_Davinos",
+          "#cite_note-2",
+          "/wiki/Thaisha_Lloy"
+        ],
+        "Status": "Alive",
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Stream": "Campaign Four(1 episode)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Yanessa_Halovar": {
+      "name": "Photarch Yanessa Halovar",
+      "type": "Character",
+      "data": {
+        "name": "Photarch Yanessa Halovar",
+        "Type": "NPC",
+        "Type_links": [
+          "/wiki/Category:Non-player_characters"
+        ],
+        "Actor": "Brennan Lee Mulligan",
+        "Actor_links": [
+          "/wiki/Brennan_Lee_Mulligan"
+        ],
+        "Pronouns": "she/her",
+        "Titles": "PhotarchScion of the Candescent Creed[1]",
+        "Titles_links": [
+          "#cite_note-1"
+        ],
+        "Creature type": "Humanoid",
+        "Creature type_links": [
+          "/wiki/Humanoid"
+        ],
+        "Age": "Elderly[2]",
+        "Age_links": [
+          "#cite_note-2"
+        ],
+        "Place": "Dol-Makjar,Aramán",
+        "Place_links": [
+          "/wiki/Dol-Makjar",
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Family": "House HalovarWicander Halovar(grandson)Godard Halovar(son)",
+        "Family_links": [
+          "/wiki/House_Halovar",
+          "/wiki/Wicander_Halovar"
+        ],
+        "Connections": "Candescent Creed",
+        "Connections_links": [
+          "/wiki/Candescent_Creed"
+        ],
+        "Profession": "Religious leader",
+        "Status": "Alive",
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    },
+    "Pincushion": {
+      "name": "Pincushion",
+      "type": "Character",
+      "data": {
+        "image_url": "https://static.wikia.nocookie.net/criticalrole/images/8/82/Pincushion_-_Official_.jpg/revision/latest/scale-to-width-down/268?cb=20251007202952",
+        "name": "Pincushion",
+        "Type": "Companion(Occtis)",
+        "Type_links": [
+          "/wiki/Category:Companions",
+          "/wiki/Occtis_Tachonis"
+        ],
+        "Actor": "Brennan Lee MulliganAlexander Ward",
+        "Actor_links": [
+          "/wiki/Brennan_Lee_Mulligan",
+          "/wiki/Alexander_Ward"
+        ],
+        "Pronouns": "he/him",
+        "Also known as": "Pin",
+        "Creature type": "Undead[1]",
+        "Creature type_links": [
+          "/wiki/Undead",
+          "#cite_note-recap4x1-1"
+        ],
+        "Race": "Fox",
+        "Place": "Aramán",
+        "Place_links": [
+          "/wiki/Aram%C3%A1n"
+        ],
+        "Connections": "Occtis Tachonis",
+        "Connections_links": [
+          "/wiki/Occtis_Tachonis"
+        ],
+        "Profession": "Familiar",
+        "Status": "Alive",
+        "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
+        "First seen_links": [
+          "/wiki/The_Fall_of_Thjazi_Fang"
+        ],
+        "Last seen": "\"Broken Wing\"(4x02)",
+        "Last seen_links": [
+          "/wiki/Broken_Wing"
+        ],
+        "Stream": "Campaign Four(2 episodes)",
+        "Stream_links": [
+          "/wiki/Campaign_Four"
+        ]
+      }
+    }
+  },
+  "relationships": [
+    {
+      "source": "Thimble",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Thimble",
+      "target": "Sylandri",
+      "type": "member_of"
+    },
+    {
+      "source": "Thimble",
+      "target": "Thjazi_Fang",
+      "type": "member_of"
+    },
+    {
+      "source": "Azune_Nayar",
+      "target": "Revolutionary_Council",
+      "type": "serves_in"
+    },
+    {
+      "source": "Kattigan_Vale",
+      "target": "Wulfric",
+      "type": "allied_with"
+    },
+    {
+      "source": "Thaisha_Lloy",
+      "target": "Candescent_Creed",
+      "type": "aspirant_of"
+    },
+    {
+      "source": "Thaisha_Lloy",
+      "target": "Sylandri",
+      "type": "member_of"
+    },
+    {
+      "source": "Thaisha_Lloy",
+      "target": "Occtis_Tachonis",
+      "type": "family"
+    },
+    {
+      "source": "Bolaire_Lathalia",
+      "target": "Murray_Mag'Nesson",
+      "type": "associated_with"
+    },
+    {
+      "source": "Bolaire_Lathalia",
+      "target": "Thjazi_Fang",
+      "type": "associated_with"
+    },
+    {
+      "source": "Vaelus",
+      "target": "Sylandri",
+      "type": "member_of"
+    },
+    {
+      "source": "Vaelus",
+      "target": "Bolaire_Lathalia",
+      "type": "associated_with"
+    },
+    {
+      "source": "Julien_Davinos",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Julien_Davinos",
+      "target": "Aranessa_Royce",
+      "type": "allied_with"
+    },
+    {
+      "source": "Julien_Davinos",
+      "target": "Thjazi_Fang",
+      "type": "associated_with"
+    },
+    {
+      "source": "Tyranny",
+      "target": "Candescent_Creed",
+      "type": "aspirant_of"
+    },
+    {
+      "source": "Tyranny",
+      "target": "Sundered_Houses",
+      "type": "aspirant_of"
+    },
+    {
+      "source": "Tyranny",
+      "target": "Wicander_Halovar",
+      "type": "aspirant_of"
+    },
+    {
+      "source": "Halandil_Fang",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Halandil_Fang",
+      "target": "Thjazi_Fang",
+      "type": "family"
+    },
+    {
+      "source": "Halandil_Fang",
+      "target": "Thaisha_Lloy",
+      "type": "allied_with"
+    },
+    {
+      "source": "Murray_Mag'Nesson",
+      "target": "Bolaire_Lathalia",
+      "type": "associated_with"
+    },
+    {
+      "source": "Murray_Mag'Nesson",
+      "target": "Halandil_Fang",
+      "type": "associated_with"
+    },
+    {
+      "source": "Murray_Mag'Nesson",
+      "target": "Occtis_Tachonis",
+      "type": "associated_with"
+    },
+    {
+      "source": "Murray_Mag'Nesson",
+      "target": "Thjazi_Fang",
+      "type": "allied_with"
+    },
+    {
+      "source": "Murray_Mag'Nesson",
+      "target": "Thimble",
+      "type": "associated_with"
+    },
+    {
+      "source": "Wicander_Halovar",
+      "target": "Candescent_Creed",
+      "type": "aspirant_of"
+    },
+    {
+      "source": "Wicander_Halovar",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Wicander_Halovar",
+      "target": "Tyranny",
+      "type": "aspirant_of"
+    },
+    {
+      "source": "Wicander_Halovar",
+      "target": "Yanessa_Halovar",
+      "type": "associated_with"
+    },
+    {
+      "source": "Occtis_Tachonis",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Occtis_Tachonis",
+      "target": "Thjazi_Fang",
+      "type": "family"
+    },
+    {
+      "source": "Occtis_Tachonis",
+      "target": "Pincushion",
+      "type": "associated_with"
+    },
+    {
+      "source": "Occtis_Tachonis",
+      "target": "Thaisha_Lloy",
+      "type": "family"
+    },
+    {
+      "source": "Thjazi_Fang",
+      "target": "Revolutionary_Council",
+      "type": "member_of"
+    },
+    {
+      "source": "Thjazi_Fang",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Thjazi_Fang",
+      "target": "Thimble",
+      "type": "opposed_to"
+    },
+    {
+      "source": "Thjazi_Fang",
+      "target": "Aranessa_Royce",
+      "type": "opposed_to"
+    },
+    {
+      "source": "Revolutionary_Council",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Candescent_Creed",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Aranessa_Royce",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Aranessa_Royce",
+      "target": "Candescent_Creed",
+      "type": "member_of"
+    },
+    {
+      "source": "Aranessa_Royce",
+      "target": "Julien_Davinos",
+      "type": "allied_with"
+    },
+    {
+      "source": "Aranessa_Royce",
+      "target": "Thjazi_Fang",
+      "type": "opposed_to"
+    },
+    {
+      "source": "Yanessa_Halovar",
+      "target": "Sundered_Houses",
+      "type": "member_of"
+    },
+    {
+      "source": "Yanessa_Halovar",
+      "target": "Candescent_Creed",
+      "type": "member_of"
+    },
+    {
+      "source": "Pincushion",
+      "target": "Occtis_Tachonis",
+      "type": "associated_with"
+    },
+    {
+      "source": "Pincushion",
+      "target": "Wulfric",
+      "type": "family"
+    }
+  ]
+}
