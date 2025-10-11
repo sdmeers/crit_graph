@@ -785,8 +785,6 @@ class CampaignFourGraphBuilder:
             with open(output_file, 'r', encoding='utf-8') as f:
                 html_content = f.read()
             
-            print(f"  Original HTML length: {len(html_content)} characters")
-            
             # Add CSS for removing white margin
             css_additions = '''
 <style>
@@ -801,74 +799,49 @@ body {
 }
 </style>
 '''
-            if '</head>' in html_content:
-                html_content = html_content.replace('</head>', css_additions + '</head>')
-                print("  ✓ CSS added")
-            else:
-                print("  ⚠ Could not find </head> tag")
+            html_content = html_content.replace('</head>', css_additions + '</head>')
             
-            # Add JavaScript - try to find where to insert it
+            # Add JavaScript for click handling and cursor changes
             js_additions = '''
 <script type="text/javascript">
-console.log("Custom script loaded!");
-
 // Wait for page to fully load
 window.addEventListener('load', function() {
-    console.log("Page loaded, waiting for network...");
-    
     setTimeout(function() {
-        console.log("Checking for network object...");
-        console.log("network exists:", typeof network !== 'undefined');
-        console.log("nodes exists:", typeof nodes !== 'undefined');
-        
         if (typeof network !== 'undefined' && typeof nodes !== 'undefined') {
             var canvas = document.querySelector('#mynetwork canvas');
-            var container = document.getElementById('mynetwork');
-            console.log("Canvas found:", canvas);
-            console.log("Container found:", container);
             
             // Handle node clicks to open wiki pages
             network.on("click", function(params) {
-                console.log("Click detected, nodes:", params.nodes);
                 if (params.nodes.length > 0) {
                     var nodeId = params.nodes[0];
                     var clickedNode = nodes.get(nodeId);
                     if (clickedNode && clickedNode.url) {
-                        console.log("Opening URL:", clickedNode.url);
                         window.open(clickedNode.url, "_blank");
                     }
                 }
             });
             
-            // Simpler cursor approach - track pointer position and check nodes
-            var currentlyOverNode = false;
-            
+            // Change cursor to pointer when hovering over nodes
             network.on("hoverNode", function(params) {
-                console.log("Hover node triggered:", params.node);
                 if (canvas) {
                     canvas.style.cursor = 'pointer';
-                    currentlyOverNode = true;
                 }
             });
             
             network.on("blurNode", function(params) {
-                console.log("Blur node triggered");
                 if (canvas) {
                     canvas.style.cursor = 'default';
-                    currentlyOverNode = false;
                 }
             });
             
-            // Additional fallback using pointer position
+            // Fallback cursor handler using pointer position
             if (canvas) {
-                var checkCursor = function(event) {
-                    // Get pointer position relative to canvas
+                canvas.addEventListener('mousemove', function(event) {
                     var pointer = {
                         x: event.offsetX || (event.pageX - canvas.offsetLeft),
                         y: event.offsetY || (event.pageY - canvas.offsetTop)
                     };
                     
-                    // Use vis network's built-in method
                     var nodeId = network.getNodeAt(pointer);
                     
                     if (nodeId) {
@@ -876,36 +849,20 @@ window.addEventListener('load', function() {
                     } else {
                         canvas.style.cursor = 'default';
                     }
-                };
-                
-                canvas.addEventListener('mousemove', checkCursor);
-                console.log("Direct mousemove handler attached");
-            } else {
-                console.log("Canvas not found!");
+                });
             }
-        } else {
-            console.log("Network or nodes not available!");
         }
     }, 2000);
 });
 </script>
 '''
-            
-            if '</body>' in html_content:
-                html_content = html_content.replace('</body>', js_additions + '\n</body>')
-                print("  ✓ JavaScript added")
-            else:
-                print("  ⚠ Could not find </body> tag")
+            html_content = html_content.replace('</body>', js_additions + '\n</body>')
             
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(html_content)
-            
-            print(f"  Modified HTML length: {len(html_content)} characters")
                     
         except Exception as e:
             print(f"  ⚠ Error modifying HTML: {e}")
-            import traceback
-            traceback.print_exc()
         
         # Print statistics
         print(f"\n{'=' * 50}")
@@ -918,6 +875,7 @@ window.addEventListener('load', function() {
         print(f"\n✓ Graph saved to {output_file}")
         print(f"  Open this file in your browser to explore!")
         print(f"  💡 Click any node to open its wiki page in a new tab")
+        print(f"  💡 Hover over nodes to see the pointer cursor")
     
     def save_data(self, output_file='campaign4_data.json'):
         """Save entity and relationship data."""
