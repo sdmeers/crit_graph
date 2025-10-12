@@ -37,6 +37,37 @@ class CampaignFourGraphBuilder:
         self.ollama_url = ollama_url
         self.llm_cache = {}  # Cache LLM responses to avoid re-processing same text
         
+        # New relationship mapping, precedence, and styles
+        self.RELATIONSHIP_MAP = {
+            'family': 'Family',
+            'romantic_partner': 'Romantic Partner',
+            'close_friend': 'Ally',
+            'ally': 'Ally',
+            'served_together': 'Ally',
+            'mentor_student': 'Ally',
+            'enemy': 'Enemy',
+            'rival': 'Enemy',
+            'complicated': 'Complicated',
+            'member_of': 'Member Of',
+            'leads': 'Member Of',
+            'aspirant_of': 'Member Of',
+            'serves_in': 'Member Of',
+            'founded': 'Member Of',
+            'associated_with': 'Associated With'
+        }
+        
+        self.PRECEDENCE = ['Enemy', 'Family', 'Romantic Partner', 'Ally', 'Complicated', 'Member Of', 'Associated With']
+
+        self.RELATIONSHIP_STYLES = {
+            'Family': {'color': '#00BFFF', 'width': 3, 'label': 'Family'},  # Blue
+            'Romantic Partner': {'color': '#FF1493', 'width': 3, 'label': 'Romantic Partner'},  # Pink
+            'Ally': {'color': '#00FF00', 'width': 2, 'label': 'Ally'},  # Green
+            'Enemy': {'color': '#FF0000', 'width': 2, 'label': 'Enemy'},  # Red
+            'Complicated': {'color': '#8A2BE2', 'width': 2, 'label': 'Complicated'},  # Purple
+            'Member Of': {'color': '#FFD700', 'width': 3, 'label': 'Member Of'},  # Yellow
+            'Associated With': {'color': '#999999', 'width': 1, 'label': ''}  # Grey
+        }
+        
         # Campaign 4 main cast characters
         self.main_characters = [
             'Thimble',
@@ -458,7 +489,7 @@ Categories:"""
         return categories
     
     def add_metadata_nodes(self, character_page, entity_data):
-        """Add nodes for race, class, and other metadata as separate entities."""
+        """Add nodes for race, class, and player actor as separate entities."""
         character_name = entity_data.get('name', character_page.replace('_', ' '))
         
         if 'Race' in entity_data:
@@ -475,13 +506,7 @@ Categories:"""
                     shape='box'
                 )
             
-            self.graph.add_edge(
-                character_page,
-                race_id,
-                title='Race',
-                color='#16A085',
-                width=2
-            )
+            self.graph.add_edge(character_page, race_id, title='Race', color='#16A085', width=2)
         
         if 'Class' in entity_data:
             classes = self.clean_display_text(entity_data['Class'])
@@ -499,30 +524,61 @@ Categories:"""
                         shape='box'
                     )
                 
-                self.graph.add_edge(
-                    character_page,
-                    class_id,
-                    title='Class',
-                    color='#8E44AD',
-                    width=2
-                )
+                self.graph.add_edge(character_page, class_id, title='Class', color='#8E44AD', width=2)
         
         if 'Actor' in entity_data:
-            actor = entity_data['Actor']
-            actor_id = f"actor_{actor.replace(' ', '_')}"
-            
-            if actor_id not in self.graph:
-                self.graph.add_node(
-                    actor_id,
-                    label=actor,
-                    title=f"<b>Player: {actor}</b>",
-                    color='#FF1493',
-                    size=20,
-                    shape='dot'
-                )
-            
+            actor_name = entity_data['Actor']
+            actor_page_title = actor_name.replace(' ', '_')
+
+            if actor_page_title not in self.graph:
+                print(f"    Found player: {actor_name}. Fetching page for portrait.")
+                actor_soup, canonical_name = self.fetch_page(actor_page_title)
+                
+                actor_data = {}
+                if actor_soup:
+                    actor_data = self.extract_infobox_data(actor_soup)
+                
+                display_name = actor_data.get('name', actor_name)
+                image_url = actor_data.get('image_url')
+
+                node_config = {
+                    'label': display_name,
+                    'title': f"<b>Player: {display_name}</b><br><i>Click to open wiki page</i>",
+                    'color': '#FF1493',
+                    'size': 20,
+                    'url': f"{self.base_url}/wiki/{canonical_name or actor_page_title}"
+                }
+
+                if image_url:
+                    if image_url.startswith('//'):
+                        image_url = 'https:' + image_url
+                    
+                    node_config.update({
+                        'shape': 'circularImage',
+                        'image': image_url,
+                        'size': 40,
+                        'borderWidth': 3,
+                        'borderWidthSelected': 5,
+                        'color': {
+                            'border': '#FF1493', 'background': '#FF1493',
+                            'highlight': {'border': '#FF1493', 'background': '#FF1493'}
+                        },
+                        'title': f'<b>Player: {display_name}</b><br><img src="{image_url}" width="200" /><br><i>Click to open wiki page</i>'
+                    })
+                else:
+                    node_config['shape'] = 'dot'
+
+                self.graph.add_node(actor_page_title, **node_config)
+                
+                if actor_page_title not in self.entities:
+                    self.entities[actor_page_title] = {
+                        'name': display_name,
+                        'type': 'Cast Member',
+                        'data': actor_data
+                    }
+
             self.graph.add_edge(
-                actor_id,
+                actor_page_title,
                 character_page,
                 title='Plays',
                 color='#FF1493',
@@ -626,70 +682,42 @@ Categories:"""
         if entity_type in ['Main Character', 'Player Character']:
             self.add_metadata_nodes(page_title, entity_data)    
     
+    def get_strongest_relationship(self, rel_types):
+        """Determines the single strongest relationship type from a list of raw types."""
+        new_types = {self.RELATIONSHIP_MAP.get(t, 'Associated With') for t in rel_types}
+        for rel in self.PRECEDENCE:
+            if rel in new_types:
+                return rel
+        return 'Associated With'
+
     def add_relationship(self, source_page, target_page, rel_types=['associated_with']):
-        """Add edge(s) between entities with multiple relationship types."""
+        """Add a single, prioritized edge between entities based on the strongest relationship."""
         if target_page not in self.entities:
             return
         
-        # For each relationship type, add or update an edge
-        for rel_type in rel_types:
-            # Edge styling based on relationship type
-            edge_styles = {
-                'family': ('#00BFFF', 3),
-                'romantic_partner': ('#FF1493', 3),
-                'close_friend': ('#00FF7F', 3),
-                'ally': ('#00FF00', 2),
-                'served_together': ('#32CD32', 2),
-                'mentor_student': ('#9370DB', 2),
-                'enemy': ('#8B0000', 2),
-                'rival': ('#FF4500', 2),
-                'complicated': ('#FFD700', 2),
-                'member_of': ('#FFD700', 3),
-                'leads': ('#FF8C00', 3),
-                'aspirant_of': ('#FFA500', 2),
-                'serves_in': ('#DAA520', 2),
-                'founded': ('#B8860B', 2),
-                'associated_with': ('#999999', 1)
-            }
-            
-            edge_color, edge_width = edge_styles.get(rel_type, ('#999999', 1))
-            edge_label = rel_type.replace('_', ' ').title()
-            
-            # Check if edge already exists
-            if self.graph.has_edge(source_page, target_page):
-                # Update edge to show multiple relationship types
-                existing_edge = self.graph[source_page][target_page]
-                existing_title = existing_edge.get('title', '')
-                
-                if edge_label not in existing_title:
-                    new_title = f"{existing_title}, {edge_label}" if existing_title else edge_label
-                    self.graph[source_page][target_page]['title'] = new_title
-                    self.graph[source_page][target_page]['label'] = new_title
-            else:
-                # Add new edge
-                self.graph.add_edge(
-                    source_page,
-                    target_page,
-                    title=edge_label,
-                    label=edge_label if rel_type != 'associated_with' else '',
-                    color=edge_color,
-                    width=edge_width
-                )
-            
-            # Track in relationships list
-            rel_exists = any(
-                r['source'] == source_page and 
-                r['target'] == target_page and 
-                r['type'] == rel_type 
-                for r in self.relationships
-            )
-            
-            if not rel_exists:
-                self.relationships.append({
-                    'source': source_page,
-                    'target': target_page,
-                    'type': rel_type
-                })
+        strongest_rel = self.get_strongest_relationship(rel_types)
+        style = self.RELATIONSHIP_STYLES.get(strongest_rel)
+
+        if not style:
+            return
+
+        # Add or update the edge with the strongest relationship found
+        self.graph.add_edge(
+            source_page,
+            target_page,
+            title=style['label'],
+            label=style['label'],
+            color=style['color'],
+            width=style['width']
+        )
+        
+        # Track in relationships list for data export
+        self.relationships.append({
+            'source': source_page,
+            'target': target_page,
+            'type': strongest_rel,
+            'original_types': list(set(rel_types))
+        })
     
     def process_page(self, page_title):
         """Process a single wiki page, handling redirects."""
@@ -801,16 +829,19 @@ Categories:"""
             if self.get_canonical_name(target) not in self.entities:
                 soup, canonical = self.fetch_page(target)
         
-        print("\n[Phase 3] Adding relationships to graph...")
+        print("\n[Phase 3] Aggregating and adding relationships to graph...")
+        final_rels = defaultdict(list)
         for source_canonical, relationships in all_relationships.items():
             for rel in relationships:
                 target = self.normalize_page_title(rel['target'])
                 target_canonical = self.get_canonical_name(target)
                 
                 if source_canonical in self.entities and target_canonical in self.entities:
-                    # Use the types from LLM classification
                     rel_types = rel.get('types', ['associated_with'])
-                    self.add_relationship(source_canonical, target_canonical, rel_types)
+                    final_rels[(source_canonical, target_canonical)].extend(rel_types)
+
+        for (source, target), all_types in final_rels.items():
+            self.add_relationship(source, target, all_types)
         
         print("\n✓ Graph building complete!")
         print(f"  LLM cache size: {len(self.llm_cache)} classifications")
@@ -963,6 +994,10 @@ Categories:"""
         <div id="legend-section">
             <h4>Relationships</h4>
             <div class="legend-item">
+                <div class="legend-line" style="background-color: #FF0000;"></div>
+                <span>Enemy</span>
+            </div>
+            <div class="legend-item">
                 <div class="legend-line" style="background-color: #00BFFF;"></div>
                 <span>Family</span>
             </div>
@@ -971,32 +1006,16 @@ Categories:"""
                 <span>Romantic Partner</span>
             </div>
             <div class="legend-item">
-                <div class="legend-line" style="background-color: #00FF7F;"></div>
-                <span>Close Friend</span>
-            </div>
-            <div class="legend-item">
                 <div class="legend-line" style="background-color: #00FF00;"></div>
                 <span>Ally</span>
             </div>
             <div class="legend-item">
-                <div class="legend-line" style="background-color: #32CD32;"></div>
-                <span>Served Together</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-line" style="background-color: #9370DB;"></div>
-                <span>Mentor/Student</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-line" style="background-color: #8B0000;"></div>
-                <span>Enemy</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-line" style="background-color: #FF4500;"></div>
-                <span>Rival</span>
+                <div class="legend-line" style="background-color: #8A2BE2;"></div>
+                <span>Complicated</span>
             </div>
             <div class="legend-item">
                 <div class="legend-line" style="background-color: #FFD700;"></div>
-                <span>Complicated/Member Of</span>
+                <span>Member Of</span>
             </div>
             <div class="legend-item">
                 <div class="legend-line" style="background-color: #999999;"></div>
