@@ -384,18 +384,20 @@ class CampaignFourGraphBuilder:
             return 'Event'
         
         # Check infobox data
-        if 'Actor' in data or 'Portrayed by' in data:
-            return 'Character'
-        elif 'Type' in data:
+        if 'Type' in data:
             type_val = data['Type'].lower()
             if 'city' in type_val or 'town' in type_val or 'region' in type_val:
                 return 'Location'
             elif 'organization' in type_val or 'faction' in type_val:
                 return 'Organization'
         
-        # Look at the page title
+        # Look at the page title for organizations
         if any(word in page_title.lower() for word in ['house', 'council', 'guard', 'creed', 'rebellion']):
             return 'Organization'
+        
+        # NEW: If it has character-like data (Race, Class, Actor, etc.) assume it's an NPC
+        if any(key in data for key in ['Race', 'Class', 'Actor', 'Portrayed by', 'Pronouns']):
+            return 'NPC'
         
         return 'Unknown'
     
@@ -465,6 +467,7 @@ class CampaignFourGraphBuilder:
                 )
         
         # Add Actor node and connection (for main characters)
+        # Actor node and connection
         if 'Actor' in entity_data:
             actor = entity_data['Actor']
             actor_id = f"actor_{actor.replace(' ', '_')}"
@@ -474,7 +477,7 @@ class CampaignFourGraphBuilder:
                     actor_id,
                     label=actor,
                     title=f"<b>Player: {actor}</b>",
-                   color='#FF1493',  # Deep Pink
+                    color='#FF1493',  # Deep Pink
                     size=20,
                     shape='dot'
                 )
@@ -483,9 +486,9 @@ class CampaignFourGraphBuilder:
                 actor_id,
                 character_page,
                 title='Plays',
-                color='#E67E22',
+                color='#FF1493',  # Deep Pink (changed from #E67E22)
                 width=2
-            )
+    )
     
     def add_entity(self, page_title, entity_data, entity_type):
         """Add an entity to the graph."""
@@ -508,7 +511,6 @@ class CampaignFourGraphBuilder:
             'Organization': '#FFD700',         # Gold/Yellow
             'Cast Member': '#9370DB',          # Medium Purple
             'Event': '#FF1493',                # Deep Pink
-            'Character': '#FFFFFF',            # White
             'Unknown': '#999999'               # Gray
         }
         
@@ -611,7 +613,7 @@ class CampaignFourGraphBuilder:
             edge_color = '#FFD700'  # Gold (was orange)
             edge_width = 3
         elif rel_type == 'family':
-            edge_color = '#FF69B4'  # Hot Pink (was red)
+            edge_color = '#00BFFF'  # Deep Sky Blue
             edge_width = 2
         elif rel_type in ['allied_with', 'served_with']:
             edge_color = '#00FF00'  # Bright Green (was darker green)
@@ -909,10 +911,6 @@ class CampaignFourGraphBuilder:
                 <span>Location</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #FFFFFF;"></div>
-                <span>Character</span>
-            </div>
-            <div class="legend-item">
                 <div class="legend-color" style="background-color: #FF1493;"></div>
                 <span>Player/Actor</span>
             </div>
@@ -933,7 +931,7 @@ class CampaignFourGraphBuilder:
                 <span>Member/Serves</span>
             </div>
             <div class="legend-item">
-                <div class="legend-line" style="background-color: #FF69B4;"></div>
+                <div class="legend-line" style="background-color: #00BFFF;"></div>
                 <span>Family</span>
             </div>
             <div class="legend-item">
@@ -1070,8 +1068,8 @@ class CampaignFourGraphBuilder:
         print(f"  Open this file in your browser to explore!")
         print(f"  💡 Click any node to open its wiki page in a new tab")
         print(f"  💡 Hover over nodes to see the pointer cursor")
-        print(f"  💡 Legend is visible in top-right corner (can be toggled)")
-        
+        print(f"  💡 Legend is visible in top-right corner (can be toggled)")    
+
     def save_data(self, output_file='campaign4_data.json'):
         """Save entity and relationship data."""
         data = {

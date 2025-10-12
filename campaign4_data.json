@@ -1004,7 +1004,7 @@
     },
     "Sylandri": {
       "name": "Sylandri, the Green Mother",
-      "type": "Unknown",
+      "type": "NPC",
       "data": {
         "name": "Sylandri, the Green Mother",
         "Type": "Shaper",
@@ -1043,7 +1043,7 @@
     },
     "Thjazi_Fang": {
       "name": "Thjazi Fang",
-      "type": "Character",
+      "type": "NPC",
       "data": {
         "image_url": "https://static.wikia.nocookie.net/criticalrole/images/d/de/Thjazi_blindfolded_-_Trailer_thumbnail.png",
         "name": "Thjazi Fang",
@@ -1154,7 +1154,7 @@
     },
     "Wulfric": {
       "name": "Wulfric",
-      "type": "Character",
+      "type": "NPC",
       "data": {
         "image_url": "https://static.wikia.nocookie.net/criticalrole/images/4/49/Wulfric_-_Official.jpeg",
         "name": "Wulfric",
@@ -1242,7 +1242,7 @@
     },
     "Aranessa_Royce": {
       "name": "Aranessa Royce",
-      "type": "Character",
+      "type": "NPC",
       "data": {
         "image_url": "https://static.wikia.nocookie.net/criticalrole/images/c/ca/Lady_Aranessa_Royce_by_Cryntart.png",
         "name": "Aranessa Royce",
@@ -1295,7 +1295,7 @@
     },
     "Yanessa_Halovar": {
       "name": "Photarch Yanessa Halovar",
-      "type": "Character",
+      "type": "NPC",
       "data": {
         "name": "Photarch Yanessa Halovar",
         "Type": "NPC",
@@ -1352,7 +1352,7 @@
     },
     "Pincushion": {
       "name": "Pincushion",
-      "type": "Character",
+      "type": "NPC",
       "data": {
         "image_url": "https://static.wikia.nocookie.net/criticalrole/images/8/82/Pincushion_-_Official_.jpg",
         "name": "Pincushion",
