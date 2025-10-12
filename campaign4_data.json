@@ -1413,7 +1413,12 @@
     {
       "source": "Thimble",
       "target": "Thjazi_Fang",
-      "type": "member_of"
+      "type": "close_friend"
+    },
+    {
+      "source": "Thimble",
+      "target": "Thjazi_Fang",
+      "type": "ally"
     },
     {
       "source": "Azune_Nayar",
@@ -1423,7 +1428,12 @@
     {
       "source": "Kattigan_Vale",
       "target": "Wulfric",
-      "type": "allied_with"
+      "type": "close_friend"
+    },
+    {
+      "source": "Kattigan_Vale",
+      "target": "Wulfric",
+      "type": "ally"
     },
     {
       "source": "Thaisha_Lloy",
@@ -1441,6 +1451,11 @@
       "type": "family"
     },
     {
+      "source": "Thaisha_Lloy",
+      "target": "Occtis_Tachonis",
+      "type": "complicated"
+    },
+    {
       "source": "Bolaire_Lathalia",
       "target": "Murray_Mag'Nesson",
       "type": "associated_with"
@@ -1448,7 +1463,12 @@
     {
       "source": "Bolaire_Lathalia",
       "target": "Thjazi_Fang",
-      "type": "associated_with"
+      "type": "ally"
+    },
+    {
+      "source": "Bolaire_Lathalia",
+      "target": "Thjazi_Fang",
+      "type": "complicated"
     },
     {
       "source": "Vaelus",
@@ -1458,12 +1478,17 @@
     {
       "source": "Vaelus",
       "target": "Bolaire_Lathalia",
-      "type": "associated_with"
+      "type": "ally"
     },
     {
       "source": "Vaelus",
       "target": "Thimble",
-      "type": "associated_with"
+      "type": "enemy"
+    },
+    {
+      "source": "Vaelus",
+      "target": "Thimble",
+      "type": "rival"
     },
     {
       "source": "Julien_Davinos",
@@ -1473,12 +1498,27 @@
     {
       "source": "Julien_Davinos",
       "target": "Aranessa_Royce",
-      "type": "allied_with"
+      "type": "romantic_partner"
+    },
+    {
+      "source": "Julien_Davinos",
+      "target": "Aranessa_Royce",
+      "type": "close_friend"
+    },
+    {
+      "source": "Julien_Davinos",
+      "target": "Aranessa_Royce",
+      "type": "ally"
     },
     {
       "source": "Julien_Davinos",
       "target": "Thjazi_Fang",
-      "type": "associated_with"
+      "type": "enemy"
+    },
+    {
+      "source": "Julien_Davinos",
+      "target": "Thjazi_Fang",
+      "type": "complicated"
     },
     {
       "source": "Tyranny",
@@ -1493,7 +1533,12 @@
     {
       "source": "Tyranny",
       "target": "Wicander_Halovar",
-      "type": "aspirant_of"
+      "type": "mentor_student"
+    },
+    {
+      "source": "Tyranny",
+      "target": "Wicander_Halovar",
+      "type": "complicated"
     },
     {
       "source": "Halandil_Fang",
@@ -1507,8 +1552,33 @@
     },
     {
       "source": "Halandil_Fang",
+      "target": "Thjazi_Fang",
+      "type": "close_friend"
+    },
+    {
+      "source": "Halandil_Fang",
+      "target": "Thjazi_Fang",
+      "type": "ally"
+    },
+    {
+      "source": "Halandil_Fang",
       "target": "Thaisha_Lloy",
-      "type": "allied_with"
+      "type": "romantic_partner"
+    },
+    {
+      "source": "Halandil_Fang",
+      "target": "Thaisha_Lloy",
+      "type": "family"
+    },
+    {
+      "source": "Halandil_Fang",
+      "target": "Thaisha_Lloy",
+      "type": "close_friend"
+    },
+    {
+      "source": "Halandil_Fang",
+      "target": "Thaisha_Lloy",
+      "type": "ally"
     },
     {
       "source": "Murray_Mag'Nesson",
@@ -1523,17 +1593,32 @@
     {
       "source": "Murray_Mag'Nesson",
       "target": "Occtis_Tachonis",
-      "type": "associated_with"
+      "type": "member_of"
+    },
+    {
+      "source": "Murray_Mag'Nesson",
+      "target": "Occtis_Tachonis",
+      "type": "ally"
     },
     {
       "source": "Murray_Mag'Nesson",
       "target": "Thjazi_Fang",
-      "type": "allied_with"
+      "type": "close_friend"
+    },
+    {
+      "source": "Murray_Mag'Nesson",
+      "target": "Thjazi_Fang",
+      "type": "ally"
     },
     {
       "source": "Murray_Mag'Nesson",
       "target": "Thimble",
-      "type": "associated_with"
+      "type": "family"
+    },
+    {
+      "source": "Murray_Mag'Nesson",
+      "target": "Thimble",
+      "type": "close_friend"
     },
     {
       "source": "Wicander_Halovar",
@@ -1542,18 +1627,38 @@
     },
     {
       "source": "Wicander_Halovar",
+      "target": "Candescent_Creed",
+      "type": "member_of"
+    },
+    {
+      "source": "Wicander_Halovar",
       "target": "Sundered_Houses",
       "type": "member_of"
     },
     {
       "source": "Wicander_Halovar",
-      "target": "Tyranny",
+      "target": "Sundered_Houses",
       "type": "aspirant_of"
     },
     {
       "source": "Wicander_Halovar",
+      "target": "Tyranny",
+      "type": "romantic_partner"
+    },
+    {
+      "source": "Wicander_Halovar",
+      "target": "Tyranny",
+      "type": "complicated"
+    },
+    {
+      "source": "Wicander_Halovar",
       "target": "Yanessa_Halovar",
-      "type": "associated_with"
+      "type": "mentor_student"
+    },
+    {
+      "source": "Wicander_Halovar",
+      "target": "Yanessa_Halovar",
+      "type": "family"
     },
     {
       "source": "Occtis_Tachonis",
@@ -1563,17 +1668,27 @@
     {
       "source": "Occtis_Tachonis",
       "target": "Thjazi_Fang",
-      "type": "family"
+      "type": "mentor_student"
+    },
+    {
+      "source": "Occtis_Tachonis",
+      "target": "Thjazi_Fang",
+      "type": "ally"
     },
     {
       "source": "Occtis_Tachonis",
       "target": "Pincushion",
-      "type": "associated_with"
+      "type": "ally"
     },
     {
       "source": "Occtis_Tachonis",
       "target": "Thaisha_Lloy",
       "type": "family"
+    },
+    {
+      "source": "Occtis_Tachonis",
+      "target": "Thaisha_Lloy",
+      "type": "complicated"
     },
     {
       "source": "Thjazi_Fang",
@@ -1588,12 +1703,27 @@
     {
       "source": "Thjazi_Fang",
       "target": "Thimble",
-      "type": "opposed_to"
+      "type": "romantic_partner"
+    },
+    {
+      "source": "Thjazi_Fang",
+      "target": "Thimble",
+      "type": "close_friend"
+    },
+    {
+      "source": "Thjazi_Fang",
+      "target": "Thimble",
+      "type": "ally"
     },
     {
       "source": "Thjazi_Fang",
       "target": "Aranessa_Royce",
-      "type": "opposed_to"
+      "type": "romantic_partner"
+    },
+    {
+      "source": "Thjazi_Fang",
+      "target": "Aranessa_Royce",
+      "type": "family"
     },
     {
       "source": "Revolutionary_Council",
@@ -1603,12 +1733,22 @@
     {
       "source": "Wulfric",
       "target": "Kattigan_Vale",
-      "type": "allied_with"
+      "type": "close_friend"
+    },
+    {
+      "source": "Wulfric",
+      "target": "Kattigan_Vale",
+      "type": "ally"
     },
     {
       "source": "Wulfric",
       "target": "Pincushion",
-      "type": "family"
+      "type": "close_friend"
+    },
+    {
+      "source": "Wulfric",
+      "target": "Pincushion",
+      "type": "ally"
     },
     {
       "source": "Candescent_Creed",
@@ -1628,12 +1768,22 @@
     {
       "source": "Aranessa_Royce",
       "target": "Julien_Davinos",
-      "type": "allied_with"
+      "type": "close_friend"
+    },
+    {
+      "source": "Aranessa_Royce",
+      "target": "Julien_Davinos",
+      "type": "ally"
     },
     {
       "source": "Aranessa_Royce",
       "target": "Thjazi_Fang",
-      "type": "opposed_to"
+      "type": "romantic_partner"
+    },
+    {
+      "source": "Aranessa_Royce",
+      "target": "Thjazi_Fang",
+      "type": "family"
     },
     {
       "source": "Yanessa_Halovar",
@@ -1648,12 +1798,18 @@
     {
       "source": "Pincushion",
       "target": "Occtis_Tachonis",
-      "type": "associated_with"
+      "type": "family"
     },
     {
       "source": "Pincushion",
       "target": "Wulfric",
-      "type": "family"
+      "type": "close_friend"
+    },
+    {
+      "source": "Pincushion",
+      "target": "Wulfric",
+      "type": "ally"
     }
-  ]
+  ],
+  "llm_cache_size": 30
 }

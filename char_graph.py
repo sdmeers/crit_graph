@@ -1,9 +1,12 @@
 """
-Critical Role Campaign 4 Wiki Graph Builder
+Critical Role Campaign 4 Wiki Graph Builder with LLM Relationship Classification
 Extracts characters, organizations, NPCs, and their relationships from Campaign 4 wiki pages.
+Uses local Ollama LLM to classify complex relationships.
 
 Required installations:
 pip install requests beautifulsoup4 networkx pyvis
+
+Requires Ollama running locally with llama3.1:8b model
 
 Usage:
 python cr_wiki_graph.py
@@ -20,9 +23,9 @@ import time
 import urllib.parse
 
 class CampaignFourGraphBuilder:
-    def __init__(self):
+    def __init__(self, ollama_model="llama3.1:8b", ollama_url="http://localhost:11434"):
         self.base_url = "https://criticalrole.fandom.com"
-        self.graph = nx.DiGraph()  # Directed graph for better relationship tracking
+        self.graph = nx.DiGraph()
         self.entities = {}
         self.relationships = []
         self.session = requests.Session()
@@ -30,50 +33,131 @@ class CampaignFourGraphBuilder:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
         self.alias_map = {}
+        self.ollama_model = ollama_model
+        self.ollama_url = ollama_url
+        self.llm_cache = {}  # Cache LLM responses to avoid re-processing same text
         
-        # Campaign 4 main cast characters (from the Cast table)
+        # Campaign 4 main cast characters
         self.main_characters = [
-            'Thimble',               # Laura Bailey
-            'Azune_Nayar',           # Luis Carazo
-            'Kattigan_Vale',         # Robbie Daymond
-            'Thaisha_Lloy',          # Aabria Iyengar
-            'Bolaire_Lathalia',      # Taliesin Jaffe
-            'Vaelus',                # Ashley Johnson
-            'Julien_Davinos',        # Matthew Mercer (no "Sir_" prefix)
-            'Tyranny',               # Whitney Moore
-            'Halandil_Fang',         # Liam O\'Brien
-            'Murray_Mag\'Nesson',    # Marisha Ray
-            'Wicander_Halovar',      # Sam Riegel
-            'Occtis_Tachonis',       # Alexander Ward
-            'Teor_Pridesire'         # Travis Willingham
+            'Thimble',
+            'Azune_Nayar',
+            'Kattigan_Vale',
+            'Thaisha_Lloy',
+            'Bolaire_Lathalia',
+            'Vaelus',
+            'Julien_Davinos',
+            'Tyranny',
+            'Halandil_Fang',
+            'Murray_Mag\'Nesson',
+            'Wicander_Halovar',
+            'Occtis_Tachonis',
+            'Teor_Pridesire'
         ]
+    
+    def classify_relationship_with_llm(self, source_name, target_name, relationship_text):
+        """Use local LLM to classify relationship types from text."""
+        # Create cache key from text
+        cache_key = f"{source_name}:{target_name}:{relationship_text[:100]}"
+        if cache_key in self.llm_cache:
+            return self.llm_cache[cache_key]
+        
+        # Truncate very long text to avoid token limits
+        if len(relationship_text) > 1500:
+            relationship_text = relationship_text[:1500] + "..."
+        
+        prompt = f"""Analyze the relationship between {source_name} and {target_name} based on this text:
+
+"{relationship_text}"
+
+Classify their relationship as one or more of these categories:
+- family (blood relatives, spouses, adopted family)
+- romantic_partner (current or past romantic relationship)
+- close_friend (deep friendship, bonded companions)
+- ally (working together, mutual support)
+- served_together (military service, combat companions)
+- mentor_student (teaching/learning relationship)
+- enemy (opposed, hostile)
+- rival (competitive but not necessarily hostile)
+- complicated (complex relationship that doesn't fit simple categories)
+- member_of (organizational membership)
+- leads (leadership role)
+
+Output ONLY the category or categories that apply, comma-separated, with no explanation.
+Example outputs: "close_friend,ally" or "enemy" or "complicated,family"
+
+Categories:"""
+
+        try:
+            response = requests.post(
+                f"{self.ollama_url}/api/generate",
+                json={
+                    "model": self.ollama_model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.1,  # Low temperature for consistent classification
+                        "top_p": 0.9,
+                        "num_predict": 50  # Short response expected
+                    }
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                classification = result.get('response', '').strip().lower()
+                
+                # Parse the response - extract only valid categories
+                valid_categories = {
+                    'family', 'romantic_partner', 'close_friend', 'ally', 
+                    'served_together', 'mentor_student', 'enemy', 'rival',
+                    'complicated', 'member_of', 'leads'
+                }
+                
+                # Extract categories from response
+                found_categories = []
+                for category in valid_categories:
+                    if category in classification or category.replace('_', ' ') in classification:
+                        found_categories.append(category)
+                
+                # If no valid categories found, default to associated_with
+                if not found_categories:
+                    found_categories = ['associated_with']
+                
+                # Cache the result
+                self.llm_cache[cache_key] = found_categories
+                
+                print(f"    LLM classified as: {', '.join(found_categories)}")
+                return found_categories
+            else:
+                print(f"    ⚠ LLM request failed: {response.status_code}")
+                return ['associated_with']
+                
+        except requests.exceptions.Timeout:
+            print(f"    ⚠ LLM request timed out")
+            return ['associated_with']
+        except Exception as e:
+            print(f"    ⚠ LLM error: {e}")
+            return ['associated_with']
     
     def clean_display_text(self, text):
         """Remove wiki reference brackets [1], [2], etc. from display text."""
-        import re
-        # Remove reference markers like [1], [2], [citation needed], [presumed], etc.
-        cleaned = re.sub(r'\[\d+\]', '', text)  # Remove numbered references
-        cleaned = re.sub(r'\[citation needed\]', '', cleaned)  # Remove citation needed
-        cleaned = re.sub(r'\[presumed.*?\]', '', cleaned, flags=re.IGNORECASE)  # Remove [presumed...]
-        # Clean up any extra whitespace
+        cleaned = re.sub(r'\[\d+\]', '', text)
+        cleaned = re.sub(r'\[citation needed\]', '', cleaned)
+        cleaned = re.sub(r'\[presumed.*?\]', '', cleaned, flags=re.IGNORECASE)
         cleaned = re.sub(r'\s+', ' ', cleaned).strip()
         return cleaned
     
     def normalize_page_title(self, page_title):
         """Normalize a page title to a standard format."""
-        # Remove any URL fragments or query parameters first
         if '#' in page_title:
             page_title = page_title.split('#')[0]
         if '?' in page_title:
             page_title = page_title.split('?')[0]
         
-        # Decode URL encoding
         normalized = urllib.parse.unquote(page_title)
-        # Replace spaces with underscores
         normalized = normalized.replace(' ', '_')
-        # Remove /wiki/ prefix if present
         normalized = normalized.replace('/wiki/', '')
-        # Remove trailing slashes
         normalized = normalized.rstrip('/')
         
         return normalized
@@ -81,31 +165,25 @@ class CampaignFourGraphBuilder:
     def get_canonical_name(self, page_title):
         """Get the canonical name for a page, using alias map if available."""
         normalized = self.normalize_page_title(page_title)
-        # Check if we've already fetched this and know its canonical name
         if normalized in self.alias_map:
             return self.alias_map[normalized]
         return normalized
     
     def fetch_page(self, page_title):
         """Fetch a wiki page with rate limiting and handle redirects."""
-        time.sleep(0.5)  # Be respectful to the server
+        time.sleep(0.5)
         
-        # Normalize the input
         page_title = self.normalize_page_title(page_title)
-        
         url = f"{self.base_url}/wiki/{page_title}"
+        
         try:
             print(f"  Fetching: {page_title}")
             response = self.session.get(url, timeout=10)
             response.raise_for_status()
             
-            # Get the final URL after any redirects
             final_url = response.url
-            
-            # Extract the page name from the URL
             url_path = final_url.split('/wiki/')[-1]
             
-            # CRITICAL: Remove fragment from the URL before processing
             if '#' in url_path:
                 url_path = url_path.split('#')[0]
             
@@ -114,10 +192,8 @@ class CampaignFourGraphBuilder:
             
             if page_title != canonical_name:
                 print(f"    Redirected to: {canonical_name}")
-                # Store the alias mapping
                 self.alias_map[page_title] = canonical_name
             else:
-                # Even if no redirect, store identity mapping
                 self.alias_map[page_title] = canonical_name
             
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -134,21 +210,17 @@ class CampaignFourGraphBuilder:
         if not infobox:
             return data
         
-        # Extract image from infobox - try multiple locations
-        # Method 1: Look for image in pi-image section
+        # Extract image
         image_container = infobox.find('figure', class_='pi-item pi-image')
         if image_container:
             image_elem = image_container.find('img')
             if image_elem:
-                # Get the src or data-src attribute
                 img_url = image_elem.get('src') or image_elem.get('data-src')
                 if img_url:
-                    # If it's a Fandom/Wikia thumbnail, try to get the original image URL
                     if '/revision/latest' in img_url:
                         img_url = img_url.split('/revision/latest')[0]
                     data['image_url'] = img_url
         
-        # Method 2: Any img tag in infobox
         if 'image_url' not in data:
             image_elem = infobox.find('img')
             if image_elem:
@@ -168,19 +240,17 @@ class CampaignFourGraphBuilder:
             
             if label_elem and value_elem:
                 label = label_elem.get_text(strip=True)
-                # Get text but also preserve links
                 value = value_elem.get_text(strip=True)
                 data[label] = value
                 
-                # Also extract linked entities (for Actor, Class, Race, etc.)
                 links = [a.get('href') for a in value_elem.find_all('a', href=True)]
                 if links:
                     data[f'{label}_links'] = links
         
         return data
     
-    def extract_relationships_section(self, soup):
-        """Extract relationships from the dedicated Relationships section."""
+    def extract_relationships_section(self, soup, current_page_name):
+        """Extract relationships from the dedicated Relationships section with full context."""
         relationships = []
         
         content = soup.find('div', class_='mw-parser-output')
@@ -191,36 +261,55 @@ class CampaignFourGraphBuilder:
         for header in content.find_all(['h2', 'h3']):
             header_text = header.get_text(strip=True).lower()
             if 'relationship' in header_text:
-                # Get all content until next h2/h3
                 current = header.find_next_sibling()
+                
                 while current and current.name not in ['h2']:
-                    # Look for h3 subsections (individual relationships)
                     if current.name == 'h3':
+                        # Found a relationship subsection
                         relationship_name_elem = current.find('a', href=True)
+                        
                         if relationship_name_elem:
                             href = relationship_name_elem['href']
-                            # Filter out edit links and special pages
+                            
                             if (href.startswith('/wiki/') and 
                                 ':' not in href and 
                                 'action=edit' not in href):
                                 
-                                # Remove fragment BEFORE normalizing
                                 if '#' in href:
                                     href = href.split('#')[0]
                                 if '?' in href:
                                     href = href.split('?')[0]
                                 
                                 target_page = self.normalize_page_title(href)
-                                # Get the description
-                                desc_elem = current.find_next_sibling('p')
-                                if desc_elem:
-                                    desc_text = desc_elem.get_text()
-                                    rel_type = self.infer_relationship_type(desc_text, relationship_name_elem.get_text())
+                                target_display_name = relationship_name_elem.get_text(strip=True)
+                                
+                                # Collect ALL paragraphs for this relationship until next h3 or h2
+                                relationship_text = []
+                                text_elem = current.find_next_sibling()
+                                
+                                while text_elem and text_elem.name not in ['h2', 'h3']:
+                                    if text_elem.name == 'p':
+                                        relationship_text.append(text_elem.get_text(strip=True))
+                                    text_elem = text_elem.find_next_sibling()
+                                
+                                full_text = ' '.join(relationship_text)
+                                
+                                if full_text:
+                                    # Use LLM to classify the relationship
+                                    print(f"    Analyzing relationship: {current_page_name} → {target_display_name}")
+                                    rel_types = self.classify_relationship_with_llm(
+                                        current_page_name,
+                                        target_display_name,
+                                        full_text
+                                    )
+                                    
                                     relationships.append({
                                         'target': target_page,
-                                        'type': rel_type,
-                                        'description': desc_text[:200]
+                                        'types': rel_types,
+                                        'description': full_text[:500],  # Keep more context
+                                        'full_text': full_text
                                     })
+                    
                     current = current.find_next_sibling()
                 break
         
@@ -230,17 +319,14 @@ class CampaignFourGraphBuilder:
         """Extract relationships from Biography/Background sections."""
         relationships = []
         
-        # Find Biography or Background section
         content = soup.find('div', class_='mw-parser-output')
         if not content:
             return relationships
         
-        # Get all text from the Biography/Background section
         biography_section = None
         for header in content.find_all(['h2', 'h3']):
             header_text = header.get_text(strip=True).lower()
             if 'biography' in header_text or 'background' in header_text:
-                # Get content until next header
                 biography_section = []
                 for sibling in header.find_next_siblings():
                     if sibling.name in ['h2', 'h3']:
@@ -249,32 +335,27 @@ class CampaignFourGraphBuilder:
                 break
         
         if biography_section:
-            # Extract links from biography (these are potential relationships)
             for elem in biography_section:
                 for link in elem.find_all('a', href=True):
                     href = link['href']
-                    # Filter out non-wiki links and special pages
+                    
                     if (href.startswith('/wiki/') and 
                         ':' not in href and 
                         'action=edit' not in href and
                         not href.startswith('http')):
                         
-                        # Remove fragment BEFORE normalizing
                         if '#' in href:
                             href = href.split('#')[0]
                         if '?' in href:
                             href = href.split('?')[0]
                         
                         linked_page = self.normalize_page_title(href)
-                        # Get surrounding text for context
                         text = elem.get_text()
                         
-                        # Look for relationship keywords
-                        rel_type = self.infer_relationship_type(text, link.get_text())
                         relationships.append({
                             'target': linked_page,
-                            'type': rel_type,
-                            'source_text': text[:200]  # Keep some context
+                            'types': ['associated_with'],  # Default for bio mentions
+                            'source_text': text[:200]
                         })
         
         return relationships
@@ -283,7 +364,6 @@ class CampaignFourGraphBuilder:
         """Extract organization affiliations from the page."""
         affiliations = []
         
-        # Organizations to look for (known from the wiki)
         org_keywords = [
             'House', 'Creed', 'Guard', 'Council', 'Order', 'Sisters',
             'Revolutionary', 'Sundered', 'Candescent', 'Sylandri'
@@ -293,21 +373,16 @@ class CampaignFourGraphBuilder:
         if not content:
             return affiliations
         
-        # Look in the first few paragraphs (Description/Appearance/Biography)
         paragraphs = content.find_all('p', limit=10)
         
         for para in paragraphs:
             text = para.get_text().lower()
             
-            # Check if this paragraph mentions organizations
             if any(keyword.lower() in text for keyword in org_keywords):
-                # Extract all links from this paragraph
                 for link in para.find_all('a', href=True):
                     href = link['href']
-                    if (href.startswith('/wiki/') and 
-                        ':' not in href):
-                        
-                        # Remove fragment BEFORE normalizing
+                    
+                    if (href.startswith('/wiki/') and ':' not in href):
                         if '#' in href:
                             href = href.split('#')[0]
                         if '?' in href:
@@ -316,9 +391,7 @@ class CampaignFourGraphBuilder:
                         linked_page = self.normalize_page_title(href)
                         link_text = link.get_text()
                         
-                        # Check if it's likely an organization
                         if any(keyword.lower() in link_text.lower() for keyword in org_keywords):
-                            # Determine relationship type from context
                             rel_type = 'member_of'
                             if 'aspirant' in text:
                                 rel_type = 'aspirant_of'
@@ -326,46 +399,20 @@ class CampaignFourGraphBuilder:
                                 rel_type = 'founded'
                             elif 'serves' in text or 'marshal' in text:
                                 rel_type = 'serves_in'
-                            elif 'member' in text:
-                                rel_type = 'member_of'
                             
                             affiliations.append({
                                 'target': linked_page,
-                                'type': rel_type,
+                                'types': [rel_type],
                                 'context': text[:150]
                             })
         
         return affiliations
 
-    def infer_relationship_type(self, context_text, target_name):
-        """Infer relationship type from context."""
-        context_lower = context_text.lower()
-        
-        # Check for specific relationship patterns
-        if any(word in context_lower for word in ['served with', 'fought alongside', 'comrade']):
-            return 'served_with'
-        elif any(word in context_lower for word in ['member of', 'part of', 'joined', 'belongs to']):
-            return 'member_of'
-        elif any(word in context_lower for word in ['aspirant', 'novice', 'initiate']):
-            return 'aspirant_of'
-        elif any(word in context_lower for word in ['friend', 'ally', 'companion']):
-            return 'allied_with'
-        elif any(word in context_lower for word in ['family', 'brother', 'sister', 'parent', 'child']):
-            return 'family'
-        elif any(word in context_lower for word in ['enemy', 'opponent', 'against']):
-            return 'opposed_to'
-        elif any(word in context_lower for word in ['works for', 'employed by', 'serves']):
-            return 'employed_by'
-        else:
-            return 'associated_with'
-    
     def determine_entity_type(self, page_title, data, categories):
         """Determine what type of entity this is."""
-        # Check if it's a main character
         if page_title in self.main_characters:
             return 'Main Character'
         
-        # Check categories
         cat_text = ' '.join(categories).lower()
         
         if 'player character' in cat_text or 'pc' in cat_text:
@@ -383,7 +430,6 @@ class CampaignFourGraphBuilder:
         elif 'event' in cat_text:
             return 'Event'
         
-        # Check infobox data
         if 'Type' in data:
             type_val = data['Type'].lower()
             if 'city' in type_val or 'town' in type_val or 'region' in type_val:
@@ -391,11 +437,9 @@ class CampaignFourGraphBuilder:
             elif 'organization' in type_val or 'faction' in type_val:
                 return 'Organization'
         
-        # Look at the page title for organizations
         if any(word in page_title.lower() for word in ['house', 'council', 'guard', 'creed', 'rebellion']):
             return 'Organization'
         
-        # NEW: If it has character-like data (Race, Class, Actor, etc.) assume it's an NPC
         if any(key in data for key in ['Race', 'Class', 'Actor', 'Portrayed by', 'Pronouns']):
             return 'NPC'
         
@@ -417,7 +461,6 @@ class CampaignFourGraphBuilder:
         """Add nodes for race, class, and other metadata as separate entities."""
         character_name = entity_data.get('name', character_page.replace('_', ' '))
         
-        # Add Race node and connection
         if 'Race' in entity_data:
             race = self.clean_display_text(entity_data['Race'])
             race_id = f"race_{race.replace(' ', '_').replace('(', '').replace(')', '')}"
@@ -427,7 +470,7 @@ class CampaignFourGraphBuilder:
                     race_id,
                     label=race,
                     title=f"<b>Race: {race}</b>",
-                    color='#00CED1',  # Dark Turquoise
+                    color='#00CED1',
                     size=15,
                     shape='box'
                 )
@@ -440,10 +483,8 @@ class CampaignFourGraphBuilder:
                 width=2
             )
         
-        # Add Class node(s) and connection
         if 'Class' in entity_data:
             classes = self.clean_display_text(entity_data['Class'])
-            # Handle multi-class (e.g., "Fighter/Rogue")
             for class_name in classes.split('/'):
                 class_name = class_name.strip()
                 class_id = f"class_{class_name.replace(' ', '_').replace('(', '').replace(')', '')}"
@@ -453,7 +494,7 @@ class CampaignFourGraphBuilder:
                         class_id,
                         label=class_name,
                         title=f"<b>Class: {class_name}</b>",
-                        color='#9370DB',  # Medium Purple
+                        color='#9370DB',
                         size=15,
                         shape='box'
                     )
@@ -466,8 +507,6 @@ class CampaignFourGraphBuilder:
                     width=2
                 )
         
-        # Add Actor node and connection (for main characters)
-        # Actor node and connection
         if 'Actor' in entity_data:
             actor = entity_data['Actor']
             actor_id = f"actor_{actor.replace(' ', '_')}"
@@ -477,7 +516,7 @@ class CampaignFourGraphBuilder:
                     actor_id,
                     label=actor,
                     title=f"<b>Player: {actor}</b>",
-                    color='#FF1493',  # Deep Pink
+                    color='#FF1493',
                     size=20,
                     shape='dot'
                 )
@@ -486,14 +525,13 @@ class CampaignFourGraphBuilder:
                 actor_id,
                 character_page,
                 title='Plays',
-                color='#FF1493',  # Deep Pink (changed from #E67E22)
+                color='#FF1493',
                 width=2
-    )
+            )
     
     def add_entity(self, page_title, entity_data, entity_type):
         """Add an entity to the graph."""
         display_name = entity_data.get('name', page_title.replace('_', ' '))
-        # Clean up reference brackets from display name
         display_name = self.clean_display_text(display_name)
         
         self.entities[page_title] = {
@@ -502,16 +540,15 @@ class CampaignFourGraphBuilder:
             'data': entity_data
         }
         
-        # Determine node properties based on type
         color_map = {
-            'Main Character': '#FF0000',      # Bright Red
-            'Player Character': '#FF0000',     # Bright Red
-            'NPC': '#00BFFF',                  # Deep Sky Blue
-            'Location': '#00FF00',             # Bright Green
-            'Organization': '#FFD700',         # Gold/Yellow
-            'Cast Member': '#9370DB',          # Medium Purple
-            'Event': '#FF1493',                # Deep Pink
-            'Unknown': '#999999'               # Gray
+            'Main Character': '#FF0000',
+            'Player Character': '#FF0000',
+            'NPC': '#00BFFF',
+            'Location': '#00FF00',
+            'Organization': '#FFD700',
+            'Cast Member': '#9370DB',
+            'Event': '#FF1493',
+            'Unknown': '#999999'
         }
         
         size_map = {
@@ -524,7 +561,6 @@ class CampaignFourGraphBuilder:
             'Unknown': 15
         }
         
-        # Build hover title with key info (also clean these)
         title_parts = [f"<b>{display_name}</b>", f"Type: {entity_type}"]
         if 'Actor' in entity_data:
             title_parts.append(f"Played by: {entity_data['Actor']}")
@@ -535,42 +571,36 @@ class CampaignFourGraphBuilder:
             cleaned_class = self.clean_display_text(entity_data['Class'])
             title_parts.append(f"Class: {cleaned_class}")
         
-        # Add image to hover tooltip if available
         image_url = entity_data.get('image_url')
         if image_url:
-            # Ensure we have full URL
             if image_url.startswith('//'):
                 image_url = 'https:' + image_url
             title_parts.append(f'<img src="{image_url}" width="200" />')
         
-        # Add click instruction
         title_parts.append("<br><i>Click to open wiki page</i>")
         
-        # Node configuration
         node_config = {
             'label': display_name,
             'title': '<br>'.join(title_parts),
             'color': color_map.get(entity_type, '#95A5A6'),
             'size': size_map.get(entity_type, 15),
-            'url': f"{self.base_url}/wiki/{page_title}"  # Add wiki URL
+            'url': f"{self.base_url}/wiki/{page_title}"
         }
         
-        # For characters with images, use circular image nodes
         if image_url:
             if image_url.startswith('//'):
                 image_url = 'https:' + image_url
             
-            # Main characters get larger nodes, NPCs get standard size
             if entity_type in ['Main Character', 'Player Character']:
-                node_size = 80  # Double the original size (was 40)
+                node_size = 80
                 border_width = 4
                 border_width_selected = 6
-                border_color = '#FF0000'  # Red border for main characters
+                border_color = '#FF0000'
             elif entity_type == 'NPC':
-                node_size = 40  # Same as old main character size
+                node_size = 40
                 border_width = 3
                 border_width_selected = 5
-                border_color = '#00BFFF'  # Blue border for NPCs
+                border_color = '#00BFFF'
             else:
                 node_size = 40
                 border_width = 3
@@ -593,91 +623,78 @@ class CampaignFourGraphBuilder:
         
         self.graph.add_node(page_title, **node_config)
         
-        # Add metadata nodes for main characters
         if entity_type in ['Main Character', 'Player Character']:
             self.add_metadata_nodes(page_title, entity_data)    
     
-    def add_relationship(self, source_page, target_page, rel_type='associated_with'):
-        """Add an edge between entities, avoiding duplicates."""
+    def add_relationship(self, source_page, target_page, rel_types=['associated_with']):
+        """Add edge(s) between entities with multiple relationship types."""
         if target_page not in self.entities:
             return
-            
-        # Check if this exact relationship already exists
-        if self.graph.has_edge(source_page, target_page):
-            # Edge already exists - check if we should update it
-            existing_edge = self.graph[source_page][target_page]
-            existing_type = existing_edge.get('title', '').lower().replace(' ', '_')
-            
-            # Prioritize more specific relationship types
-            priority = {
-                'member_of': 3,
-                'aspirant_of': 3,
-                'serves_in': 3,
-                'founded': 3,
-                'family': 2,
-                'allied_with': 2,
-                'served_with': 2,
-                'opposed_to': 2,
-                'employed_by': 1,
-                'associated_with': 0
+        
+        # For each relationship type, add or update an edge
+        for rel_type in rel_types:
+            # Edge styling based on relationship type
+            edge_styles = {
+                'family': ('#00BFFF', 3),
+                'romantic_partner': ('#FF1493', 3),
+                'close_friend': ('#00FF7F', 3),
+                'ally': ('#00FF00', 2),
+                'served_together': ('#32CD32', 2),
+                'mentor_student': ('#9370DB', 2),
+                'enemy': ('#8B0000', 2),
+                'rival': ('#FF4500', 2),
+                'complicated': ('#FFD700', 2),
+                'member_of': ('#FFD700', 3),
+                'leads': ('#FF8C00', 3),
+                'aspirant_of': ('#FFA500', 2),
+                'serves_in': ('#DAA520', 2),
+                'founded': ('#B8860B', 2),
+                'associated_with': ('#999999', 1)
             }
             
-            if priority.get(rel_type, 0) > priority.get(existing_type, 0):
-                # New relationship is more specific, update it
-                pass
+            edge_color, edge_width = edge_styles.get(rel_type, ('#999999', 1))
+            edge_label = rel_type.replace('_', ' ').title()
+            
+            # Check if edge already exists
+            if self.graph.has_edge(source_page, target_page):
+                # Update edge to show multiple relationship types
+                existing_edge = self.graph[source_page][target_page]
+                existing_title = existing_edge.get('title', '')
+                
+                if edge_label not in existing_title:
+                    new_title = f"{existing_title}, {edge_label}" if existing_title else edge_label
+                    self.graph[source_page][target_page]['title'] = new_title
+                    self.graph[source_page][target_page]['label'] = new_title
             else:
-                # Keep existing relationship
-                return
-        
-        # Determine edge styling based on relationship type
-        edge_color = '#999999'  # Default gray
-        edge_width = 1
-        
-        if rel_type in ['member_of', 'aspirant_of', 'serves_in']:
-            edge_color = '#FFD700'  # Gold (was orange)
-            edge_width = 3
-        elif rel_type == 'family':
-            edge_color = '#00BFFF'  # Deep Sky Blue
-            edge_width = 2
-        elif rel_type in ['allied_with', 'served_with']:
-            edge_color = '#00FF00'  # Bright Green (was darker green)
-            edge_width = 2
-        elif rel_type == 'opposed_to':
-            edge_color = '#8B0000'  # Dark Red (was similar red)
-            edge_width = 2
-        
-        # Add edge with relationship type
-        edge_label = rel_type.replace('_', ' ').title()
-        self.graph.add_edge(
-            source_page, 
-            target_page, 
-            title=edge_label,
-            label=edge_label if rel_type != 'associated_with' else '',
-            color=edge_color,
-            width=edge_width
-        )
-        
-        # Only add to relationships list if not already there
-        rel_exists = any(
-            r['source'] == source_page and 
-            r['target'] == target_page and 
-            r['type'] == rel_type 
-            for r in self.relationships
-        )
-        
-        if not rel_exists:
-            self.relationships.append({
-                'source': source_page,
-                'target': target_page,
-                'type': rel_type
-            })
+                # Add new edge
+                self.graph.add_edge(
+                    source_page,
+                    target_page,
+                    title=edge_label,
+                    label=edge_label if rel_type != 'associated_with' else '',
+                    color=edge_color,
+                    width=edge_width
+                )
+            
+            # Track in relationships list
+            rel_exists = any(
+                r['source'] == source_page and 
+                r['target'] == target_page and 
+                r['type'] == rel_type 
+                for r in self.relationships
+            )
+            
+            if not rel_exists:
+                self.relationships.append({
+                    'source': source_page,
+                    'target': target_page,
+                    'type': rel_type
+                })
     
     def process_page(self, page_title):
         """Process a single wiki page, handling redirects."""
-        # Normalize input
         page_title = self.normalize_page_title(page_title)
         
-        # Check if we already know the canonical name (from a previous fetch)
         if page_title in self.alias_map:
             canonical_name = self.alias_map[page_title]
             if canonical_name in self.entities:
@@ -686,23 +703,26 @@ class CampaignFourGraphBuilder:
         
         soup, canonical_name = self.fetch_page(page_title)
         
-        if not canonical_name:  # Fetch failed
+        if not canonical_name:
             return []
 
-        # If the canonical entity is already in the graph, we're done with this page.
         if canonical_name in self.entities:
             print(f"    Already processed: {canonical_name}")
             return []
 
-        # Add entity using canonical name
         infobox_data = self.extract_infobox_data(soup)
         categories = self.extract_categories(soup)
         entity_type = self.determine_entity_type(canonical_name, infobox_data, categories)
+        
+        # Get display name for LLM context
+        display_name = infobox_data.get('name', canonical_name.replace('_', ' '))
+        
         self.add_entity(canonical_name, infobox_data, entity_type)
 
-        # Extract relationships (targets are now normalized)
+        # Extract relationships with LLM classification
+        print(f"    Extracting relationships...")
         org_affiliations = self.extract_organization_affiliations(soup, canonical_name)
-        relationships = self.extract_relationships_section(soup)
+        relationships = self.extract_relationships_section(soup, display_name)
         bio_relationships = self.extract_biography_relationships(soup, canonical_name)
         
         all_relationships = org_affiliations + relationships + bio_relationships
@@ -710,26 +730,36 @@ class CampaignFourGraphBuilder:
     
     def build_graph(self):
         """Build the complete Campaign 4 graph."""
-        print("Building Campaign Four Knowledge Graph")
-        print("=" * 50)
+        print("Building Campaign Four Knowledge Graph with LLM Classification")
+        print("=" * 60)
+        print(f"Using Ollama model: {self.ollama_model}")
+        print(f"Ollama URL: {self.ollama_url}")
+        print("=" * 60)
         
-        # Phase 1: Process entities and collect relationships
+        # Test Ollama connection
+        try:
+            test_response = requests.get(f"{self.ollama_url}/api/tags", timeout=5)
+            if test_response.status_code == 200:
+                print("✓ Ollama connection successful")
+            else:
+                print("⚠ Warning: Ollama may not be running properly")
+        except Exception as e:
+            print(f"⚠ Warning: Could not connect to Ollama: {e}")
+            print("  Relationships will use fallback classification")
+        
         print("\n[Phase 1] Processing entities and collecting relationships...")
         all_relationships = {}
         queue = list(self.main_characters)
-        processed = set()  # Track what we've already processed (canonical names)
+        processed = set()
         
-        limit = 50  # Set a hard limit to avoid crawling the whole wiki
+        limit = 50
         count = 0
 
         while queue and count < limit:
             page_title = queue.pop(0)
-            
-            # Normalize the page title
             normalized = self.normalize_page_title(page_title)
-            
-            # Check if we've already processed this canonical entity
             canonical = self.get_canonical_name(normalized)
+            
             if canonical in processed:
                 continue
             
@@ -738,63 +768,52 @@ class CampaignFourGraphBuilder:
 
             relationships = self.process_page(normalized)
             
-            # Mark the canonical name as processed
             canonical = self.get_canonical_name(normalized)
             if canonical:
                 processed.add(canonical)
                 all_relationships[canonical] = relationships
                 
-                # Add related entities to queue
                 for rel in relationships:
                     target = self.normalize_page_title(rel['target'])
-                    # Extra safety: strip fragments again
                     if '#' in target:
                         target = target.split('#')[0]
                     
                     target_canonical = self.get_canonical_name(target)
                     
-                    # Only add to queue if not already processed and not in queue
                     if target_canonical not in processed and target not in queue:
                         queue.append(target)
 
-        # Phase 2: Resolve all relationship targets by fetching them
         print("\n[Phase 2] Resolving canonical names for all relationships...")
         unresolved_targets = set()
         
-        # Collect all unique targets that we haven't processed yet
         for source_canonical, relationships in all_relationships.items():
             for rel in relationships:
                 target = self.normalize_page_title(rel['target'])
                 target_canonical = self.get_canonical_name(target)
                 
-                # If the target wasn't processed (not in entities), we need to resolve it
                 if target_canonical not in self.entities:
-                    # Make sure we strip fragments before adding to unresolved
                     clean_target = target.split('#')[0] if '#' in target else target
                     unresolved_targets.add(clean_target)
         
         print(f"  Found {len(unresolved_targets)} unresolved targets")
         
-        # Fetch each unresolved target just to get its canonical name (don't process fully)
         for target in unresolved_targets:
             if self.get_canonical_name(target) not in self.entities:
                 soup, canonical = self.fetch_page(target)
-                # We don't need to process it, just needed to populate alias_map
         
-        # Phase 3: Add all relationships using fully resolved canonical names
         print("\n[Phase 3] Adding relationships to graph...")
         for source_canonical, relationships in all_relationships.items():
             for rel in relationships:
                 target = self.normalize_page_title(rel['target'])
-                
-                # Now get the canonical name (should be in alias_map from Phase 2)
                 target_canonical = self.get_canonical_name(target)
                 
-                # Only add relationship if both entities exist in the graph
                 if source_canonical in self.entities and target_canonical in self.entities:
-                    self.add_relationship(source_canonical, target_canonical, rel['type'])
+                    # Use the types from LLM classification
+                    rel_types = rel.get('types', ['associated_with'])
+                    self.add_relationship(source_canonical, target_canonical, rel_types)
         
         print("\n✓ Graph building complete!")
+        print(f"  LLM cache size: {len(self.llm_cache)} classifications")
     
     def visualize(self, output_file='campaign4_graph.html'):
         """Create an interactive visualization with legend."""
@@ -806,7 +825,6 @@ class CampaignFourGraphBuilder:
             directed=True
         )
         
-        # Configure physics for better layout
         net.barnes_hut(
             gravity=-15000,
             central_gravity=0.5,
@@ -815,21 +833,14 @@ class CampaignFourGraphBuilder:
             damping=0.09
         )
         
-        # Add graph data
         net.from_nx(self.graph)
-        
-        # Enable physics controls
         net.show_buttons(filter_=['physics'])
-        
-        # Save the initial graph
         net.save_graph(output_file)
         
-        # Modify the HTML to add legend, click handler and cursor behavior
         try:
             with open(output_file, 'r', encoding='utf-8') as f:
                 html_content = f.read()
             
-            # Add CSS for layout and legend styling
             css_additions = '''
     <style>
     body {
@@ -853,6 +864,8 @@ class CampaignFourGraphBuilder:
         font-family: Arial, sans-serif;
         font-size: 13px;
         max-width: 250px;
+        max-height: 80vh;
+        overflow-y: auto;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         z-index: 1000;
     }
@@ -911,7 +924,6 @@ class CampaignFourGraphBuilder:
     '''
             html_content = html_content.replace('</head>', css_additions + '</head>')
             
-            # Add HTML for legend with updated colors
             legend_html = '''
     <div id="legend">
         <h3>📊 Legend</h3>
@@ -951,20 +963,40 @@ class CampaignFourGraphBuilder:
         <div id="legend-section">
             <h4>Relationships</h4>
             <div class="legend-item">
-                <div class="legend-line" style="background-color: #FFD700;"></div>
-                <span>Member/Serves</span>
-            </div>
-            <div class="legend-item">
                 <div class="legend-line" style="background-color: #00BFFF;"></div>
                 <span>Family</span>
             </div>
             <div class="legend-item">
+                <div class="legend-line" style="background-color: #FF1493;"></div>
+                <span>Romantic Partner</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #00FF7F;"></div>
+                <span>Close Friend</span>
+            </div>
+            <div class="legend-item">
                 <div class="legend-line" style="background-color: #00FF00;"></div>
-                <span>Ally/Served With</span>
+                <span>Ally</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #32CD32;"></div>
+                <span>Served Together</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #9370DB;"></div>
+                <span>Mentor/Student</span>
             </div>
             <div class="legend-item">
                 <div class="legend-line" style="background-color: #8B0000;"></div>
-                <span>Opposed To</span>
+                <span>Enemy</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #FF4500;"></div>
+                <span>Rival</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #FFD700;"></div>
+                <span>Complicated/Member Of</span>
             </div>
             <div class="legend-item">
                 <div class="legend-line" style="background-color: #999999;"></div>
@@ -974,26 +1006,23 @@ class CampaignFourGraphBuilder:
         
         <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555; font-size: 11px; color: #aaa;">
             💡 Click nodes to open wiki<br>
-            💡 Drag to move, scroll to zoom
+            💡 Drag to move, scroll to zoom<br>
+            💡 LLM-classified relationships
         </div>
     </div>
 
     <button id="legend-toggle">Show Legend</button>
     '''
             
-            # Try multiple insertion points to ensure legend appears
             if '<body>' in html_content:
                 html_content = html_content.replace('<body>', '<body>\n' + legend_html, 1)
             elif '<div id="mynetwork">' in html_content:
                 html_content = html_content.replace('<div id="mynetwork">', legend_html + '\n<div id="mynetwork">', 1)
             else:
-                # Fallback: insert before </body>
                 html_content = html_content.replace('</body>', legend_html + '\n</body>', 1)
             
-            # Add JavaScript for click handling, cursor changes, and legend toggle
             js_additions = '''
     <script type="text/javascript">
-    // Wait for page to fully load
     window.addEventListener('load', function() {
         setTimeout(function() {
             if (typeof network !== 'undefined' && typeof nodes !== 'undefined') {
@@ -1001,7 +1030,6 @@ class CampaignFourGraphBuilder:
                 var legend = document.getElementById('legend');
                 var legendToggle = document.getElementById('legend-toggle');
                 
-                // Legend toggle functionality
                 var legendVisible = true;
                 
                 legendToggle.addEventListener('click', function() {
@@ -1016,7 +1044,6 @@ class CampaignFourGraphBuilder:
                     }
                 });
                 
-                // Add close button to legend
                 var closeBtn = document.createElement('span');
                 closeBtn.innerHTML = '✕';
                 closeBtn.style.cssText = 'position: absolute; top: 10px; right: 10px; cursor: pointer; font-size: 18px; color: #aaa;';
@@ -1026,7 +1053,6 @@ class CampaignFourGraphBuilder:
                 };
                 legend.insertBefore(closeBtn, legend.firstChild);
                 
-                // Handle node clicks to open wiki pages
                 network.on("click", function(params) {
                     if (params.nodes.length > 0) {
                         var nodeId = params.nodes[0];
@@ -1037,7 +1063,6 @@ class CampaignFourGraphBuilder:
                     }
                 });
                 
-                // Change cursor to pointer when hovering over nodes
                 network.on("hoverNode", function(params) {
                     if (canvas) {
                         canvas.style.cursor = 'pointer';
@@ -1050,7 +1075,6 @@ class CampaignFourGraphBuilder:
                     }
                 });
                 
-                // Fallback cursor handler using pointer position
                 if (canvas) {
                     canvas.addEventListener('mousemove', function(event) {
                         var pointer = {
@@ -1080,7 +1104,6 @@ class CampaignFourGraphBuilder:
         except Exception as e:
             print(f"  ⚠ Error modifying HTML: {e}")
         
-        # Print statistics
         print(f"\n{'=' * 50}")
         print("Graph Statistics:")
         print(f"  Total Nodes: {self.graph.number_of_nodes()}")
@@ -1090,15 +1113,14 @@ class CampaignFourGraphBuilder:
         print(f"  NPCs: {len([n for n, d in self.entities.items() if d['type'] == 'NPC'])}")
         print(f"\n✓ Graph saved to {output_file}")
         print(f"  Open this file in your browser to explore!")
-        print(f"  💡 Click any node to open its wiki page in a new tab")
-        print(f"  💡 Hover over nodes to see the pointer cursor")
-        print(f"  💡 Legend is visible in top-right corner (can be toggled)")        
+        print(f"  💡 Relationships classified using {self.ollama_model}")        
 
     def save_data(self, output_file='campaign4_data.json'):
         """Save entity and relationship data."""
         data = {
             'entities': self.entities,
-            'relationships': self.relationships
+            'relationships': self.relationships,
+            'llm_cache_size': len(self.llm_cache)
         }
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
@@ -1110,7 +1132,6 @@ class CampaignFourGraphBuilder:
         print("Campaign Four Summary:")
         print(f"{'=' * 50}")
         
-        # Main characters with their details
         print(f"\nMain Characters ({len([n for n, d in self.entities.items() if d['type'] == 'Main Character'])}):")
         for char in self.main_characters:
             canonical = self.get_canonical_name(char)
@@ -1122,33 +1143,34 @@ class CampaignFourGraphBuilder:
                 actor = data.get('Actor', 'Unknown')
                 print(f"  • {name:<25} ({race:<15} {char_class:<20}) - {actor}")
         
-        # Organizations found
         orgs = [name for name, data in self.entities.items() if data['type'] == 'Organization']
         if orgs:
             print(f"\nOrganizations ({len(orgs)}):")
             for org in orgs[:15]:
                 print(f"  • {self.entities[org]['name']}")
         
-        # Key NPCs
         npcs = [name for name, data in self.entities.items() if data['type'] == 'NPC']
         if npcs:
             print(f"\nNPCs ({len(npcs)}):")
             for npc in npcs[:15]:
                 print(f"  • {self.entities[npc]['name']}")
         
-        # Relationship types
         rel_types = {}
         for rel in self.relationships:
             rel_types[rel['type']] = rel_types.get(rel['type'], 0) + 1
         
         if rel_types:
-            print(f"\nRelationship Types:")
-            for rel_type, count in sorted(rel_types.items(), key=lambda x: x[1], reverse=True)[:10]:
+            print(f"\nRelationship Types (LLM-classified):")
+            for rel_type, count in sorted(rel_types.items(), key=lambda x: x[1], reverse=True)[:15]:
                 print(f"  • {rel_type.replace('_', ' ').title()}: {count}")
 
 
 def main():
-    builder = CampaignFourGraphBuilder()
+    # Initialize with your Ollama settings
+    builder = CampaignFourGraphBuilder(
+        ollama_model="llama3.1:8b",
+        ollama_url="http://localhost:11434"
+    )
     
     # Build the complete graph
     builder.build_graph()
