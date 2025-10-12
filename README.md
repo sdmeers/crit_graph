@@ -1,6 +1,6 @@
 # Crit Graph: Character Relationship Visualizer
 
-Crit Graph is a tool for generating interactive, node-based graphs to visualize complex relationships between characters and factions in a story or world. It's perfect for authors, game masters, and fans who want to map out the intricate web of connections in their favorite fictional universes.
+Crit Graph is a tool for generating interactive, node-based graphs to visualize complex relationships between characters and factions in a story or world. It's perfect for authors, game masters, and fans who want to map out the intricate web of connections in their favorite fictional universes. An interactive example based on Campaign 4 of Critical Role can be found [here](https://sdmeers.github.io/crit_graph/).
 
 ![Character Relationship Graph](screenshots/graph_screenshot.jpg)
 
