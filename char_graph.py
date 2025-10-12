@@ -425,7 +425,7 @@ class CampaignFourGraphBuilder:
                     race_id,
                     label=race,
                     title=f"<b>Race: {race}</b>",
-                    color='#16A085',  # Teal
+                    color='#00CED1',  # Dark Turquoise
                     size=15,
                     shape='box'
                 )
@@ -451,7 +451,7 @@ class CampaignFourGraphBuilder:
                         class_id,
                         label=class_name,
                         title=f"<b>Class: {class_name}</b>",
-                        color='#8E44AD',  # Purple
+                        color='#9370DB',  # Medium Purple
                         size=15,
                         shape='box'
                     )
@@ -474,7 +474,7 @@ class CampaignFourGraphBuilder:
                     actor_id,
                     label=actor,
                     title=f"<b>Player: {actor}</b>",
-                    color='#E67E22',  # Orange
+                   color='#FF1493',  # Deep Pink
                     size=20,
                     shape='dot'
                 )
@@ -501,15 +501,15 @@ class CampaignFourGraphBuilder:
         
         # Determine node properties based on type
         color_map = {
-            'Main Character': '#E74C3C',      # Red
-            'Player Character': '#E74C3C',     # Red
-            'NPC': '#3498DB',                  # Blue
-            'Location': '#2ECC71',             # Green
-            'Organization': '#F39C12',         # Orange
-            'Cast Member': '#9B59B6',          # Purple
-            'Event': '#E67E22',                # Dark Orange
-            'Character': '#1ABC9C',            # Turquoise
-            'Unknown': '#95A5A6'               # Gray
+            'Main Character': '#FF0000',      # Bright Red
+            'Player Character': '#FF0000',     # Bright Red
+            'NPC': '#00BFFF',                  # Deep Sky Blue
+            'Location': '#00FF00',             # Bright Green
+            'Organization': '#FFD700',         # Gold/Yellow
+            'Cast Member': '#9370DB',          # Medium Purple
+            'Event': '#FF1493',                # Deep Pink
+            'Character': '#FFFFFF',            # White
+            'Unknown': '#999999'               # Gray
         }
         
         size_map = {
@@ -608,16 +608,16 @@ class CampaignFourGraphBuilder:
         edge_width = 1
         
         if rel_type in ['member_of', 'aspirant_of', 'serves_in']:
-            edge_color = '#F39C12'  # Orange for organizations
+            edge_color = '#FFD700'  # Gold (was orange)
             edge_width = 3
         elif rel_type == 'family':
-            edge_color = '#E74C3C'  # Red for family
+            edge_color = '#FF69B4'  # Hot Pink (was red)
             edge_width = 2
         elif rel_type in ['allied_with', 'served_with']:
-            edge_color = '#2ECC71'  # Green for allies
+            edge_color = '#00FF00'  # Bright Green (was darker green)
             edge_width = 2
         elif rel_type == 'opposed_to':
-            edge_color = '#C0392B'  # Dark red for enemies
+            edge_color = '#8B0000'  # Dark Red (was similar red)
             edge_width = 2
         
         # Add edge with relationship type
@@ -771,7 +771,7 @@ class CampaignFourGraphBuilder:
         print("\n✓ Graph building complete!")
     
     def visualize(self, output_file='campaign4_graph.html'):
-        """Create an interactive visualization."""
+        """Create an interactive visualization with legend."""
         net = Network(
             height='900px', 
             width='100%', 
@@ -798,82 +798,258 @@ class CampaignFourGraphBuilder:
         # Save the initial graph
         net.save_graph(output_file)
         
-        # Modify the HTML to add click handler and cursor behavior
+        # Modify the HTML to add legend, click handler and cursor behavior
         try:
             with open(output_file, 'r', encoding='utf-8') as f:
                 html_content = f.read()
             
-            # Add CSS for removing white margin
+            # Add CSS for layout and legend styling
             css_additions = '''
-<style>
-body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-#mynetwork {
-    width: 100vw;
-    height: 100vh;
-}
-</style>
-'''
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    #mynetwork {
+        width: 100vw;
+        height: 100vh;
+    }
+    #legend {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: rgba(26, 26, 26, 0.95);
+        border: 2px solid #444;
+        border-radius: 8px;
+        padding: 15px;
+        color: white;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+        max-width: 250px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+    }
+    #legend h3 {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        border-bottom: 1px solid #555;
+        padding-bottom: 8px;
+    }
+    #legend-section {
+        margin-bottom: 15px;
+    }
+    #legend-section h4 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        color: #aaa;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+        font-size: 12px;
+    }
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 3px;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+    .legend-line {
+        width: 30px;
+        height: 3px;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+    #legend-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: rgba(26, 26, 26, 0.95);
+        border: 2px solid #444;
+        border-radius: 8px;
+        padding: 10px 15px;
+        color: white;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1001;
+        display: none;
+    }
+    #legend-toggle:hover {
+        background-color: rgba(40, 40, 40, 0.95);
+    }
+    </style>
+    '''
             html_content = html_content.replace('</head>', css_additions + '</head>')
             
-            # Add JavaScript for click handling and cursor changes
+            # Add HTML for legend with updated colors
+            legend_html = '''
+    <div id="legend">
+        <h3>📊 Legend</h3>
+        
+        <div id="legend-section">
+            <h4>Node Types</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FF0000;"></div>
+                <span>Main/Player Character</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #00BFFF;"></div>
+                <span>NPC</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FFD700;"></div>
+                <span>Organization</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #00FF00;"></div>
+                <span>Location</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FFFFFF;"></div>
+                <span>Character</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FF1493;"></div>
+                <span>Player/Actor</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #00CED1;"></div>
+                <span>Race</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9370DB;"></div>
+                <span>Class</span>
+            </div>
+        </div>
+        
+        <div id="legend-section">
+            <h4>Relationships</h4>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #FFD700;"></div>
+                <span>Member/Serves</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #FF69B4;"></div>
+                <span>Family</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #00FF00;"></div>
+                <span>Ally/Served With</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #8B0000;"></div>
+                <span>Opposed To</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #999999;"></div>
+                <span>Associated With</span>
+            </div>
+        </div>
+        
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555; font-size: 11px; color: #aaa;">
+            💡 Click nodes to open wiki<br>
+            💡 Drag to move, scroll to zoom
+        </div>
+    </div>
+
+    <button id="legend-toggle">Show Legend</button>
+    '''
+            
+            # Try multiple insertion points to ensure legend appears
+            if '<body>' in html_content:
+                html_content = html_content.replace('<body>', '<body>\n' + legend_html, 1)
+            elif '<div id="mynetwork">' in html_content:
+                html_content = html_content.replace('<div id="mynetwork">', legend_html + '\n<div id="mynetwork">', 1)
+            else:
+                # Fallback: insert before </body>
+                html_content = html_content.replace('</body>', legend_html + '\n</body>', 1)
+            
+            # Add JavaScript for click handling, cursor changes, and legend toggle
             js_additions = '''
-<script type="text/javascript">
-// Wait for page to fully load
-window.addEventListener('load', function() {
-    setTimeout(function() {
-        if (typeof network !== 'undefined' && typeof nodes !== 'undefined') {
-            var canvas = document.querySelector('#mynetwork canvas');
-            
-            // Handle node clicks to open wiki pages
-            network.on("click", function(params) {
-                if (params.nodes.length > 0) {
-                    var nodeId = params.nodes[0];
-                    var clickedNode = nodes.get(nodeId);
-                    if (clickedNode && clickedNode.url) {
-                        window.open(clickedNode.url, "_blank");
-                    }
-                }
-            });
-            
-            // Change cursor to pointer when hovering over nodes
-            network.on("hoverNode", function(params) {
-                if (canvas) {
-                    canvas.style.cursor = 'pointer';
-                }
-            });
-            
-            network.on("blurNode", function(params) {
-                if (canvas) {
-                    canvas.style.cursor = 'default';
-                }
-            });
-            
-            // Fallback cursor handler using pointer position
-            if (canvas) {
-                canvas.addEventListener('mousemove', function(event) {
-                    var pointer = {
-                        x: event.offsetX || (event.pageX - canvas.offsetLeft),
-                        y: event.offsetY || (event.pageY - canvas.offsetTop)
-                    };
-                    
-                    var nodeId = network.getNodeAt(pointer);
-                    
-                    if (nodeId) {
-                        canvas.style.cursor = 'pointer';
+    <script type="text/javascript">
+    // Wait for page to fully load
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            if (typeof network !== 'undefined' && typeof nodes !== 'undefined') {
+                var canvas = document.querySelector('#mynetwork canvas');
+                var legend = document.getElementById('legend');
+                var legendToggle = document.getElementById('legend-toggle');
+                
+                // Legend toggle functionality
+                var legendVisible = true;
+                
+                legendToggle.addEventListener('click', function() {
+                    legendVisible = !legendVisible;
+                    if (legendVisible) {
+                        legend.style.display = 'block';
+                        legendToggle.style.display = 'none';
                     } else {
+                        legend.style.display = 'none';
+                        legendToggle.style.display = 'block';
+                        legendToggle.textContent = 'Show Legend';
+                    }
+                });
+                
+                // Add close button to legend
+                var closeBtn = document.createElement('span');
+                closeBtn.innerHTML = '✕';
+                closeBtn.style.cssText = 'position: absolute; top: 10px; right: 10px; cursor: pointer; font-size: 18px; color: #aaa;';
+                closeBtn.onclick = function() {
+                    legend.style.display = 'none';
+                    legendToggle.style.display = 'block';
+                };
+                legend.insertBefore(closeBtn, legend.firstChild);
+                
+                // Handle node clicks to open wiki pages
+                network.on("click", function(params) {
+                    if (params.nodes.length > 0) {
+                        var nodeId = params.nodes[0];
+                        var clickedNode = nodes.get(nodeId);
+                        if (clickedNode && clickedNode.url) {
+                            window.open(clickedNode.url, "_blank");
+                        }
+                    }
+                });
+                
+                // Change cursor to pointer when hovering over nodes
+                network.on("hoverNode", function(params) {
+                    if (canvas) {
+                        canvas.style.cursor = 'pointer';
+                    }
+                });
+                
+                network.on("blurNode", function(params) {
+                    if (canvas) {
                         canvas.style.cursor = 'default';
                     }
                 });
+                
+                // Fallback cursor handler using pointer position
+                if (canvas) {
+                    canvas.addEventListener('mousemove', function(event) {
+                        var pointer = {
+                            x: event.offsetX || (event.pageX - canvas.offsetLeft),
+                            y: event.offsetY || (event.pageY - canvas.offsetTop)
+                        };
+                        
+                        var nodeId = network.getNodeAt(pointer);
+                        
+                        if (nodeId) {
+                            canvas.style.cursor = 'pointer';
+                        } else {
+                            canvas.style.cursor = 'default';
+                        }
+                    });
+                }
             }
-        }
-    }, 2000);
-});
-</script>
-'''
+        }, 2000);
+    });
+    </script>
+    '''
             html_content = html_content.replace('</body>', js_additions + '\n</body>')
             
             with open(output_file, 'w', encoding='utf-8') as f:
@@ -894,7 +1070,8 @@ window.addEventListener('load', function() {
         print(f"  Open this file in your browser to explore!")
         print(f"  💡 Click any node to open its wiki page in a new tab")
         print(f"  💡 Hover over nodes to see the pointer cursor")
-    
+        print(f"  💡 Legend is visible in top-right corner (can be toggled)")
+        
     def save_data(self, output_file='campaign4_data.json'):
         """Save entity and relationship data."""
         data = {

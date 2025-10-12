@@ -280,27 +280,29 @@
           "/wiki/Dol-Makyar",
           "/wiki/Aram%C3%A1n"
         ],
-        "Family": "Alogar(son)[8]Shadia(daughter)[9]",
+        "Family": "Alogar(son)[8]Shadia(daughter)[9]Lloy family\"Grandmama\" (distant ancestor)[10]",
         "Family_links": [
           "/wiki/Alogar",
           "#cite_note-9",
           "/wiki/Shadia",
-          "#cite_note-10"
+          "#cite_note-10",
+          "/wiki/Lloy_family",
+          "#cite_note-11"
         ],
-        "Connections": "Halandil Fang(father of her children)Thjazi Fang(friend)Hala(Wild Companion)[10]Occtis Tachonis(friend)Circle of Ancients[11]",
+        "Connections": "Halandil Fang(father of her children)Thjazi Fang(friend)Hala(Wild Companion)[11]Occtis Tachonis(friend)Circle of Ancients[12]",
         "Connections_links": [
           "/wiki/Halandil_Fang",
           "/wiki/Thjazi_Fang",
           "/wiki/Hala",
-          "#cite_note-11",
+          "#cite_note-12",
           "/wiki/Occtis_Tachonis",
-          "#cite_note-12"
+          "#cite_note-13"
         ],
         "Status": "Alive",
         "Level": "3",
-        "Reference(s)": "[12]",
+        "Reference(s)": "[13]",
         "Reference(s)_links": [
-          "#cite_note-13"
+          "#cite_note-14"
         ],
         "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
         "First seen_links": [
@@ -880,11 +882,12 @@
         "Place_links": [
           "/wiki/Aram%C3%A1n"
         ],
-        "Family": "Lord Primus Tachonis[3](father)",
+        "Family": "House TachonisLord Primus Tachonis[3](father)",
         "Family_links": [
+          "/wiki/House_Tachonis",
           "#cite_note-4"
         ],
-        "Connections": "Pincushion(fox)[4]Thjazi Fang[5]",
+        "Connections": "Pincushion(fox)[4]Thjazi Fang[5](mentor)",
         "Connections_links": [
           "/wiki/Pincushion",
           "#cite_note-5",
@@ -992,8 +995,11 @@
           "/wiki/Yanessa_Halovar",
           "/wiki/Wicander_Halovar"
         ],
-        "Allies": "VassalsHouse DavinosHouse EgerionHouse Malterres",
-        "Enemies": "Torn Banner"
+        "Allies": "Vassals:House DavinosHouse EgerionHouse Malterres",
+        "Enemies": "Torn Banner",
+        "Enemies_links": [
+          "/wiki/Torn_Banner"
+        ]
       }
     },
     "Sylandri": {
@@ -1168,20 +1174,22 @@
           "/wiki/Beast"
         ],
         "Race": "Wolf",
-        "Class": "Companion",
-        "Place": "Aramán",
-        "Place_links": [
-          "/wiki/Aram%C3%A1n"
+        "Class": "Primal Companion",
+        "Languages": "Common,Thieves' Cant(understands but cannot speak)[1]",
+        "Languages_links": [
+          "/wiki/Languages",
+          "/wiki/Languages",
+          "#cite_note--DandD:_Player-s_Handbook_(2024)-_122--2"
         ],
-        "Connections": "Kattigan Vale(companion)[1]",
+        "Connections": "Kattigan Vale(companion)[2]",
         "Connections_links": [
           "/wiki/Kattigan_Vale",
-          "#cite_note-2"
+          "#cite_note-3"
         ],
         "Status": "Alive",
-        "Reference(s)": "[2]",
+        "Reference(s)": "[1]",
         "Reference(s)_links": [
-          "#cite_note--DandD:_Player-s_Handbook_(2024)-_122--3"
+          "#cite_note--DandD:_Player-s_Handbook_(2024)-_122--2"
         ],
         "First seen": "\"The Fall of Thjazi Fang\"(4x01)",
         "First seen_links": [
@@ -1223,9 +1231,10 @@
         "Formed_links": [
           "/wiki/Campaign_Four"
         ],
-        "Notable members": "Yanessa HalovarWicander HalovarTyranny",
+        "Notable members": "Yanessa HalovarGodard HalovarWicander HalovarTyranny",
         "Notable members_links": [
           "/wiki/Yanessa_Halovar",
+          "/wiki/Godard_Halovar",
           "/wiki/Wicander_Halovar",
           "/wiki/Tyranny"
         ]
@@ -1263,7 +1272,7 @@
         ],
         "Family": "House RoyceUnnamed grandfatherFang familyThjazi Fang(husband)Halandil Fang(brother-in-law)",
         "Family_links": [
-          "/wiki/Sundered_Houses#House_Royce",
+          "/wiki/House_Royce",
           "/wiki/Thjazi_Fang",
           "/wiki/Halandil_Fang"
         ],
@@ -1318,7 +1327,8 @@
         "Family": "House HalovarWicander Halovar(grandson)Godard Halovar(son)",
         "Family_links": [
           "/wiki/House_Halovar",
-          "/wiki/Wicander_Halovar"
+          "/wiki/Wicander_Halovar",
+          "/wiki/Godard_Halovar"
         ],
         "Connections": "Candescent Creed",
         "Connections_links": [
@@ -1448,6 +1458,11 @@
     {
       "source": "Vaelus",
       "target": "Bolaire_Lathalia",
+      "type": "associated_with"
+    },
+    {
+      "source": "Vaelus",
+      "target": "Thimble",
       "type": "associated_with"
     },
     {
@@ -1584,6 +1599,16 @@
       "source": "Revolutionary_Council",
       "target": "Sundered_Houses",
       "type": "member_of"
+    },
+    {
+      "source": "Wulfric",
+      "target": "Kattigan_Vale",
+      "type": "allied_with"
+    },
+    {
+      "source": "Wulfric",
+      "target": "Pincushion",
+      "type": "family"
     },
     {
       "source": "Candescent_Creed",
