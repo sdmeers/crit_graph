@@ -521,7 +521,6 @@ class CampaignFourGraphBuilder:
             'Organization': 25,
             'Location': 20,
             'Event': 20,
-            'Character': 15,
             'Unknown': 15
         }
         
@@ -556,22 +555,47 @@ class CampaignFourGraphBuilder:
             'url': f"{self.base_url}/wiki/{page_title}"  # Add wiki URL
         }
         
-        # For main characters with images, use circular image nodes
-        if entity_type in ['Main Character', 'Player Character'] and image_url:
+        # For characters with images, use circular image nodes
+        if image_url:
             if image_url.startswith('//'):
                 image_url = 'https:' + image_url
             
+            # Main characters get larger nodes, NPCs get standard size
+            if entity_type in ['Main Character', 'Player Character']:
+                node_size = 80  # Double the original size (was 40)
+                border_width = 4
+                border_width_selected = 6
+                border_color = '#FF0000'  # Red border for main characters
+            elif entity_type == 'NPC':
+                node_size = 40  # Same as old main character size
+                border_width = 3
+                border_width_selected = 5
+                border_color = '#00BFFF'  # Blue border for NPCs
+            else:
+                node_size = 40
+                border_width = 3
+                border_width_selected = 5
+                border_color = color_map.get(entity_type, '#95A5A6')
+            
             node_config['shape'] = 'circularImage'
             node_config['image'] = image_url
-            node_config['size'] = 40  # Larger for better visibility
-            node_config['borderWidth'] = 3
-            node_config['borderWidthSelected'] = 5
+            node_config['size'] = node_size
+            node_config['borderWidth'] = border_width
+            node_config['borderWidthSelected'] = border_width_selected
+            node_config['color'] = {
+                'border': border_color,
+                'background': border_color,
+                'highlight': {
+                    'border': border_color,
+                    'background': border_color
+                }
+            }
         
         self.graph.add_node(page_title, **node_config)
         
         # Add metadata nodes for main characters
         if entity_type in ['Main Character', 'Player Character']:
-            self.add_metadata_nodes(page_title, entity_data)
+            self.add_metadata_nodes(page_title, entity_data)    
     
     def add_relationship(self, source_page, target_page, rel_type='associated_with'):
         """Add an edge between entities, avoiding duplicates."""
@@ -1068,7 +1092,7 @@ class CampaignFourGraphBuilder:
         print(f"  Open this file in your browser to explore!")
         print(f"  💡 Click any node to open its wiki page in a new tab")
         print(f"  💡 Hover over nodes to see the pointer cursor")
-        print(f"  💡 Legend is visible in top-right corner (can be toggled)")    
+        print(f"  💡 Legend is visible in top-right corner (can be toggled)")        
 
     def save_data(self, output_file='campaign4_data.json'):
         """Save entity and relationship data."""
