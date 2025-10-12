@@ -780,7 +780,7 @@ Categories:"""
         queue = list(self.main_characters)
         processed = set()
         
-        limit = 50
+        limit = 200
         count = 0
 
         while queue and count < limit:

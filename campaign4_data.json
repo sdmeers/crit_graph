@@ -798,6 +798,7 @@
         ],
         "Family": "House DavinosGeneral Raimond Davinos(father)[3]",
         "Family_links": [
+          "/wiki/Raimond_Davinos",
           "#cite_note-4"
         ],
         "Connections": "Sundered House of Royce[4]Aranessa Royce[4]Thjazi Fang(enemy)[5]Alogar(apprentice)[6]",
@@ -2115,8 +2116,8 @@
       "target": "Thjazi_Fang",
       "type": "Ally",
       "original_types": [
-        "close_friend",
-        "ally"
+        "ally",
+        "close_friend"
       ]
     },
     {
@@ -2132,8 +2133,8 @@
       "target": "Wulfric",
       "type": "Ally",
       "original_types": [
-        "close_friend",
-        "ally"
+        "ally",
+        "close_friend"
       ]
     },
     {
@@ -2157,8 +2158,8 @@
       "target": "Occtis_Tachonis",
       "type": "Family",
       "original_types": [
-        "complicated",
-        "family"
+        "family",
+        "complicated"
       ]
     },
     {
@@ -2174,8 +2175,8 @@
       "target": "Thjazi_Fang",
       "type": "Ally",
       "original_types": [
-        "complicated",
-        "ally"
+        "ally",
+        "complicated"
       ]
     },
     {
@@ -2191,8 +2192,8 @@
       "target": "Bolaire_Lathalia",
       "type": "Ally",
       "original_types": [
-        "complicated",
-        "ally"
+        "ally",
+        "complicated"
       ]
     },
     {
@@ -2200,8 +2201,8 @@
       "target": "Thimble",
       "type": "Enemy",
       "original_types": [
-        "enemy",
-        "rival"
+        "rival",
+        "enemy"
       ]
     },
     {
@@ -2217,9 +2218,9 @@
       "target": "Aranessa_Royce",
       "type": "Romantic Partner",
       "original_types": [
+        "ally",
         "romantic_partner",
-        "close_friend",
-        "ally"
+        "close_friend"
       ]
     },
     {
@@ -2250,10 +2251,10 @@
     {
       "source": "Tyranny",
       "target": "Wicander_Halovar",
-      "type": "Ally",
+      "type": "Family",
       "original_types": [
-        "complicated",
-        "ally"
+        "family",
+        "complicated"
       ]
     },
     {
@@ -2269,8 +2270,8 @@
       "target": "Thjazi_Fang",
       "type": "Family",
       "original_types": [
-        "ally",
         "family",
+        "ally",
         "close_friend"
       ]
     },
@@ -2279,9 +2280,9 @@
       "target": "Thaisha_Lloy",
       "type": "Family",
       "original_types": [
+        "family",
         "romantic_partner",
         "ally",
-        "family",
         "close_friend"
       ]
     },
@@ -2306,8 +2307,8 @@
       "target": "Occtis_Tachonis",
       "type": "Ally",
       "original_types": [
-        "member_of",
-        "ally"
+        "ally",
+        "member_of"
       ]
     },
     {
@@ -2315,8 +2316,8 @@
       "target": "Thjazi_Fang",
       "type": "Ally",
       "original_types": [
-        "close_friend",
-        "ally"
+        "ally",
+        "close_friend"
       ]
     },
     {
@@ -2324,7 +2325,6 @@
       "target": "Thimble",
       "type": "Family",
       "original_types": [
-        "ally",
         "family",
         "close_friend"
       ]
@@ -2334,8 +2334,8 @@
       "target": "Candescent_Creed",
       "type": "Member Of",
       "original_types": [
-        "member_of",
-        "aspirant_of"
+        "aspirant_of",
+        "member_of"
       ]
     },
     {
@@ -2343,8 +2343,8 @@
       "target": "Sundered_Houses",
       "type": "Member Of",
       "original_types": [
-        "member_of",
-        "aspirant_of"
+        "aspirant_of",
+        "member_of"
       ]
     },
     {
@@ -2352,8 +2352,8 @@
       "target": "Tyranny",
       "type": "Romantic Partner",
       "original_types": [
-        "complicated",
-        "romantic_partner"
+        "romantic_partner",
+        "complicated"
       ]
     },
     {
@@ -2361,8 +2361,8 @@
       "target": "Yanessa_Halovar",
       "type": "Family",
       "original_types": [
-        "mentor_student",
-        "family"
+        "family",
+        "mentor_student"
       ]
     },
     {
@@ -2378,16 +2378,18 @@
       "target": "Thjazi_Fang",
       "type": "Ally",
       "original_types": [
-        "mentor_student",
-        "ally"
+        "ally",
+        "mentor_student"
       ]
     },
     {
       "source": "Occtis_Tachonis",
       "target": "Pincushion",
-      "type": "Ally",
+      "type": "Family",
       "original_types": [
-        "ally"
+        "family",
+        "ally",
+        "close_friend"
       ]
     },
     {
@@ -2395,8 +2397,8 @@
       "target": "Thaisha_Lloy",
       "type": "Family",
       "original_types": [
-        "complicated",
-        "family"
+        "family",
+        "complicated"
       ]
     },
     {
@@ -2420,9 +2422,9 @@
       "target": "Thimble",
       "type": "Romantic Partner",
       "original_types": [
+        "ally",
         "romantic_partner",
-        "close_friend",
-        "ally"
+        "close_friend"
       ]
     },
     {
@@ -2430,8 +2432,8 @@
       "target": "Aranessa_Royce",
       "type": "Family",
       "original_types": [
-        "romantic_partner",
-        "family"
+        "family",
+        "romantic_partner"
       ]
     },
     {
@@ -2447,8 +2449,8 @@
       "target": "Kattigan_Vale",
       "type": "Ally",
       "original_types": [
-        "close_friend",
-        "ally"
+        "ally",
+        "close_friend"
       ]
     },
     {
@@ -2456,8 +2458,8 @@
       "target": "Pincushion",
       "type": "Ally",
       "original_types": [
-        "close_friend",
-        "ally"
+        "ally",
+        "close_friend"
       ]
     },
     {
@@ -2489,8 +2491,9 @@
       "target": "Julien_Davinos",
       "type": "Ally",
       "original_types": [
-        "close_friend",
-        "ally"
+        "ally",
+        "served_together",
+        "close_friend"
       ]
     },
     {
@@ -2498,8 +2501,8 @@
       "target": "Thjazi_Fang",
       "type": "Family",
       "original_types": [
-        "romantic_partner",
-        "family"
+        "family",
+        "romantic_partner"
       ]
     },
     {
@@ -2531,8 +2534,8 @@
       "target": "Wulfric",
       "type": "Ally",
       "original_types": [
-        "close_friend",
-        "ally"
+        "ally",
+        "close_friend"
       ]
     }
   ],
