@@ -3,8 +3,13 @@
 Generate a valid GML file for Critical Role Campaign 4 Episode 1 network graph
 """
 
-def write_gml_file(filename='cr_c4e1_network.gml'):
+import os
+
+def write_gml_file(filename='transcripts/cr_c4e1_network.gml'):
     """Write a properly formatted GML file"""
+    
+    # Create transcripts directory if it doesn't exist
+    os.makedirs('transcripts', exist_ok=True)
     
     with open(filename, 'w', encoding='utf-8') as f:
         # Header
