@@ -18,6 +18,7 @@ from pyvis.network import Network
 import time
 import sys
 import os
+import urllib.parse
 
 class EpisodeGraphVisualizer:
     def __init__(self, gml_file):
@@ -29,6 +30,10 @@ class EpisodeGraphVisualizer:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
         self.image_cache = {}
+        self.manual_overrides = {
+            "Shadia Fang": "Shadia",
+            "Alogar Lloy": "Alogar"
+        }
         
         # Color schemes for different node types
         self.type_colors = {
@@ -85,33 +90,67 @@ class EpisodeGraphVisualizer:
             return False
     
     def fetch_wiki_image(self, node_label):
-        """Fetch an image for a node from the Critical Role wiki."""
-        # Check cache first
+        """Fetch an image and page URL for a node from the Critical Role wiki using a highly refined search strategy."""
         if node_label in self.image_cache:
             return self.image_cache[node_label]
-        
-        # Clean up node label for wiki URL
-        wiki_name = node_label.replace(' ', '_')
-        wiki_name = wiki_name.replace("'", "%27")
-        
-        url = f"{self.base_url}/wiki/{wiki_name}"
-        
-        try:
-            print(f"  Fetching image for: {node_label}")
-            time.sleep(0.5)  # Rate limiting
-            
-            response = self.session.get(url, timeout=10)
-            
-            # Handle 404s gracefully
-            if response.status_code == 404:
+
+        best_page_title = None
+
+        # Strategy 0: Manual Overrides
+        if node_label in self.manual_overrides:
+            best_page_title = self.manual_overrides[node_label]
+            print(f"  ✓ Using manual override for '{node_label}': '{best_page_title}'")
+        else:
+            # Strategies 1 & 2: Search API
+            print(f"  Searching for wiki page for: {node_label}")
+            try:
+                encoded_label = urllib.parse.quote_plus(node_label)
+                search_url = f"{self.base_url}/api.php?action=query&list=search&srsearch={encoded_label}&format=json&srprop=size"
+                
+                search_response = self.session.get(search_url, timeout=10)
+                search_response.raise_for_status()
+                search_data = search_response.json()
+                search_results = search_data.get('query', {}).get('search', [])
+
+                # Strategy 1: Prioritize an exact (case-insensitive) title match if it's not a tiny stub
+                for result in search_results:
+                    if result['title'].lower() == node_label.lower() and result.get('size', 0) > 100:
+                        best_page_title = result['title']
+                        print(f"    ✓ Found exact match: {best_page_title}")
+                        break
+                
+                # Strategy 2: If no exact match, find the first large page with word overlap, avoiding common bad results.
+                if not best_page_title:
+                    node_label_words = {word.lower() for word in node_label.split()}
+                    for result in search_results:
+                        title = result['title']
+                        if title == "The Fall of Thjazi Fang":
+                            continue
+                        title_words = {word.lower() for word in title.split()}
+                        if result.get('size', 0) > 500 and node_label_words.intersection(title_words):
+                            best_page_title = title
+                            print(f"    ✓ Found best match by word overlap: {best_page_title}")
+                            break
+            except Exception as e:
+                print(f"    ⚠ Error searching for {node_label}: {e}")
                 self.image_cache[node_label] = None
                 return None
-            
+
+        # If a page title was found (by override or search), fetch and process it.
+        if not best_page_title:
+            self.image_cache[node_label] = None
+            return None
+
+        try:
+            page_wiki_name = best_page_title.replace(' ', '_')
+            page_url = f"{self.base_url}/wiki/{page_wiki_name}"
+
+            time.sleep(0.5)
+            response = self.session.get(page_url, timeout=10)
             response.raise_for_status()
-            
             soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Try to find infobox image
+
+            image_url = None
             infobox = soup.find('aside', class_='portable-infobox')
             if infobox:
                 image_container = infobox.find('figure', class_='pi-item pi-image')
@@ -120,41 +159,33 @@ class EpisodeGraphVisualizer:
                     if image_elem:
                         img_url = image_elem.get('src') or image_elem.get('data-src')
                         if img_url:
-                            # Clean up URL
                             if '/revision/latest' in img_url:
                                 img_url = img_url.split('/revision/latest')[0]
                             if img_url.startswith('//'):
                                 img_url = 'https:' + img_url
-                            
-                            print(f"    ✓ Found image: {img_url[:80]}...")
-                            self.image_cache[node_label] = img_url
-                            return img_url
+                            image_url = img_url
             
-            # Fallback: try to find any image in infobox
-            if infobox:
+            if not image_url and infobox: # Fallback
                 image_elem = infobox.find('img')
                 if image_elem:
                     img_url = image_elem.get('src') or image_elem.get('data-src')
                     if img_url:
                         if img_url.startswith('//'):
                             img_url = 'https:' + img_url
-                        print(f"    ✓ Found image (fallback): {img_url[:80]}...")
-                        self.image_cache[node_label] = img_url
-                        return img_url
-            
-            self.image_cache[node_label] = None
-            return None
-            
-        except requests.exceptions.HTTPError as e:
-            if '404' not in str(e):
-                print(f"    ⚠ HTTP error for {node_label}: {e}")
-            self.image_cache[node_label] = None
-            return None
+                        image_url = img_url
+
+            if image_url:
+                print(f"    ✓ Found image on page: {image_url[:80]}...")
+
+            result = {'image_url': image_url, 'page_url': page_url}
+            self.image_cache[node_label] = result
+            return result
+
         except Exception as e:
-            print(f"    ⚠ Error fetching image for {node_label}: {e}")
+            print(f"    ⚠ Error processing page for {node_label}: {e}")
             self.image_cache[node_label] = None
             return None
-    
+
     def enhance_graph(self):
         """Enhance graph nodes with portraits and styling."""
         print("\nEnhancing graph with portraits and styling...")
@@ -163,54 +194,49 @@ class EpisodeGraphVisualizer:
             node_data = self.graph.nodes[node_id]
             node_type = node_data.get('type', 'unknown')
             
-            # Handle case where type might be a list (from GML parsing)
             if isinstance(node_type, list):
                 node_type = node_type[0] if node_type else 'unknown'
             
             label = node_data.get('label', str(node_id))
             
-            # Handle case where label might be a list
             if isinstance(label, list):
                 label = label[0] if label else str(node_id)
             
-            # Set base styling
             color = self.type_colors.get(node_type, '#999999')
             size = self.type_sizes.get(node_type, 20)
             
+            # Fetch image and page URL
+            wiki_data = self.fetch_wiki_image(label)
+            image_url, page_url = (None, None)
+            if wiki_data:
+                image_url = wiki_data.get('image_url')
+                page_url = wiki_data.get('page_url')
+
             # Build hover title
             title_parts = [f"<b>{label}</b>"]
             if node_type:
                 title_parts.append(f"Type: {node_type.replace('_', ' ').title()}")
             
-            # Add any additional attributes to title
             for key, value in node_data.items():
                 if key not in ['label', 'type', 'id'] and value:
-                    # Handle lists in attribute values
                     if isinstance(value, list):
                         value = ', '.join(str(v) for v in value)
                     clean_key = key.replace('_', ' ').title()
                     title_parts.append(f"{clean_key}: {value}")
-            
-            # Fetch image for any node that might have one
-            image_url = self.fetch_wiki_image(label)
-
-            # Construct wiki URL
-            wiki_name = label.replace(' ', '_').replace("'", "%27")
-            wiki_url = f"{self.base_url}/wiki/{wiki_name}"
-            
-            # Add click instruction to title
-            title_parts.append("<br><i>Click to open wiki page</i>")
             
             # Configure node
             node_config = {
                 'label': label,
                 'color': color,
                 'size': size,
-                'title': '<br>'.join(title_parts),
-                'url': wiki_url
             }
-            
-            # If we have an image, use circular image
+
+            if page_url:
+                node_config['url'] = page_url
+                title_parts.append("<br><i>Click to open wiki page</i>")
+
+            node_config['title'] = '<br>'.join(title_parts)
+
             if image_url:
                 node_config.update({
                     'shape': 'circularImage',
@@ -221,17 +247,12 @@ class EpisodeGraphVisualizer:
                     'color': {
                         'border': color,
                         'background': color,
-                        'highlight': {
-                            'border': color,
-                            'background': color
-                        }
+                        'highlight': {'border': color, 'background': color}
                     },
-                    'title': '<br>'.join(title_parts) + f'<br><img src="{image_url}" width="200" />'
+                    'title': node_config['title'] + f'<br><img src="{image_url}" width="200" />'
                 })
             
-            # Update node with new config
-            for key, value in node_config.items():
-                self.graph.nodes[node_id][key] = value
+            self.graph.nodes[node_id].update(node_config)
         
         # Enhance edges
         print("\nEnhancing edges...")
@@ -565,7 +586,7 @@ class EpisodeGraphVisualizer:
         """Print graph statistics."""
         print(f"\n{'=' * 60}")
         print("Graph Statistics")
-        print(f"{'=' * 60}")
+        print(f"{ '=' * 60}")
         print(f"Total Nodes: {self.graph.number_of_nodes()}")
         print(f"Total Edges: {self.graph.number_of_edges()}")
         
@@ -587,7 +608,7 @@ class EpisodeGraphVisualizer:
         if self.image_cache:
             print(f"\nImages Found: {images_found}/{len(self.image_cache)}")
         
-        print(f"{'=' * 60}")
+        print(f"{ '=' * 60}")
     
     def run(self, output_file='episode_graph.html'):
         """Main execution flow."""
@@ -615,15 +636,20 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python CR_episode_graph.py <gml_file> [output_file]")
         print("\nExample:")
-        print("  python CR_episode_graph.py cr_c4e1_network.gml episode_graph.html")
+        print("  python CR_episode_graph.py transcripts/cr_c4e1_network.gml docs/episode1_graph.html")
         sys.exit(1)
     
     gml_file = sys.argv[1]
-    output_file = sys.argv[2] if len(sys.argv) > 2 else 'episode_graph.html'
+    output_file = sys.argv[2] if len(sys.argv) > 2 else 'docs/episode1_graph.html'
     
     if not os.path.exists(gml_file):
         print(f"Error: GML file not found: {gml_file}")
         sys.exit(1)
+
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_file)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
     visualizer = EpisodeGraphVisualizer(gml_file)
     success = visualizer.run(output_file)
