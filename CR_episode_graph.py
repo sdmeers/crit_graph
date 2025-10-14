@@ -199,13 +199,21 @@ class EpisodeGraphVisualizer:
             image_url = None
             if node_type == 'character':
                 image_url = self.fetch_portrait(label)
+
+            # Construct wiki URL
+            wiki_name = label.replace(' ', '_').replace("'", "%27")
+            wiki_url = f"{self.base_url}/wiki/{wiki_name}"
+            
+            # Add click instruction to title
+            title_parts.append("<br><i>Click to open wiki page</i>")
             
             # Configure node
             node_config = {
                 'label': label,
                 'color': color,
                 'size': size,
-                'title': '<br>'.join(title_parts)
+                'title': '<br>'.join(title_parts),
+                'url': wiki_url
             }
             
             # If we have an image, use circular image
@@ -457,7 +465,7 @@ class EpisodeGraphVisualizer:
         </div>
         
         <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555; font-size: 11px; color: #aaa;">
-            💡 Hover over nodes for details<br>
+            💡 Click nodes to open wiki<br>
             💡 Drag to move, scroll to zoom<br>
             💡 Click and drag background to pan
         </div>
@@ -473,12 +481,12 @@ class EpisodeGraphVisualizer:
             js_additions = '''
     <script type="text/javascript">
     window.addEventListener('load', function() {
+        // Legend handling
         var legend = document.getElementById('legend');
         var legendToggle = document.getElementById('legend-toggle');
         var legendClose = document.getElementById('legend-close');
-        
         var legendVisible = true;
-        
+
         function toggleLegend() {
             legendVisible = !legendVisible;
             if (legendVisible) {
@@ -489,14 +497,62 @@ class EpisodeGraphVisualizer:
                 legendToggle.style.display = 'block';
             }
         }
-        
+
         if (legendToggle) {
             legendToggle.addEventListener('click', toggleLegend);
         }
-        
         if (legendClose) {
             legendClose.addEventListener('click', toggleLegend);
         }
+
+        // Network interactivity
+        setTimeout(function() {
+            if (typeof network !== 'undefined' && typeof nodes !== 'undefined') {
+                var canvas = document.querySelector('#mynetwork canvas');
+
+                network.on("click", function(params) {
+                    if (params.nodes.length > 0) {
+                        var nodeId = params.nodes[0];
+                        var clickedNode = nodes.get(nodeId);
+                        if (clickedNode && clickedNode.url) {
+                            window.open(clickedNode.url, "_blank");
+                        }
+                    }
+                });
+
+                network.on("hoverNode", function(params) {
+                    var nodeId = params.node;
+                    var node = nodes.get(nodeId);
+                    if (node && node.url) {
+                        if (canvas) canvas.style.cursor = 'pointer';
+                    }
+                });
+
+                network.on("blurNode", function(params) {
+                    if (canvas) canvas.style.cursor = 'default';
+                });
+                
+                if (canvas) {
+                    canvas.addEventListener('mousemove', function(event) {
+                        var pointer = {
+                            x: event.offsetX || (event.pageX - canvas.offsetLeft),
+                            y: event.offsetY || (event.pageY - canvas.offsetTop)
+                        };
+                        var nodeId = network.getNodeAt(pointer);
+                        if (nodeId) {
+                            var node = nodes.get(nodeId);
+                            if (node && node.url) {
+                                canvas.style.cursor = 'pointer';
+                            } else {
+                                canvas.style.cursor = 'default';
+                            }
+                        } else {
+                            canvas.style.cursor = 'default';
+                        }
+                    });
+                }
+            }
+        }, 1000); // Wait a bit for the network to initialize
     });
     </script>
     '''
