@@ -28,7 +28,7 @@ class EpisodeGraphVisualizer:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
-        self.portrait_cache = {}
+        self.image_cache = {}
         
         # Color schemes for different node types
         self.type_colors = {
@@ -84,28 +84,27 @@ class EpisodeGraphVisualizer:
             print(f"✗ Error loading GML file: {e}")
             return False
     
-    def fetch_portrait(self, character_name):
-        """Fetch character portrait from Critical Role wiki."""
+    def fetch_wiki_image(self, node_label):
+        """Fetch an image for a node from the Critical Role wiki."""
         # Check cache first
-        if character_name in self.portrait_cache:
-            return self.portrait_cache[character_name]
+        if node_label in self.image_cache:
+            return self.image_cache[node_label]
         
-        # Clean up character name for wiki URL
-        wiki_name = character_name.replace(' ', '_')
+        # Clean up node label for wiki URL
+        wiki_name = node_label.replace(' ', '_')
         wiki_name = wiki_name.replace("'", "%27")
         
         url = f"{self.base_url}/wiki/{wiki_name}"
         
         try:
-            print(f"  Fetching portrait for: {character_name}")
+            print(f"  Fetching image for: {node_label}")
             time.sleep(0.5)  # Rate limiting
             
             response = self.session.get(url, timeout=10)
             
             # Handle 404s gracefully
             if response.status_code == 404:
-                print(f"    ⚠ Wiki page not found (404)")
-                self.portrait_cache[character_name] = None
+                self.image_cache[node_label] = None
                 return None
             
             response.raise_for_status()
@@ -127,8 +126,8 @@ class EpisodeGraphVisualizer:
                             if img_url.startswith('//'):
                                 img_url = 'https:' + img_url
                             
-                            print(f"    ✓ Found portrait: {img_url[:80]}...")
-                            self.portrait_cache[character_name] = img_url
+                            print(f"    ✓ Found image: {img_url[:80]}...")
+                            self.image_cache[node_label] = img_url
                             return img_url
             
             # Fallback: try to find any image in infobox
@@ -139,24 +138,21 @@ class EpisodeGraphVisualizer:
                     if img_url:
                         if img_url.startswith('//'):
                             img_url = 'https:' + img_url
-                        print(f"    ✓ Found portrait (fallback): {img_url[:80]}...")
-                        self.portrait_cache[character_name] = img_url
+                        print(f"    ✓ Found image (fallback): {img_url[:80]}...")
+                        self.image_cache[node_label] = img_url
                         return img_url
             
-            print(f"    ⚠ No portrait found")
-            self.portrait_cache[character_name] = None
+            self.image_cache[node_label] = None
             return None
             
         except requests.exceptions.HTTPError as e:
-            if '404' in str(e):
-                print(f"    ⚠ Wiki page not found (404)")
-            else:
-                print(f"    ⚠ HTTP error: {e}")
-            self.portrait_cache[character_name] = None
+            if '404' not in str(e):
+                print(f"    ⚠ HTTP error for {node_label}: {e}")
+            self.image_cache[node_label] = None
             return None
         except Exception as e:
-            print(f"    ⚠ Error fetching portrait: {e}")
-            self.portrait_cache[character_name] = None
+            print(f"    ⚠ Error fetching image for {node_label}: {e}")
+            self.image_cache[node_label] = None
             return None
     
     def enhance_graph(self):
@@ -195,10 +191,8 @@ class EpisodeGraphVisualizer:
                     clean_key = key.replace('_', ' ').title()
                     title_parts.append(f"{clean_key}: {value}")
             
-            # For characters, try to fetch portraits
-            image_url = None
-            if node_type == 'character':
-                image_url = self.fetch_portrait(label)
+            # Fetch image for any node that might have one
+            image_url = self.fetch_wiki_image(label)
 
             # Construct wiki URL
             wiki_name = label.replace(' ', '_').replace("'", "%27")
@@ -588,10 +582,10 @@ class EpisodeGraphVisualizer:
         for node_type, count in sorted(type_counts.items(), key=lambda x: x[1], reverse=True):
             print(f"  {node_type.replace('_', ' ').title()}: {count}")
         
-        # Count portraits found
-        portraits_found = sum(1 for img in self.portrait_cache.values() if img is not None)
-        if self.portrait_cache:
-            print(f"\nPortraits Found: {portraits_found}/{len(self.portrait_cache)}")
+        # Count images found
+        images_found = sum(1 for img in self.image_cache.values() if img is not None)
+        if self.image_cache:
+            print(f"\nImages Found: {images_found}/{len(self.image_cache)}")
         
         print(f"{'=' * 60}")
     
