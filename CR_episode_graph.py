@@ -8,7 +8,7 @@ Required installations:
 pip install requests beautifulsoup4 networkx pyvis
 
 Usage:
-python CR_episode_graph.py cr_c4e1_network.gml
+python CR_episode_graph.py <gml_file> <output_html_file>
 """
 
 import requests
@@ -633,14 +633,14 @@ class EpisodeGraphVisualizer:
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python CR_episode_graph.py <gml_file> [output_file]")
+    if len(sys.argv) != 3:
+        print("Usage: python CR_episode_graph.py <gml_file> <output_file>")
         print("\nExample:")
         print("  python CR_episode_graph.py transcripts/cr_c4e1_network.gml docs/episode1_graph.html")
         sys.exit(1)
     
     gml_file = sys.argv[1]
-    output_file = sys.argv[2] if len(sys.argv) > 2 else 'docs/episode1_graph.html'
+    output_file = sys.argv[2]
     
     if not os.path.exists(gml_file):
         print(f"Error: GML file not found: {gml_file}")
