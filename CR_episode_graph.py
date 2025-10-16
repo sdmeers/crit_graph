@@ -36,16 +36,32 @@ class EpisodeGraphVisualizer:
         self.validation_cache = {}
         
         # Manual overrides for known edge cases
+        # Manual overrides for known edge cases
         self.manual_overrides = {
             "Shadia Fang": "Shadia",
-            "Alogar Lloy": "Alogar"
+            "Alogar Lloy": "Alogar",
+            # Campaign 4 Player Characters
+            "Bolaire Lloy": "Bolaire Lathalia",
+            "Sir Julien Davinos": "Julien Davinos",
+            "Halandil Fang": "Halandil Fang",
+            "Hal": "Halandil Fang",
+            # Known factions/institutions
+            "Torn Banner (Artifact)": "Torn Banner",
+            "Penteveral": "Penteveral"
         }
+        
+        # Common titles to strip when searching
+        self.honorifics = [
+            'sir', 'lady', 'lord', 'king', 'queen', 'prince', 'princess',
+            'duke', 'duchess', 'baron', 'baroness', 'count', 'countess',
+            'master', 'mistress', 'captain', 'general', 'admiral'
+        ]
         
         # Episode title patterns to avoid
         self.episode_patterns = [
-            r'^The\s+\w+\s+of\s+',  # "The Fall of X", "The Rise of X"
-            r'^A\s+\w+\s+of\s+',     # "A Tale of X"
-            r'^\w+\s+\d+x\d+',       # "Campaign 4x01"
+            r'^The\s+\w+\s+of\s+',
+            r'^A\s+\w+\s+of\s+',
+            r'^\w+\s+\d+x\d+',
         ]
         
         # Color schemes for different node types
@@ -108,6 +124,55 @@ class EpisodeGraphVisualizer:
             if re.match(pattern, title, re.IGNORECASE):
                 return True
         return False
+    
+    def detect_page_type(self, soup, page_title):
+        """
+        Detect the actual type of a wiki page based on categories and content.
+        Returns the detected type (or 'unknown') and confidence.
+        """
+        if self.is_episode_title(page_title):
+            return 'episode', 1.0
+        
+        categories = soup.find_all('a', href=re.compile(r'/wiki/Category:'))
+        category_names = [cat.text.lower() for cat in categories]
+        category_text = ' '.join(category_names)
+        
+        # Type detection based on categories (most reliable)
+        type_indicators = {
+            'character': ['characters', 'npcs', 'pcs', 'player characters', 'non-player characters'],
+            'location': ['locations', 'cities', 'towns', 'regions', 'places'],
+            'faction': ['factions', 'organizations', 'groups'],
+            'object': ['items', 'objects', 'artifacts', 'weapons', 'equipment'],
+            'event': ['events', 'battles', 'wars'],
+            'episode': ['episodes', 'transcripts']
+        }
+        
+        detected_types = {}
+        for page_type, indicators in type_indicators.items():
+            matches = sum(1 for indicator in indicators if indicator in category_text)
+            if matches > 0:
+                detected_types[page_type] = matches
+        
+        if detected_types:
+            # Return type with most category matches
+            best_type = max(detected_types.items(), key=lambda x: x[1])
+            confidence = min(1.0, best_type[1] * 0.4)
+            return best_type[0], confidence
+        
+        # Fallback: check infobox
+        infobox = soup.find('aside', class_='portable-infobox')
+        if infobox:
+            infobox_text = infobox.get_text().lower()
+            if any(key in infobox_text for key in ['race', 'class', 'level', 'player']):
+                return 'character', 0.6
+            if any(key in infobox_text for key in ['region', 'population', 'government']):
+                return 'location', 0.6
+            if any(key in infobox_text for key in ['leader', 'headquarters', 'members']):
+                return 'faction', 0.6
+            if any(key in infobox_text for key in ['rarity', 'attunement', 'owner']):
+                return 'object', 0.6
+        
+        return 'unknown', 0.0
     
     def extract_campaigns_from_page(self, soup):
         """
@@ -172,18 +237,31 @@ class EpisodeGraphVisualizer:
         confidence = 0.0
         reasons = []
         
+        # First, detect what type this page actually is
+        detected_type, detection_confidence = self.detect_page_type(soup, page_title)
+        
+        if detected_type != 'unknown':
+            reasons.append(f"Detected as: {detected_type} (confidence: {detection_confidence:.2f})")
+            
+            # Check if detected type matches expected type
+            if detected_type == expected_type:
+                # Perfect match!
+                confidence += 0.6
+                reasons.append(f"✓ Type matches expected ({expected_type}) (+0.6)")
+            elif detected_type == 'episode':
+                # Episode pages should never match non-episode entities
+                confidence -= 1.0
+                reasons.append(f"✗ Detected as episode page, expected {expected_type} (-1.0)")
+                return max(0.0, confidence), reasons
+            else:
+                # Type mismatch - strong penalty
+                confidence -= 0.7
+                reasons.append(f"✗ Type mismatch: expected {expected_type}, found {detected_type} (-0.7)")
+        
         # Get page text for analysis
         page_text = soup.get_text().lower()
         
-        # Check if it's an episode page (strong negative signal)
-        if self.is_episode_title(page_title):
-            reasons.append("Title matches episode pattern (-0.9)")
-            confidence -= 0.9
-            # If title is clearly an episode, other checks are less relevant
-            return max(0.0, confidence), reasons
-        
         # Check for definitive episode page indicators IN THE TITLE/HEADER area
-        # (not just mentions of episodes in the page content)
         page_header = soup.find('h1', class_='page-header__title')
         if page_header:
             header_text = page_header.get_text().lower()
@@ -191,17 +269,13 @@ class EpisodeGraphVisualizer:
                 reasons.append("Header indicates episode page (-0.8)")
                 confidence -= 0.8
         
-        # Check for transcript-specific content (strong episode signal)
+        # Check for transcript-specific content
         if soup.find('div', class_='mw-parser-output'):
-            # Look for dialogue formatting typical of transcripts
-            if re.search(r'\b[A-Z]+:\s', str(soup)[:5000]):  # Character dialogue format
+            if re.search(r'\b[A-Z]+:\s', str(soup)[:5000]):
                 transcript_indicators = page_text[:2000].count('transcript')
                 if transcript_indicators > 2:
                     reasons.append("Contains transcript formatting (-0.7)")
                     confidence -= 0.7
-        
-        # DON'T penalize for episode mentions - characters/locations appear in episodes!
-        # This was causing false negatives
         
         # Check categories
         categories = soup.find_all('a', href=re.compile(r'/wiki/Category:'))
@@ -212,37 +286,37 @@ class EpisodeGraphVisualizer:
         type_category_map = {
             'character': {
                 'positive': ['characters', 'npcs', 'pcs', 'player characters', 'non-player characters'],
-                'negative': ['episodes', 'transcripts'],
+                'negative': ['episodes', 'transcripts', 'events', 'battles'],
                 'keywords': ['race:', 'class:', 'played by', 'portrayed by', 'character in'],
                 'infobox_keys': ['race', 'class', 'level', 'alignment', 'player']
             },
             'location': {
                 'positive': ['locations', 'cities', 'towns', 'regions', 'places'],
-                'negative': ['episodes', 'characters'],
+                'negative': ['episodes', 'characters', 'events'],
                 'keywords': ['located in', 'city', 'town', 'region', 'area', 'population:'],
                 'infobox_keys': ['region', 'population', 'government', 'type']
             },
             'faction': {
                 'positive': ['factions', 'organizations', 'groups'],
-                'negative': ['episodes'],
+                'negative': ['episodes', 'characters'],
                 'keywords': ['organization', 'faction', 'group', 'members', 'founded'],
                 'infobox_keys': ['type', 'leader', 'headquarters', 'members']
             },
             'object': {
                 'positive': ['items', 'objects', 'artifacts', 'weapons', 'equipment'],
-                'negative': ['episodes', 'characters'],
+                'negative': ['episodes', 'characters', 'events'],
                 'keywords': ['item', 'artifact', 'weapon', 'wielded by', 'owned by'],
                 'infobox_keys': ['type', 'rarity', 'attunement', 'owner']
             },
             'event': {
                 'positive': ['events', 'battles', 'wars'],
-                'negative': ['episodes'],
+                'negative': ['episodes', 'characters', 'items'],
                 'keywords': ['event', 'battle', 'war', 'occurred', 'took place'],
                 'infobox_keys': ['date', 'location', 'result']
             },
             'historical_event': {
                 'positive': ['events', 'battles', 'wars', 'history'],
-                'negative': ['episodes'],
+                'negative': ['episodes', 'characters'],
                 'keywords': ['historical', 'event', 'battle', 'occurred', 'took place'],
                 'infobox_keys': ['date', 'location', 'result']
             }
@@ -261,11 +335,11 @@ class EpisodeGraphVisualizer:
             # Check negative category matches
             negative_matches = sum(1 for cat in type_config['negative'] if cat in category_text)
             if negative_matches > 0:
-                penalty = min(0.3, negative_matches * 0.15)
+                penalty = min(0.5, negative_matches * 0.25)
                 confidence -= penalty
                 reasons.append(f"Found {negative_matches} negative category matches (-{penalty:.2f})")
             
-            # Check keywords in page text (look for structured data indicators)
+            # Check keywords in page text
             keyword_matches = sum(1 for kw in type_config['keywords'] if kw in page_text)
             if keyword_matches > 0:
                 boost = min(0.3, keyword_matches * 0.1)
@@ -311,35 +385,31 @@ class EpisodeGraphVisualizer:
         all_campaigns = campaign_data['all_campaigns']
         
         if not all_campaigns:
-            # No campaign info found - could be campaign-agnostic (like a deity or historical location)
-            # Give moderate confidence
+            # No campaign info found
             return 0.6, "No specific campaign mentioned (possibly universal content)"
         
         # Check infobox first - most authoritative
         if infobox_campaigns:
             if self.target_campaign in infobox_campaigns:
                 if len(infobox_campaigns) == 1:
-                    # Infobox only mentions target campaign - very strong signal
+                    # Infobox only mentions target campaign
                     return 1.0, f"Infobox shows only Campaign {self.target_campaign}"
                 else:
                     # Infobox mentions target campaign among others
                     other_camps = ', '.join(str(c) for c in sorted(infobox_campaigns) if c != self.target_campaign)
                     return 0.9, f"Infobox shows Campaign {self.target_campaign} (also: {other_camps})"
             else:
-                # Infobox mentions other campaigns - strong negative
+                # Infobox mentions other campaigns
                 other_campaigns = ', '.join(str(c) for c in sorted(infobox_campaigns))
                 return 0.1, f"Infobox shows Campaign(s) {other_campaigns}, not {self.target_campaign}"
         
         # Fallback to all campaign mentions
         if self.target_campaign in all_campaigns:
             if len(all_campaigns) == 1:
-                # Only mentions target campaign
                 return 0.85, f"Only mentions Campaign {self.target_campaign}"
             else:
-                # Mentions target campaign among others
                 return 0.7, f"Mentions Campaign {self.target_campaign} (among {len(all_campaigns)} campaigns)"
         else:
-            # Mentions other campaigns but not target
             other_campaigns = ', '.join(str(c) for c in sorted(all_campaigns))
             return 0.15, f"Only mentions Campaign(s) {other_campaigns}, not {self.target_campaign}"
     
@@ -362,7 +432,7 @@ class EpisodeGraphVisualizer:
             word_overlap = len(node_words & title_words)
             word_coverage = word_overlap / len(node_words) if node_words else 0
             
-            score = word_coverage * 50  # Up to 50 points for word overlap
+            score = word_coverage * 50
             
             # Bonus for having all node words in title
             if word_overlap == len(node_words):
@@ -374,9 +444,9 @@ class EpisodeGraphVisualizer:
         
         # Size considerations
         if size < 100:
-            score -= 20  # Probably a stub
+            score -= 20
         elif size > 1000:
-            score += 10  # Substantial page
+            score += 10
         
         # Only validate if score is reasonable
         should_validate = score > 20
@@ -397,7 +467,7 @@ class EpisodeGraphVisualizer:
             page_url = f"{self.base_url}/wiki/{page_wiki_name}"
             
             print(f"    Validating: {page_url}")
-            time.sleep(0.5)  # Rate limiting
+            time.sleep(0.5)
             
             response = self.session.get(page_url, timeout=10)
             response.raise_for_status()
@@ -416,7 +486,6 @@ class EpisodeGraphVisualizer:
             
             # Combined confidence (weighted average)
             # For exact title matches, weight campaign more heavily
-            # For partial matches, weight type validation more heavily
             if page_title.lower() == node_label.lower():
                 total_confidence = (type_confidence * 0.5) + (campaign_confidence * 0.5)
             else:
@@ -425,8 +494,8 @@ class EpisodeGraphVisualizer:
             all_reasons = type_reasons + [campaign_reason]
             
             # Only accept if confidence is reasonable
-            if total_confidence < 0.5:
-                print(f"      ✗ Rejected (confidence {total_confidence:.2f} < 0.5)")
+            if total_confidence < 0.4:
+                print(f"      ✗ Rejected (confidence {total_confidence:.2f} < 0.4)")
                 result = (None, None, total_confidence, all_reasons)
                 self.validation_cache[cache_key] = result
                 return result
@@ -447,7 +516,7 @@ class EpisodeGraphVisualizer:
                                 img_url = 'https:' + img_url
                             image_url = img_url
             
-            if not image_url and infobox:  # Fallback
+            if not image_url and infobox:
                 image_elem = infobox.find('img')
                 if image_elem:
                     img_url = image_elem.get('src') or image_elem.get('data-src')
@@ -470,6 +539,13 @@ class EpisodeGraphVisualizer:
             self.validation_cache[cache_key] = result
             return result
     
+    def strip_honorifics(self, name):
+        """Remove common honorifics from a name."""
+        words = name.split()
+        if words and words[0].lower() in self.honorifics:
+            return ' '.join(words[1:])
+        return name
+    
     def fetch_wiki_image(self, node_label, node_type):
         """
         Fetch an image and page URL for a node from the Critical Role wiki.
@@ -484,79 +560,94 @@ class EpisodeGraphVisualizer:
         best_confidence = 0
         best_title = None
         
+        # Try multiple search variations
+        search_queries = [node_label]
+        
+        # Try without honorifics
+        stripped_name = self.strip_honorifics(node_label)
+        if stripped_name != node_label:
+            search_queries.append(stripped_name)
+            print(f"    Will also try without honorific: {stripped_name}")
+        
         # Check manual overrides first
-        override_used = False
         if node_label in self.manual_overrides:
             override_title = self.manual_overrides[node_label]
             print(f"    Using manual override: {override_title}")
-            override_used = True
             image_url, page_url, confidence, reasons = self.fetch_and_validate_page(
                 override_title, node_label, node_type
             )
-            # For manual overrides, use a lower threshold (0.35 instead of 0.5)
+            # For manual overrides, use a lower threshold
             if confidence > 0.35:
                 best_result = {'image_url': image_url, 'page_url': page_url, 
                               'confidence': confidence, 'reasons': reasons}
                 best_confidence = confidence
                 best_title = override_title
                 print(f"    ✓ Manual override accepted with confidence {confidence:.2f}")
-                # Don't search further if manual override succeeds
                 self.image_cache[node_label] = best_result
                 return best_result
             else:
                 print(f"    ✗ Manual override rejected (confidence {confidence:.2f} < 0.35)")
         
-        # Search wiki API (only if no override, or override failed)
-        try:
-            encoded_label = urllib.parse.quote_plus(node_label)
-            search_url = f"{self.base_url}/api.php?action=query&list=search&srsearch={encoded_label}&format=json&srprop=size&srlimit=5"
-            
-            search_response = self.session.get(search_url, timeout=10)
-            search_response.raise_for_status()
-            search_data = search_response.json()
-            search_results = search_data.get('query', {}).get('search', [])
-            
-            print(f"    Found {len(search_results)} search results")
-            
-            # Score and validate top results
-            for result in search_results[:5]:  # Check top 5
-                title = result['title']
-                search_score, should_validate = self.score_search_result(
-                    node_label, result, node_type
-                )
+        # Search wiki API with all query variations
+        for query in search_queries:
+            if query != node_label:
+                print(f"    Trying search variation: {query}")
                 
-                print(f"    Candidate: {title} (search score: {search_score:.1f})")
+            try:
+                encoded_label = urllib.parse.quote_plus(query)
+                search_url = f"{self.base_url}/api.php?action=query&list=search&srsearch={encoded_label}&format=json&srprop=size&srlimit=5"
                 
-                if not should_validate:
-                    print(f"      Skipped (low search score)")
-                    continue
+                search_response = self.session.get(search_url, timeout=10)
+                search_response.raise_for_status()
+                search_data = search_response.json()
+                search_results = search_data.get('query', {}).get('search', [])
                 
-                # Full page validation
-                image_url, page_url, confidence, reasons = self.fetch_and_validate_page(
-                    title, node_label, node_type
-                )
+                if query == search_queries[0] or search_results:
+                    print(f"    Found {len(search_results)} search results")
                 
-                if confidence > best_confidence:
-                    best_confidence = confidence
-                    best_result = {
-                        'image_url': image_url,
-                        'page_url': page_url,
-                        'confidence': confidence,
-                        'reasons': reasons
-                    }
-                    best_title = title
-                    print(f"      ✓ New best match: {title} (confidence {confidence:.2f})")
+                # Score and validate top results
+                for result in search_results[:5]:
+                    title = result['title']
+                    search_score, should_validate = self.score_search_result(
+                        query, result, node_type
+                    )
                     
-                    # If we found a very confident match, stop searching
-                    if confidence > 0.85:
-                        print(f"    ✓ Found high-confidence match, stopping search")
-                        break
-            
-        except Exception as e:
-            print(f"    ✗ Search error: {e}")
+                    print(f"    Candidate: {title} (search score: {search_score:.1f})")
+                    
+                    if not should_validate:
+                        print(f"      Skipped (low search score)")
+                        continue
+                    
+                    # Full page validation
+                    image_url, page_url, confidence, reasons = self.fetch_and_validate_page(
+                        title, node_label, node_type
+                    )
+                    
+                    if confidence > best_confidence:
+                        best_confidence = confidence
+                        best_result = {
+                            'image_url': image_url,
+                            'page_url': page_url,
+                            'confidence': confidence,
+                            'reasons': reasons
+                        }
+                        best_title = title
+                        print(f"      ✓ New best match: {title} (confidence {confidence:.2f})")
+                        
+                        # If we found a very confident match, stop searching
+                        if confidence > 0.85:
+                            print(f"    ✓ Found high-confidence match, stopping search")
+                            break
+                
+                # If we found a good match, don't try more query variations
+                if best_confidence > 0.7:
+                    break
+                    
+            except Exception as e:
+                print(f"    ✗ Search error: {e}")
         
         # Cache and return result
-        if best_result and best_confidence >= 0.4:  # Lowered threshold from 0.5
+        if best_result and best_confidence >= 0.4:
             print(f"  ✓ Final result: {best_title} with confidence {best_confidence:.2f}")
             self.image_cache[node_label] = best_result
             return best_result
