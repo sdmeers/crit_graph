@@ -21,6 +21,7 @@ import os
 import urllib.parse
 import re
 import argparse
+import json
 
 class EpisodeGraphVisualizer:
     def __init__(self, gml_file, target_campaign=4):
@@ -128,83 +129,96 @@ class EpisodeGraphVisualizer:
     
     def detect_page_type(self, soup, page_title):
         """
-        Detect the actual type of a wiki page based on categories and content.
+        Detect the actual type of a wiki page using a local LLM.
         Returns the detected type (or 'unknown') and confidence.
         """
         if self.is_episode_title(page_title):
             return 'episode', 1.0
-        
-        # Check page content FIRST for strong faction indicators (before categories)
-        # This is important for noble houses/families pages
-        page_content = soup.find('div', class_='mw-parser-output')
-        if page_content:
-            content_text = page_content.get_text().lower()[:2000]
-            
-            # Strong faction indicators in opening text
-            faction_phrases = [
-                'band of mercenaries', 'mercenary group', 'mercenary company',
-                'organization led by', 'faction led by', 'guild led by',
-                'noble families', 'noble houses', 'noble family', 'noble house',
-                'are the five', 'are the six', 'are the seven',
-                'houses are', 'families are'
-            ]
-            
-            matched_phrases = [p for p in faction_phrases if p in content_text]
-            if matched_phrases:
-                # Check if there's organizational structure sections
-                has_structure = any(marker in content_text for marker in ['members[', 'members\n', 'houses[', 'houses\n', 'history['])
-                print(f"      [DEBUG] Found faction phrases: {matched_phrases[:2]}, has structure: {has_structure}")
-                if has_structure:
-                    return 'faction', 0.85
-                return 'faction', 0.7
-        
-        categories = soup.find_all('a', href=re.compile(r'/wiki/Category:'))
-        category_names = [cat.text.lower() for cat in categories]
-        category_text = ' '.join(category_names)
-        
-        # Type detection based on categories
-        type_indicators = {
-            'character': ['characters', 'npcs', 'pcs', 'player characters', 'non-player characters'],
-            'location': ['locations', 'cities', 'towns', 'regions', 'places'],
-            'faction': ['factions', 'organizations', 'groups', 'guilds', 'mercenary'],
-            'object': ['items', 'objects', 'artifacts', 'weapons', 'equipment'],
-            'event': ['events', 'battles', 'wars'],
-            'episode': ['episodes', 'transcripts']
-        }
-        
-        detected_types = {}
-        for page_type, indicators in type_indicators.items():
-            matches = sum(1 for indicator in indicators if indicator in category_text)
-            if matches > 0:
-                detected_types[page_type] = matches
-        
-        if detected_types:
-            best_type = max(detected_types.items(), key=lambda x: x[1])
-            confidence = min(1.0, best_type[1] * 0.4)
-            return best_type[0], confidence
-        
-        # Fallback: check infobox
+
+        # 1. Extract relevant text from the page
+        infobox_text = ""
         infobox = soup.find('aside', class_='portable-infobox')
         if infobox:
-            infobox_text = infobox.get_text().lower()
+            infobox_text = infobox.get_text(separator='\n', strip=True)
+
+        content_text = ""
+        page_content = soup.find('div', class_='mw-parser-output')
+        if page_content:
+            # Get text from the first few paragraphs, limit to ~700 words
+            paragraphs = page_content.find_all('p', recursive=False)
+            text_parts = []
+            word_count = 0
+            for p in paragraphs:
+                p_text = p.get_text(strip=True)
+                text_parts.append(p_text)
+                word_count += len(p_text.split())
+                if word_count > 700:
+                    break
+            content_text = '\n'.join(text_parts)
+
+        if not infobox_text and not content_text:
+            print("      [LLM] No content to classify.")
+            return 'unknown', 0.0
+
+        # 2. Construct the prompt
+        prompt = f"""
+You are an expert assistant classifying pages from the Critical Role fan wiki. Your task is to determine the single most likely type for the page based on the provided text.
+
+Classify the page into ONE of the following categories:
+['character', 'location', 'faction', 'object', 'artifact', 'event', 'historical_event', 'mystery', 'episode', 'unknown']
+
+- 'faction' is for organizations, noble houses, mercenary companies, or official groups.
+- 'character' is for individual people or creatures.
+- 'location' is for places like cities, regions, or buildings.
+- 'object' is for items, while 'artifact' is for powerful, unique items.
+- 'event' is for specific occurrences, while 'historical_event' is for those in the distant past.
+
+Respond with only a single, valid JSON object containing your classification and a confidence score. Do not add any other text, explanation, or markdown.
+
+Example response: {{"type": "character", "confidence": 0.95}}
+
+---
+Page Title: "{page_title}"
+---
+Infobox Text:
+{infobox_text}
+---
+Page Content:
+{content_text}
+---
+"""
+        # 3. Call the local Ollama API
+        try:
+            print("      [LLM] Querying local LLM for classification...")
+            response = self.session.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": "llama3.1:8b",
+                    "prompt": prompt,
+                    "stream": False,
+                    "format": "json"
+                },
+                timeout=120  # Generous timeout for the LLM
+            )
+            response.raise_for_status()
             
-            # Check for institution/faction indicators first
-            if any(key in infobox_text for key in ['type: college', 'type: university', 'type: school', 'type: guild', 'type: mercenary']):
-                return 'faction', 0.7
+            response_data = response.json()
+            llm_json = json.loads(response_data.get('response', '{}'))
             
-            # Character detection
-            if any(key in infobox_text for key in ['race', 'class', 'level', 'player']):
-                if not any(key in infobox_text for key in ['type: college', 'type: organization', 'founded', 'headquarters']):
-                    return 'character', 0.6
+            detected_type = llm_json.get('type', 'unknown')
+            confidence = float(llm_json.get('confidence', 0.0))
             
-            if any(key in infobox_text for key in ['region', 'population', 'government']):
-                return 'location', 0.6
-            if any(key in infobox_text for key in ['leader', 'headquarters', 'members', 'founded']):
-                return 'faction', 0.6
-            if any(key in infobox_text for key in ['rarity', 'attunement', 'owner']):
-                return 'object', 0.6
-        
-        return 'unknown', 0.0
+            print(f"      [LLM] Classified as '{detected_type}' with confidence {confidence:.2f}")
+            return detected_type, confidence
+
+        except requests.exceptions.RequestException as e:
+            print(f"      [LLM] ✗ ERROR: Could not connect to Ollama API: {e}")
+            print("      [LLM] Is Ollama running and is the 'llama3.1:8b' model pulled?")
+            return 'unknown', 0.0
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"      [LLM] ✗ ERROR: Failed to parse LLM response: {e}")
+            print(f"      [LLM] Raw response: {response_data.get('response', '')}")
+            return 'unknown', 0.0
     
     def extract_campaigns_from_page(self, soup):
         """Extract campaign numbers mentioned on a wiki page."""
@@ -244,166 +258,55 @@ class EpisodeGraphVisualizer:
         }
     
     def validate_page_type(self, soup, expected_type, page_title):
-        """Validate that a wiki page matches the expected entity type."""
-        confidence = 0.0
+        """Validate that a wiki page matches the expected entity type using LLM classification."""
         reasons = []
         
-        detected_type, detection_confidence = self.detect_page_type(soup, page_title)
-        
-        if detected_type != 'unknown':
-            reasons.append(f"Detected as: {detected_type} (confidence: {detection_confidence:.2f})")
-            
-            if detected_type == expected_type:
-                confidence += 0.6
-                reasons.append(f"✓ Type matches expected ({expected_type}) (+0.6)")
-            elif detected_type == 'episode':
-                confidence -= 1.0
-                reasons.append(f"✗ Detected as episode page, expected {expected_type} (-1.0)")
-                return max(0.0, confidence), reasons
-            else:
-                # Special cases for type variations
-                if (expected_type == 'location' and detected_type == 'faction') or \
-                   (expected_type == 'faction' and detected_type == 'location'):
-                    confidence += 0.4
-                    reasons.append(f"✓ Acceptable type variation: {detected_type} for {expected_type} (+0.4)")
-                elif (expected_type == 'artifact' and detected_type == 'object') or \
-                     (expected_type == 'object' and detected_type == 'artifact'):
-                    confidence += 0.5
-                    reasons.append(f"✓ Acceptable type variation: {detected_type} for {expected_type} (+0.5)")
-                elif expected_type in ['artifact', 'object'] and detected_type == 'faction':
-                    confidence += 0.3
-                    reasons.append(f"⚠ Plausible mismatch: {detected_type} found for {expected_type} (+0.3)")
-                else:
-                    confidence -= 0.7
-                    reasons.append(f"✗ Type mismatch: expected {expected_type}, found {detected_type} (-0.7)")
-        
-        page_text = soup.get_text().lower()
-        
+        # Groups of types that are considered compatible or synonymous
+        compatible_types = [
+            {'event', 'historical_event'},
+            {'object', 'artifact'}
+        ]
+
+        # Get the classification from the LLM-powered function
+        detected_type, llm_confidence = self.detect_page_type(soup, page_title)
+        reasons.append(f"LLM classified as: {detected_type} (confidence: {llm_confidence:.2f})")
+
+        # Start with the confidence provided by the LLM
+        final_confidence = llm_confidence
+
+        # Reject if it looks like an episode/transcript page when we don't expect one
+        if detected_type == 'episode':
+            reasons.append(f"✗ Page is an episode, but expected '{expected_type}'.")
+            return 0.0, reasons
+
         page_header = soup.find('h1', class_='page-header__title')
-        if page_header:
-            header_text = page_header.get_text().lower()
-            if any(word in header_text for word in ['transcript', 'episode']):
-                reasons.append("Header indicates episode page (-0.8)")
-                confidence -= 0.8
-        
-        if soup.find('div', class_='mw-parser-output'):
-            if re.search(r'\b[A-Z]+:\s', str(soup)[:5000]):
-                transcript_indicators = page_text[:2000].count('transcript')
-                if transcript_indicators > 2:
-                    reasons.append("Contains transcript formatting (-0.7)")
-                    confidence -= 0.7
-        
-        categories = soup.find_all('a', href=re.compile(r'/wiki/Category:'))
-        category_names = [cat.text.lower() for cat in categories]
-        category_text = ' '.join(category_names)
-        
-        type_category_map = {
-            'character': {
-                'positive': ['characters', 'npcs', 'pcs', 'player characters', 'non-player characters'],
-                'negative': ['episodes', 'transcripts', 'events', 'battles'],
-                'keywords': ['race:', 'class:', 'played by', 'portrayed by', 'character in'],
-                'infobox_keys': ['race', 'class', 'level', 'alignment', 'player']
-            },
-            'location': {
-                'positive': ['locations', 'cities', 'towns', 'regions', 'places'],
-                'negative': ['episodes', 'characters', 'events'],
-                'keywords': ['located in', 'city', 'town', 'region', 'area', 'population:'],
-                'infobox_keys': ['region', 'population', 'government', 'type']
-            },
-            'faction': {
-                'positive': ['factions', 'organizations', 'groups', 'guilds', 'mercenary'],
-                'negative': ['episodes', 'characters'],
-                'keywords': ['organization', 'faction', 'group', 'members', 'founded', 'college', 'guild', 'mercenary', 'noble families', 'noble houses', 'houses are', 'families are'],
-                'infobox_keys': ['type', 'leader', 'headquarters', 'members', 'founded']
-            },
-            'object': {
-                'positive': ['items', 'objects', 'artifacts', 'weapons', 'equipment'],
-                'negative': ['episodes', 'characters', 'events'],
-                'keywords': ['item', 'artifact', 'weapon', 'wielded by', 'owned by'],
-                'infobox_keys': ['type', 'rarity', 'attunement', 'owner']
-            },
-            'artifact': {
-                'positive': ['items', 'objects', 'artifacts', 'weapons', 'equipment'],
-                'negative': ['episodes', 'characters', 'events'],
-                'keywords': ['item', 'artifact', 'weapon', 'wielded by', 'owned by'],
-                'infobox_keys': ['type', 'rarity', 'attunement', 'owner']
-            },
-            'event': {
-                'positive': ['events', 'battles', 'wars'],
-                'negative': ['episodes', 'characters', 'items'],
-                'keywords': ['event', 'battle', 'war', 'occurred', 'took place'],
-                'infobox_keys': ['date', 'location', 'result']
-            },
-            'historical_event': {
-                'positive': ['events', 'battles', 'wars', 'history'],
-                'negative': ['episodes', 'characters'],
-                'keywords': ['historical', 'event', 'battle', 'occurred', 'took place'],
-                'infobox_keys': ['date', 'location', 'result']
-            }
-        }
-        
-        if expected_type in type_category_map:
-            type_config = type_category_map[expected_type]
-            
-            positive_matches = sum(1 for cat in type_config['positive'] if cat in category_text)
-            if positive_matches > 0:
-                boost = min(0.5, positive_matches * 0.25)
-                confidence += boost
-                reasons.append(f"Found {positive_matches} positive category matches (+{boost:.2f})")
-            
-            negative_matches = sum(1 for cat in type_config['negative'] if cat in category_text)
-            if negative_matches > 0:
-                penalty = min(0.5, negative_matches * 0.25)
-                confidence -= penalty
-                reasons.append(f"Found {negative_matches} negative category matches (-{penalty:.2f})")
-            
-            keyword_matches = sum(1 for kw in type_config['keywords'] if kw in page_text)
-            if keyword_matches > 0:
-                boost = min(0.3, keyword_matches * 0.1)
-                confidence += boost
-                reasons.append(f"Found {keyword_matches} type keywords (+{boost:.2f})")
-        
-        infobox = soup.find('aside', class_='portable-infobox')
-        if infobox:
-            infobox_text = infobox.get_text().lower()
-            confidence += 0.15
-            reasons.append("Has infobox (+0.15)")
-            
-            if expected_type in type_category_map and 'infobox_keys' in type_category_map[expected_type]:
-                infobox_keys = type_category_map[expected_type]['infobox_keys']
-                indicator_matches = sum(1 for key in infobox_keys if key in infobox_text)
-                
-                if indicator_matches > 0:
-                    boost = min(0.4, indicator_matches * 0.15)
-                    confidence += boost
-                    reasons.append(f"Found {indicator_matches} infobox indicators (+{boost:.2f})")
+        if page_header and any(word in page_header.get_text().lower() for word in ['transcript', 'episode']):
+            reasons.append("Header indicates it is an episode page (-0.8)")
+            final_confidence -= 0.8
+
+        # Check for direct or compatible matches
+        is_compatible = False
+        if detected_type == expected_type:
+            is_compatible = True
+            final_confidence = min(1.0, final_confidence + 0.1)
+            reasons.append(f"✓ LLM type directly matches expected type ('{expected_type}'). Confidence boosted.")
         else:
-            print(f"      [DEBUG] No infobox found")
-            if expected_type in ['character', 'location', 'faction']:
-                if expected_type == 'faction':
-                    page_content = soup.find('div', class_='mw-parser-output')
-                    if page_content:
-                        content_text = page_content.get_text().lower()[:3000]
-                        org_indicators = [
-                            'members[', 'history[', 'houses[', 'families[',
-                            'band of mercenaries', 'mercenary group',
-                            'noble families', 'noble houses', 'noble family', 'noble house'
-                        ]
-                        if any(indicator in content_text for indicator in org_indicators):
-                            confidence += 0.3
-                            reasons.append("Faction structure found despite no infobox (+0.3)")
-                        else:
-                            confidence -= 0.1
-                            reasons.append("Missing infobox for faction (-0.1)")
-                    else:
-                        confidence -= 0.1
-                        reasons.append("Missing infobox for faction (-0.1)")
-                else:
-                    confidence -= 0.1
-                    reasons.append("Missing infobox for structured entity (-0.1)")
+            for group in compatible_types:
+                if expected_type in group and detected_type in group:
+                    is_compatible = True
+                    reasons.append(f"✓ LLM type '{detected_type}' is a valid synonym for expected '{expected_type}'. No penalty.")
+                    break
         
-        confidence = max(0.0, min(1.0, confidence))
-        return confidence, reasons
+        # Handle mismatches
+        if not is_compatible and detected_type != 'unknown':
+            reasons.append(f"! LLM type '{detected_type}' mismatches expected '{expected_type}'. Trusting LLM.")
+            # Apply a small penalty for the mismatch
+            final_confidence *= 0.85
+
+        # Ensure confidence is within bounds
+        final_confidence = max(0.0, min(1.0, final_confidence))
+        
+        return final_confidence, reasons
     
     def validate_campaign(self, soup, page_title):
         """Check if a page is relevant to the target campaign."""
