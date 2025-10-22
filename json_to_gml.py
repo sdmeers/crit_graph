@@ -47,8 +47,8 @@ def escape_gml_string(s):
     # Replace backslashes first (must be done before other escapes)
     s = s.replace('\\', '\\\\')
     
-    # Replace double quotes
-    s = s.replace('"', '\\"')
+    # Replace double quotes with single quotes
+    s = s.replace('"', "'")
     
     # Replace newlines and carriage returns with spaces
     s = s.replace('\n', ' ').replace('\r', ' ')
@@ -56,33 +56,49 @@ def escape_gml_string(s):
     # Replace tabs with spaces
     s = s.replace('\t', ' ')
     
-    # Remove any remaining control characters
-    s = ''.join(char for char in s if ord(char) >= 32 or char in '\n\r\t')
+    # Replace problematic punctuation that GML parsers don't like
+    s = s.replace(';', ' ')
+    s = s.replace('|', ' ')
+    s = s.replace('[', '(')
+    s = s.replace(']', ')')
+    s = s.replace('{', '(')
+    s = s.replace('}', ')')
     
-    return s
+    # Remove any remaining control characters
+    s = ''.join(char for char in s if ord(char) >= 32 or char in ' ')
+    
+    # Collapse multiple spaces
+    s = re.sub(r'\s+', ' ', s)
+    
+    return s.strip()
 
 
 def format_attribute_value(value):
     """
     Format attribute values for GML.
-    Lists are converted to semicolon-separated strings.
+    Lists are converted to space-separated strings.
     """
     if value is None:
         return ""
     
     if isinstance(value, list):
-        # Convert list to semicolon-separated string
+        # Convert list to space-separated string
         # Remove any nested quotes and brackets
         cleaned = []
         for item in value:
-            item_str = str(item).strip("'\"[]")
-            cleaned.append(item_str)
-        return escape_gml_string("; ".join(cleaned))
+            item_str = str(item).strip("'\"[](){}")
+            if item_str:  # Only add non-empty items
+                cleaned.append(item_str)
+        # Join with space and then escape
+        return escape_gml_string(" ".join(cleaned))
     
     if isinstance(value, dict):
         # Convert dict to key:value pairs
-        pairs = [f"{k}: {v}" for k, v in value.items()]
-        return escape_gml_string("; ".join(pairs))
+        pairs = []
+        for k, v in value.items():
+            pair_str = f"{k} {v}"
+            pairs.append(pair_str)
+        return escape_gml_string(" ".join(pairs))
     
     if isinstance(value, bool):
         return "true" if value else "false"
@@ -100,6 +116,8 @@ def sanitize_key(key):
     key = re.sub(r'[^a-zA-Z0-9_]', '_', key)
     # Remove leading numbers
     key = re.sub(r'^[0-9]+', '', key)
+    # Remove trailing/leading underscores
+    key = key.strip('_')
     # Ensure not empty
     if not key:
         key = "attribute"
@@ -226,14 +244,16 @@ def json_to_gml(json_filename, gml_filename=None, campaign="Araman", episode_num
             for key, value in node.items():
                 if key not in ['id', 'label', 'type']:
                     # Skip empty values
-                    if value is None or value == "" or value == []:
+                    if value is None or value == "" or value == [] or value == {}:
                         continue
                     
                     # Sanitize key name
                     safe_key = sanitize_key(key)
+                    if not safe_key or safe_key == 'attribute':
+                        continue  # Skip invalid keys
                     
                     formatted_value = format_attribute_value(value)
-                    if formatted_value:  # Only write non-empty values
+                    if formatted_value and len(formatted_value) > 0:  # Only write non-empty values
                         f.write(f'    {safe_key} "{formatted_value}"\n')
             
             f.write('  ]\n')
@@ -276,12 +296,14 @@ def json_to_gml(json_filename, gml_filename=None, campaign="Araman", episode_num
             # Write any other edge attributes
             for key, value in edge.items():
                 if key not in ['source', 'target', 'relationship', 'label', 'weight', 'description']:
-                    if value is not None and value != "":
+                    if value is not None and value != "" and value != [] and value != {}:
                         # Sanitize key name
                         safe_key = sanitize_key(key)
+                        if not safe_key or safe_key == 'attribute':
+                            continue
                         
                         formatted_value = format_attribute_value(value)
-                        if formatted_value:
+                        if formatted_value and len(formatted_value) > 0:
                             f.write(f'    {safe_key} "{formatted_value}"\n')
             
             f.write('  ]\n')
