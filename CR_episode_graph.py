@@ -30,10 +30,11 @@ import argparse
 import json
 
 class EpisodeGraphVisualizer:
-    def __init__(self, gml_file, target_campaign=4):
+    def __init__(self, gml_file, target_campaign=4, sequenced=False):
         self.gml_file = gml_file
         self.base_url = "https://criticalrole.fandom.com"
         self.target_campaign = target_campaign
+        self.sequenced = sequenced  # Add this line
         self.graph = None
         self.session = requests.Session()
         self.session.headers.update({
@@ -958,8 +959,48 @@ Respond with ONLY valid JSON (no markdown, no explanation):
             if label:
                 self.graph.edges[source, target]['title'] = label
     
+    def extract_event_sequence(self, node_data):
+        """Extract episode and sequence information from node data."""
+        episode = 0
+        sequence = 0
+        
+        # Check common attribute names for episode info
+        for key in ['episode', 'episode_num', 'episode_number']:
+            if key in node_data:
+                val = node_data[key]
+                if isinstance(val, list):
+                    val = val[0] if val else ''
+                
+                # Parse episode references like "4x01", "C4E01", "Episode 1"
+                if isinstance(val, str):
+                    match = re.search(r'(\d+)x(\d+)', val)
+                    if match:
+                        episode = int(match.group(2))
+                    else:
+                        match = re.search(r'[Ee]pisode\s*(\d+)', val)
+                        if match:
+                            episode = int(match.group(1))
+                        elif val.isdigit():
+                            episode = int(val)
+                elif isinstance(val, (int, float)):
+                    episode = int(val)
+                break
+        
+        # Check for sequence/order information
+        for key in ['sequence', 'order', 'timestamp', 'index', 'position']:
+            if key in node_data:
+                val = node_data[key]
+                if isinstance(val, (int, float)):
+                    sequence = int(val)
+                    break
+                elif isinstance(val, str) and val.isdigit():
+                    sequence = int(val)
+                    break
+        
+        return episode, sequence
+
     def create_visualization(self, output_file='episode_graph.html'):
-        """Create an interactive visualization."""
+        """Create an interactive visualization with optional chronological event ordering."""
         print(f"\nCreating visualization: {output_file}")
         
         net = Network(
@@ -970,21 +1011,114 @@ Respond with ONLY valid JSON (no markdown, no explanation):
             directed=True
         )
         
-        net.barnes_hut(
-            gravity=-15000,
-            central_gravity=0.5,
-            spring_length=200,
-            spring_strength=0.01,
-            damping=0.09
-        )
+        if self.sequenced:
+            # Chronological/hierarchical layout
+            print("  Using sequenced layout (events in chronological order)...")
+            
+            # First, analyze events to assign sequential positions
+            events = []
+            for node_id in self.graph.nodes():
+                node_data = self.graph.nodes[node_id]
+                node_type = node_data.get('type', 'unknown')
+                if isinstance(node_type, list):
+                    node_type = node_type[0] if node_type else 'unknown'
+                
+                if node_type in ['event', 'historical_event']:
+                    episode_num, sequence = self.extract_event_sequence(node_data)
+                    
+                    events.append({
+                        'id': node_id,
+                        'episode': episode_num,
+                        'sequence': sequence,
+                        'label': node_data.get('label', str(node_id))
+                    })
+            
+            # Sort events by episode and sequence
+            events.sort(key=lambda x: (x['episode'], x['sequence']))
+            
+            # Assign hierarchical levels (x-positions) to events
+            print(f"  Arranging {len(events)} events chronologically...")
+            for idx, event in enumerate(events):
+                # Assign level for hierarchical layout
+                # Level determines horizontal position (left to right)
+                self.graph.nodes[event['id']]['level'] = idx
+                # Fixed y-position to keep events in a line
+                self.graph.nodes[event['id']]['y'] = 0
+            
+            # Assign levels to non-event nodes (they'll cluster around events)
+            non_event_nodes = [n for n in self.graph.nodes() 
+                            if n not in [e['id'] for e in events]]
+            
+            for node_id in non_event_nodes:
+                # Find connected events to determine approximate position
+                connected_events = []
+                for neighbor in self.graph.neighbors(node_id):
+                    if neighbor in [e['id'] for e in events]:
+                        connected_events.append(neighbor)
+                
+                if connected_events:
+                    # Position near the average of connected events
+                    avg_level = sum(self.graph.nodes[e].get('level', 0) 
+                                for e in connected_events) / len(connected_events)
+                    self.graph.nodes[node_id]['level'] = avg_level
+                else:
+                    # No connected events, position at end
+                    self.graph.nodes[node_id]['level'] = len(events)
+            
+            # Configure hierarchical layout for chronological ordering
+            net.set_options("""
+            {
+                "layout": {
+                    "hierarchical": {
+                        "enabled": true,
+                        "direction": "LR",
+                        "sortMethod": "directed",
+                        "levelSeparation": 250,
+                        "nodeSpacing": 150,
+                        "treeSpacing": 200,
+                        "blockShifting": true,
+                        "edgeMinimization": true,
+                        "parentCentralization": true
+                    }
+                },
+                "physics": {
+                    "enabled": false
+                },
+                "edges": {
+                    "smooth": {
+                        "enabled": true,
+                        "type": "cubicBezier",
+                        "roundness": 0.5
+                    }
+                },
+                "interaction": {
+                    "hover": true,
+                    "navigationButtons": true,
+                    "keyboard": true
+                }
+            }
+            """)
+            
+        else:
+            # Original force-directed layout
+            print("  Using force-directed layout...")
+            net.barnes_hut(
+                gravity=-15000,
+                central_gravity=0.5,
+                spring_length=200,
+                spring_strength=0.01,
+                damping=0.09
+            )
+            net.show_buttons(filter_=['physics'])
         
         net.from_nx(self.graph)
-        net.show_buttons(filter_=['physics'])
         net.save_graph(output_file)
         self.enhance_html(output_file)
         
         print(f"✓ Visualization saved to {output_file}")
-    
+        if self.sequenced:
+            print(f"  Events arranged chronologically from left to right")
+
     def enhance_html(self, html_file):
         """Add legend and enhanced interactivity to HTML."""
         try:
@@ -1253,7 +1387,6 @@ Respond with ONLY valid JSON (no markdown, no explanation):
         print(f"\n✓ Complete! Open {output_file} in your browser to explore the graph.")
         return True
 
-
 def main():
     parser = argparse.ArgumentParser(
         description='Visualize Critical Role episode data from GML files with enhanced LLM validation'
@@ -1262,6 +1395,8 @@ def main():
     parser.add_argument('output_file', help='Path for the output HTML file')
     parser.add_argument('--campaign', type=int, default=4,
                        help='Target campaign number (default: 4)')
+    parser.add_argument('--sequenced', action='store_true',
+                       help='Use chronological sequenced layout for events (default: force-directed)')
     
     args = parser.parse_args()
     
@@ -1273,12 +1408,15 @@ def main():
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
     
-    visualizer = EpisodeGraphVisualizer(args.gml_file, target_campaign=args.campaign)
+    visualizer = EpisodeGraphVisualizer(
+        args.gml_file, 
+        target_campaign=args.campaign,
+        sequenced=args.sequenced  # Add this line
+    )
     success = visualizer.run(args.output_file)
     
     if not success:
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
