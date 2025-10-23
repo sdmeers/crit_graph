@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 """
-Critical Role Episode Graph Visualizer
+Critical Role Episode Graph Visualizer with Enhanced LLM Validation
 Loads a GML file containing episode data and creates an interactive visualization
 with character portraits fetched from the Critical Role wiki.
+
+Enhanced with multi-layered validation system:
+1. Hard rejections for explicit campaign mismatches
+2. Heuristic scoring for clear cases
+3. LLM validation for ambiguous matches
+4. Data quality awareness
 
 Required installations:
 pip install requests beautifulsoup4 networkx pyvis
@@ -198,7 +204,7 @@ Page Content:
                     "stream": False,
                     "format": "json"
                 },
-                timeout=120  # Generous timeout for the LLM
+                timeout=120
             )
             response.raise_for_status()
             
@@ -257,6 +263,73 @@ Page Content:
             'all_campaigns': all_campaigns
         }
     
+    def extract_implicit_campaign_signals(self, soup, page_title):
+        """
+        Use LLM to detect implicit campaign signals in content.
+        This helps identify campaign even when explicit tags are missing.
+        """
+        content_text = ""
+        page_content = soup.find('div', class_='mw-parser-output')
+        if page_content:
+            paragraphs = page_content.find_all('p', recursive=False)[:5]
+            content_text = '\n'.join(p.get_text(strip=True) for p in paragraphs)[:1500]
+        
+        if not content_text or len(content_text) < 100:
+            return None, 0.0, "Insufficient content"
+        
+        prompt = f"""Analyze this Critical Role wiki page and identify which campaign it belongs to.
+
+Page Title: "{page_title}"
+
+Content:
+{content_text}
+
+Look for clues like:
+- Episode references (e.g., "4x01", "Campaign 4, Episode 1")
+- Character names that are specific to a campaign
+- Location names specific to a campaign
+- Plot events that happened in specific campaigns
+- Years or timelines mentioned
+- References to other characters or events from a specific campaign
+
+Critical Role has campaigns numbered 1, 2, 3, and 4. We are specifically looking for Campaign {self.target_campaign}.
+
+Respond with ONLY valid JSON:
+{{"likely_campaign": <number or null>, "confidence": 0.0-1.0, "evidence": "what clues you found"}}
+
+If you cannot determine the campaign, set likely_campaign to null and confidence to 0.0.
+"""
+
+        try:
+            print("      [LLM] Extracting implicit campaign signals...")
+            response = self.session.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": "llama3.1:8b",
+                    "prompt": prompt,
+                    "stream": False,
+                    "format": "json"
+                },
+                timeout=120
+            )
+            response.raise_for_status()
+            
+            result = json.loads(response.json()['response'])
+            
+            likely_campaign = result.get('likely_campaign')
+            confidence = float(result.get('confidence', 0.0))
+            evidence = result.get('evidence', '')
+            
+            print(f"      [LLM] Campaign {likely_campaign} (confidence: {confidence:.2f})")
+            if evidence:
+                print(f"        Evidence: {evidence}")
+            
+            return likely_campaign, confidence, evidence
+            
+        except Exception as e:
+            print(f"      [LLM] ✗ Error extracting campaign signals: {e}")
+            return None, 0.0, f"Error: {str(e)}"
+    
     def validate_page_type(self, soup, expected_type, page_title):
         """Validate that a wiki page matches the expected entity type using LLM classification."""
         reasons = []
@@ -308,34 +381,175 @@ Page Content:
         
         return final_confidence, reasons
     
-    def validate_campaign(self, soup, page_title):
-        """Check if a page is relevant to the target campaign."""
-        campaign_data = self.extract_campaigns_from_page(soup)
+    def validate_campaign(self, soup, page_title, campaign_data):
+        """
+        Check if a page is relevant to the target campaign.
+        Now returns more granular information for downstream decision-making.
+        """
         infobox_campaigns = campaign_data['infobox_campaigns']
         all_campaigns = campaign_data['all_campaigns']
         
         if not all_campaigns:
-            return 0.6, "No specific campaign mentioned (possibly universal content)"
+            return {
+                'confidence': 0.6,
+                'reason': "No specific campaign mentioned (possibly universal content)",
+                'has_explicit_tags': False,
+                'is_wrong_campaign': False
+            }
         
         if infobox_campaigns:
             if self.target_campaign in infobox_campaigns:
                 if len(infobox_campaigns) == 1:
-                    return 1.0, f"Infobox shows only Campaign {self.target_campaign}"
+                    return {
+                        'confidence': 1.0,
+                        'reason': f"Infobox shows only Campaign {self.target_campaign}",
+                        'has_explicit_tags': True,
+                        'is_wrong_campaign': False
+                    }
                 else:
                     other_camps = ', '.join(str(c) for c in sorted(infobox_campaigns) if c != self.target_campaign)
-                    return 0.9, f"Infobox shows Campaign {self.target_campaign} (also: {other_camps})"
+                    return {
+                        'confidence': 0.9,
+                        'reason': f"Infobox shows Campaign {self.target_campaign} (also: {other_camps})",
+                        'has_explicit_tags': True,
+                        'is_wrong_campaign': False
+                    }
             else:
                 other_campaigns = ', '.join(str(c) for c in sorted(infobox_campaigns))
-                return 0.1, f"Infobox shows Campaign(s) {other_campaigns}, not {self.target_campaign}"
+                return {
+                    'confidence': 0.1,
+                    'reason': f"Infobox shows Campaign(s) {other_campaigns}, not {self.target_campaign}",
+                    'has_explicit_tags': True,
+                    'is_wrong_campaign': True
+                }
         
         if self.target_campaign in all_campaigns:
             if len(all_campaigns) == 1:
-                return 0.85, f"Only mentions Campaign {self.target_campaign}"
+                return {
+                    'confidence': 0.85,
+                    'reason': f"Only mentions Campaign {self.target_campaign}",
+                    'has_explicit_tags': True,
+                    'is_wrong_campaign': False
+                }
             else:
-                return 0.7, f"Mentions Campaign {self.target_campaign} (among {len(all_campaigns)} campaigns)"
+                return {
+                    'confidence': 0.7,
+                    'reason': f"Mentions Campaign {self.target_campaign} (among {len(all_campaigns)} campaigns)",
+                    'has_explicit_tags': True,
+                    'is_wrong_campaign': False
+                }
         else:
             other_campaigns = ', '.join(str(c) for c in sorted(all_campaigns))
-            return 0.15, f"Only mentions Campaign(s) {other_campaigns}, not {self.target_campaign}"
+            return {
+                'confidence': 0.15,
+                'reason': f"Only mentions Campaign(s) {other_campaigns}, not {self.target_campaign}",
+                'has_explicit_tags': True,
+                'is_wrong_campaign': True
+            }
+    
+    def validate_final_match(self, node_label, node_type, page_title, soup, campaign_data, type_confidence):
+        """
+        LLM-based final validation to confirm this is actually the right entity.
+        This is data quality aware and focuses on semantic matching.
+        """
+        infobox_campaigns = campaign_data['infobox_campaigns']
+        all_campaigns = campaign_data['all_campaigns']
+        
+        # Assess data quality
+        has_explicit_campaign = len(infobox_campaigns) > 0 or len(all_campaigns) > 0
+        campaign_context = ""
+        
+        if has_explicit_campaign:
+            if infobox_campaigns:
+                campaign_context = f"Wiki explicitly mentions Campaign(s): {sorted(infobox_campaigns)}"
+            else:
+                campaign_context = f"Wiki mentions Campaign(s): {sorted(all_campaigns)}"
+        else:
+            campaign_context = "Wiki has NO explicit campaign tags (poor metadata quality)"
+        
+        # Extract content
+        infobox_text = ""
+        infobox = soup.find('aside', class_='portable-infobox')
+        if infobox:
+            infobox_text = infobox.get_text(separator='\n', strip=True)[:1000]
+        
+        content_text = ""
+        page_content = soup.find('div', class_='mw-parser-output')
+        if page_content:
+            paragraphs = page_content.find_all('p', recursive=False)[:3]
+            content_text = '\n'.join(p.get_text(strip=True) for p in paragraphs)[:1000]
+        
+        prompt = f"""You are validating a match between a Critical Role graph node and a wiki page.
+
+**Graph Node (SOURCE OF TRUTH):**
+- Name: "{node_label}"
+- Type: {node_type}
+- Campaign: {self.target_campaign} (CONFIRMED)
+
+**Wiki Page Candidate:**
+- Title: "{page_title}"
+- Campaign Context: {campaign_context}
+
+**Wiki Infobox:**
+{infobox_text[:500] if infobox_text else "No infobox found"}
+
+**Wiki Content (first paragraphs):**
+{content_text[:500] if content_text else "No content found"}
+
+**IMPORTANT CONTEXT ABOUT WIKI DATA QUALITY:**
+- Some wiki pages have excellent campaign tagging, others have none
+- Lack of campaign tags does NOT mean wrong campaign - it might just be poor metadata
+- Focus on the CONTENT: character descriptions, locations mentioned, plot events
+- Look for CONTRADICTIONS: if wiki explicitly mentions different campaign, that's a strong signal
+- If no campaign info exists, rely on semantic matching of the entity itself
+
+**Your Task:**
+Determine if the wiki page describes the SAME entity as the graph node "{node_label}" from Campaign {self.target_campaign}.
+
+**Key Questions:**
+1. Name match: Are these names referring to the same entity? (Not just similar words - "Solomon" ≠ "Cameron Solomon")
+2. Type compatibility: Does the entity type match? (location/character/faction)
+3. Campaign contradiction: Does wiki EXPLICITLY mention a DIFFERENT campaign? (Campaign 2/3 when we need {self.target_campaign})
+4. Semantic match: Based on descriptions, could this be the same entity?
+
+**Decision Rules:**
+- If wiki explicitly tags a DIFFERENT campaign → Definitely NOT a match
+- If wiki has no campaign tags → Judge based on name + content match
+- If name is a SUBSET (e.g., "Solomon" in "Cameron Solomon") → Be skeptical unless content strongly confirms
+- If names are completely different but type matches → Be very skeptical
+
+Respond with ONLY valid JSON (no markdown, no explanation):
+{{"is_match": true/false, "confidence": 0.0-1.0, "reason": "brief explanation"}}
+"""
+
+        try:
+            print("      [LLM] Validating final match...")
+            response = self.session.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": "llama3.1:8b",
+                    "prompt": prompt,
+                    "stream": False,
+                    "format": "json"
+                },
+                timeout=120
+            )
+            response.raise_for_status()
+            
+            result = json.loads(response.json()['response'])
+            
+            is_match = result.get('is_match', False)
+            match_confidence = float(result.get('confidence', 0.0))
+            reason = result.get('reason', 'No reason provided')
+            
+            print(f"      [LLM] Match result: {is_match} (confidence: {match_confidence:.2f})")
+            print(f"        Reason: {reason}")
+            
+            return match_confidence if is_match else 0.0, reason
+            
+        except Exception as e:
+            print(f"      [LLM] ✗ Error in match validation: {e}")
+            return 0.5, f"LLM validation failed, using heuristics: {str(e)}"
     
     def score_search_result(self, node_label, result, node_type):
         """Score a search result based on title matching."""
@@ -367,7 +581,12 @@ Page Content:
         return score, should_validate
     
     def fetch_and_validate_page(self, page_title, node_label, node_type):
-        """Fetch a wiki page and validate it."""
+        """
+        Fetch a wiki page and validate it with layered approach:
+        1. Hard rejections (explicit wrong campaign)
+        2. Heuristic scoring (type + campaign + name)
+        3. LLM validation (for ambiguous cases)
+        """
         cache_key = f"{page_title}|{node_type}"
         if cache_key in self.validation_cache:
             return self.validation_cache[cache_key]
@@ -383,28 +602,120 @@ Page Content:
             response.raise_for_status()
             soup = BeautifulSoup(response.content, 'html.parser')
             
+            # Extract campaign data
+            campaign_data = self.extract_campaigns_from_page(soup)
+            infobox_campaigns = campaign_data['infobox_campaigns']
+            
+            # LAYER 1: HARD REJECTIONS
+            # Reject if infobox explicitly lists wrong campaigns
+            if infobox_campaigns and self.target_campaign not in infobox_campaigns:
+                reason = f"HARD REJECT: Infobox explicitly lists campaigns {sorted(infobox_campaigns)}, not {self.target_campaign}"
+                print(f"      ✗ {reason}")
+                result = (None, None, 0.0, [reason])
+                self.validation_cache[cache_key] = result
+                return result
+            
+            # Check for name subset issues (e.g., "Solomon" vs "Cameron Solomon")
+            node_words = set(node_label.lower().split())
+            title_words = set(page_title.lower().split())
+            has_name_concern = False
+            
+            if node_words < title_words:  # node is strict subset
+                extra_words = title_words - node_words
+                if len(extra_words) >= len(node_words):
+                    print(f"      ! WARNING: Wiki title has significant extra content: {extra_words}")
+                    print(f"        This might be a different entity - will validate carefully with LLM")
+                    has_name_concern = True
+            
+            # LAYER 2: HEURISTIC SCORING
             type_confidence, type_reasons = self.validate_page_type(soup, node_type, page_title)
             print(f"      Type confidence: {type_confidence:.2f}")
             for reason in type_reasons:
                 print(f"        - {reason}")
             
-            campaign_confidence, campaign_reason = self.validate_campaign(soup, page_title)
+            campaign_validation = self.validate_campaign(soup, page_title, campaign_data)
+            campaign_confidence = campaign_validation['confidence']
+            campaign_reason = campaign_validation['reason']
+            has_explicit_tags = campaign_validation['has_explicit_tags']
+            
             print(f"      Campaign confidence: {campaign_confidence:.2f}")
             print(f"        - {campaign_reason}")
             
+            # Calculate preliminary confidence
             if page_title.lower() == node_label.lower():
-                total_confidence = (type_confidence * 0.5) + (campaign_confidence * 0.5)
+                prelim_confidence = (type_confidence * 0.5) + (campaign_confidence * 0.5)
             else:
-                total_confidence = (type_confidence * 0.7) + (campaign_confidence * 0.3)
+                prelim_confidence = (type_confidence * 0.7) + (campaign_confidence * 0.3)
             
-            all_reasons = type_reasons + [campaign_reason]
+            print(f"      Preliminary confidence: {prelim_confidence:.2f}")
             
-            if total_confidence < 0.4:
-                print(f"      ✗ Rejected (confidence {total_confidence:.2f} < 0.4)")
-                result = (None, None, total_confidence, all_reasons)
+            # SOFT REJECTION: Too low even for LLM to salvage
+            if prelim_confidence < 0.25:
+                reason = f"Rejected by heuristics (confidence {prelim_confidence:.2f} < 0.25)"
+                print(f"      ✗ {reason}")
+                result = (None, None, 0.0, type_reasons + [campaign_reason, reason])
                 self.validation_cache[cache_key] = result
                 return result
             
+            # LAYER 3: LLM VALIDATION
+            # Use LLM for ambiguous cases or when there are concerns
+            needs_llm_validation = (
+                prelim_confidence < 0.8 or  # Ambiguous heuristics
+                has_name_concern or  # Name mismatch concerns
+                not has_explicit_tags  # Poor wiki metadata
+            )
+            
+            if needs_llm_validation:
+                print(f"      → Candidate needs LLM validation...")
+                
+                # Try implicit campaign detection if no explicit tags
+                if not has_explicit_tags:
+                    implicit_campaign, implicit_confidence, implicit_evidence = \
+                        self.extract_implicit_campaign_signals(soup, page_title)
+                    
+                    if implicit_campaign == self.target_campaign and implicit_confidence > 0.6:
+                        print(f"      ✓ LLM found implicit campaign match (boosting confidence)")
+                        campaign_confidence = max(campaign_confidence, implicit_confidence * 0.8)
+                        campaign_reason += f" | LLM found implicit signals: {implicit_evidence}"
+                
+                # Final match validation
+                match_confidence, match_reason = self.validate_final_match(
+                    node_label, node_type, page_title, soup, campaign_data, type_confidence
+                )
+                
+                if match_confidence < 0.5:
+                    reason = f"Rejected by LLM validation (confidence {match_confidence:.2f} < 0.5)"
+                    print(f"      ✗ {reason}")
+                    result = (None, None, 0.0, type_reasons + [campaign_reason, match_reason])
+                    self.validation_cache[cache_key] = result
+                    return result
+                
+                # BLEND HEURISTICS + LLM
+                # Give LLM more weight for ambiguous cases
+                if prelim_confidence < 0.6:
+                    # Low heuristic confidence - trust LLM more
+                    final_confidence = (prelim_confidence * 0.3) + (match_confidence * 0.7)
+                    print(f"      Blending (LLM-heavy): heuristic={prelim_confidence:.2f} * 0.3 + llm={match_confidence:.2f} * 0.7")
+                else:
+                    # Higher heuristic confidence - balanced blend
+                    final_confidence = (prelim_confidence * 0.5) + (match_confidence * 0.5)
+                    print(f"      Blending (balanced): heuristic={prelim_confidence:.2f} * 0.5 + llm={match_confidence:.2f} * 0.5")
+                
+                all_reasons = type_reasons + [campaign_reason, match_reason]
+            else:
+                # High confidence from heuristics, skip LLM
+                print(f"      ✓ High heuristic confidence, skipping LLM validation")
+                final_confidence = prelim_confidence
+                all_reasons = type_reasons + [campaign_reason]
+            
+            # Final check
+            if final_confidence < 0.4:
+                print(f"      ✗ Rejected (final confidence {final_confidence:.2f} < 0.4)")
+                result = (None, None, final_confidence, all_reasons)
+                self.validation_cache[cache_key] = result
+                return result
+            
+            # Extract image URL
             image_url = None
             infobox = soup.find('aside', class_='portable-infobox')
             if infobox:
@@ -432,8 +743,8 @@ Page Content:
             if image_url:
                 print(f"      ✓ Found image")
             
-            print(f"      ✓ Accepted (confidence {total_confidence:.2f})")
-            result = (image_url, page_url, total_confidence, all_reasons)
+            print(f"      ✓ Accepted (final confidence {final_confidence:.2f})")
+            result = (image_url, page_url, final_confidence, all_reasons)
             self.validation_cache[cache_key] = result
             return result
             
@@ -563,6 +874,7 @@ Page Content:
         """Enhance graph nodes with portraits and styling."""
         print("\nEnhancing graph with portraits and styling...")
         print(f"Target campaign: {self.target_campaign}")
+        print(f"Using multi-layered validation: Hard rejections → Heuristics → LLM validation")
         
         for node_id in self.graph.nodes():
             node_data = self.graph.nodes[node_id]
@@ -724,10 +1036,10 @@ Page Content:
     '''
             html_content = html_content.replace('</head>', css_additions + '</head>')
             
-            legend_html = '''
+            legend_html = f'''
     <div id="legend">
         <span id="legend-close">✕</span>
-        <h3>📊 Critical Role C4E1</h3>
+        <h3>📊 Critical Role C{self.target_campaign}</h3>
         
         <div class="legend-section">
             <h4>Node Types</h4>
@@ -792,7 +1104,9 @@ Page Content:
         <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555; font-size: 11px; color: #aaa;">
             💡 Click nodes to open wiki<br>
             💡 Drag to move, scroll to zoom<br>
-            💡 Click and drag background to pan
+            💡 Click and drag background to pan<br>
+            <br>
+            🤖 Enhanced with LLM validation
         </div>
     </div>
 
@@ -926,6 +1240,7 @@ Page Content:
     def run(self, output_file='episode_graph.html'):
         """Main execution flow."""
         print("Critical Role Episode Graph Visualizer")
+        print("Enhanced with Multi-Layered LLM Validation")
         print("=" * 60)
         
         if not self.load_gml():
@@ -941,7 +1256,7 @@ Page Content:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Visualize Critical Role episode data from GML files'
+        description='Visualize Critical Role episode data from GML files with enhanced LLM validation'
     )
     parser.add_argument('gml_file', help='Path to the GML file')
     parser.add_argument('output_file', help='Path for the output HTML file')
