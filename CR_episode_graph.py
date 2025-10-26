@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
 Critical Role Episode Graph Visualizer
-Loads a GML file containing episode data and creates an interactive visualization
+Loads a JSON file containing episode data and creates an interactive visualization
 with character portraits fetched from the Critical Role wiki.
 
 Required installations:
 pip install requests beautifulsoup4 networkx pyvis
 
 Usage:
-python CR_episode_graph.py <gml_file> <output_html_file> [--campaign CAMPAIGN]
+python CR_episode_graph.py <json_file> <output_html_file> [--campaign CAMPAIGN]
 """
 
 import requests
@@ -24,8 +24,8 @@ import argparse
 import json
 
 class EpisodeGraphVisualizer:
-    def __init__(self, gml_file, target_campaign=4):
-        self.gml_file = gml_file
+    def __init__(self, json_file, target_campaign=4):
+        self.json_file = json_file
         self.base_url = "https://criticalrole.fandom.com"
         self.target_campaign = target_campaign
         self.graph = None
@@ -109,15 +109,46 @@ class EpisodeGraphVisualizer:
             'captured_and_hates': {'color': '#FF0000', 'width': 3}
         }
     
-    def load_gml(self):
-        """Load the GML file."""
-        print(f"Loading GML file: {self.gml_file}")
+    def load_json(self):
+        """Load and parse the JSON file."""
+        print(f"Loading JSON file: {self.json_file}")
         try:
-            self.graph = nx.read_gml(self.gml_file)
+            with open(self.json_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+
+            self.graph = nx.DiGraph()
+
+            # Add nodes from entities
+            entities = data.get('entities', {})
+            for node_id, node_data in entities.items():
+                label = node_data.get('name', node_id)
+                node_type = node_data.get('type', 'unknown').lower().replace(' ', '_')
+
+                attributes = {'label': label, 'type': node_type}
+                if 'data' in node_data and isinstance(node_data['data'], dict):
+                    attributes.update(node_data['data'])
+
+                self.graph.add_node(node_id, **attributes)
+
+            # Add edges from relationships
+            relationships = data.get('relationships', [])
+            for edge in relationships:
+                source = edge.get('source')
+                target = edge.get('target')
+                relationship_type = edge.get('type', 'related')
+
+                if source and target and self.graph.has_node(source) and self.graph.has_node(target):
+                    self.graph.add_edge(source, target, label=relationship_type)
+                else:
+                    print(f"  ? Skipping edge with missing node: {source} -> {target}")
+
             print(f"✓ Loaded graph with {self.graph.number_of_nodes()} nodes and {self.graph.number_of_edges()} edges")
             return True
+        except json.JSONDecodeError as e:
+            print(f"✗ Error decoding JSON file: {e}")
+            return False
         except Exception as e:
-            print(f"✗ Error loading GML file: {e}")
+            print(f"✗ Error loading JSON file: {e}")
             return False
     
     def is_episode_title(self, title):
@@ -928,7 +959,7 @@ Page Content:
         print("Critical Role Episode Graph Visualizer")
         print("=" * 60)
         
-        if not self.load_gml():
+        if not self.load_json():
             return False
         
         self.enhance_graph()
@@ -941,24 +972,24 @@ Page Content:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Visualize Critical Role episode data from GML files'
+        description='Visualize Critical Role episode data from JSON files'
     )
-    parser.add_argument('gml_file', help='Path to the GML file')
+    parser.add_argument('json_file', help='Path to the JSON file')
     parser.add_argument('output_file', help='Path for the output HTML file')
     parser.add_argument('--campaign', type=int, default=4,
                        help='Target campaign number (default: 4)')
     
     args = parser.parse_args()
     
-    if not os.path.exists(args.gml_file):
-        print(f"Error: GML file not found: {args.gml_file}")
+    if not os.path.exists(args.json_file):
+        print(f"Error: JSON file not found: {args.json_file}")
         sys.exit(1)
     
     output_dir = os.path.dirname(args.output_file)
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
     
-    visualizer = EpisodeGraphVisualizer(args.gml_file, target_campaign=args.campaign)
+    visualizer = EpisodeGraphVisualizer(args.json_file, target_campaign=args.campaign)
     success = visualizer.run(args.output_file)
     
     if not success:
