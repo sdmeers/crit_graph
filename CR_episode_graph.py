@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Critical Role Episode Graph Visualizer with Enhanced LLM Validation
-Loads a GML file containing episode data and creates an interactive visualization
+Critical Role Episode Graph Visualizer
+Loads a JSON file containing episode data and creates an interactive visualization
 with character portraits fetched from the Critical Role wiki.
 
 Enhanced with multi-layered validation system:
@@ -14,7 +14,7 @@ Required installations:
 pip install requests beautifulsoup4 networkx pyvis
 
 Usage:
-python CR_episode_graph.py <gml_file> <output_html_file> [--campaign CAMPAIGN]
+python CR_episode_graph.py <json_file> <output_html_file> [--campaign CAMPAIGN]
 """
 
 import requests
@@ -30,8 +30,8 @@ import argparse
 import json
 
 class EpisodeGraphVisualizer:
-    def __init__(self, gml_file, target_campaign=4, sequenced=False):
-        self.gml_file = gml_file
+    def __init__(self, json_file, target_campaign=4):
+        self.json_file = json_file
         self.base_url = "https://criticalrole.fandom.com"
         self.target_campaign = target_campaign
         self.sequenced = sequenced  # Add this line
@@ -79,6 +79,7 @@ class EpisodeGraphVisualizer:
             'object': '#F38181',
             'artifact': '#F38181',
             'faction': '#AA96DA',
+            'organization': '#AA96DA',
             'historical_event': '#FCBAD3',
             'mystery': '#A8D8EA'
         }
@@ -90,6 +91,7 @@ class EpisodeGraphVisualizer:
             'object': 20,
             'artifact': 20,
             'faction': 30,
+            'organization': 30,
             'historical_event': 25,
             'mystery': 25
         }
@@ -116,16 +118,83 @@ class EpisodeGraphVisualizer:
             'captured_and_hates': {'color': '#FF0000', 'width': 3}
         }
     
-    def load_gml(self):
-        """Load the GML file."""
-        print(f"Loading GML file: {self.gml_file}")
+    def load_json(self):
+        """Load and parse the JSON file, supporting multiple formats."""
+        print(f"Loading JSON file: {self.json_file}")
         try:
-            self.graph = nx.read_gml(self.gml_file)
+            with open(self.json_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+
+            self.graph = nx.DiGraph()
+
+            if 'nodes' in data and 'edges' in data:
+                # Handle "nodes" and "edges" format
+                nodes = data.get('nodes', [])
+                for node_data in nodes:
+                    node_id = node_data.get('id')
+                    if not node_id:
+                        print(f"  ? Skipping node with missing id: {node_data.get('label', 'N/A')}")
+                        continue
+
+                    attributes = node_data.copy()
+                    if 'id' in attributes:
+                        del attributes['id']
+
+                    self.graph.add_node(node_id, **attributes)
+
+                edges = data.get('edges', [])
+                for edge_data in edges:
+                    source = edge_data.get('source')
+                    target = edge_data.get('target')
+
+                    if source and target and self.graph.has_node(source) and self.graph.has_node(target):
+                        attributes = edge_data.copy()
+                        if 'source' in attributes: del attributes['source']
+                        if 'target' in attributes: del attributes['target']
+                        if 'relationship' in attributes:
+                            attributes['label'] = attributes.pop('relationship')
+
+                        self.graph.add_edge(source, target, **attributes)
+                    else:
+                        print(f"  ? Skipping edge with missing node: {source} -> {target}")
+
+            elif 'entities' in data and 'relationships' in data:
+                # Handle "entities" and "relationships" format
+                entities = data.get('entities', {})
+                for node_id, node_data in entities.items():
+                    label = node_data.get('name', node_id)
+                    node_type = node_data.get('type', 'unknown').lower().replace(' ', '_')
+
+                    attributes = {'label': label, 'type': node_type}
+                    if 'data' in node_data and isinstance(node_data['data'], dict):
+                        attributes.update(node_data['data'])
+
+                    self.graph.add_node(node_id, **attributes)
+
+                relationships = data.get('relationships', [])
+                for edge in relationships:
+                    source = edge.get('source')
+                    target = edge.get('target')
+                    relationship_type = edge.get('type', 'related')
+
+                    if source and target and self.graph.has_node(source) and self.graph.has_node(target):
+                        self.graph.add_edge(source, target, label=relationship_type)
+                    else:
+                        print(f"  ? Skipping edge with missing node: {source} -> {target}")
+
+            else:
+                print("✗ Error: JSON file does not contain a recognized graph structure ('nodes'/'edges' or 'entities'/'relationships').")
+                return False
+
             print(f"✓ Loaded graph with {self.graph.number_of_nodes()} nodes and {self.graph.number_of_edges()} edges")
             return True
-        except Exception as e:
-            print(f"✗ Error loading GML file: {e}")
+        except json.JSONDecodeError as e:
+            print(f"✗ Error decoding JSON file: {e}")
             return False
+        except Exception as e:
+            print(f"✗ Error loading JSON file: {e}")
+            return False
+
     
     def is_episode_title(self, title):
         """Check if a title matches common episode naming patterns."""
@@ -1377,7 +1446,7 @@ Respond with ONLY valid JSON (no markdown, no explanation):
         print("Enhanced with Multi-Layered LLM Validation")
         print("=" * 60)
         
-        if not self.load_gml():
+        if not self.load_json():
             return False
         
         self.enhance_graph()
@@ -1389,9 +1458,9 @@ Respond with ONLY valid JSON (no markdown, no explanation):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Visualize Critical Role episode data from GML files with enhanced LLM validation'
+        description='Visualize Critical Role episode data from JSON files'
     )
-    parser.add_argument('gml_file', help='Path to the GML file')
+    parser.add_argument('json_file', help='Path to the JSON file')
     parser.add_argument('output_file', help='Path for the output HTML file')
     parser.add_argument('--campaign', type=int, default=4,
                        help='Target campaign number (default: 4)')
@@ -1400,19 +1469,15 @@ def main():
     
     args = parser.parse_args()
     
-    if not os.path.exists(args.gml_file):
-        print(f"Error: GML file not found: {args.gml_file}")
+    if not os.path.exists(args.json_file):
+        print(f"Error: JSON file not found: {args.json_file}")
         sys.exit(1)
     
     output_dir = os.path.dirname(args.output_file)
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
     
-    visualizer = EpisodeGraphVisualizer(
-        args.gml_file, 
-        target_campaign=args.campaign,
-        sequenced=args.sequenced  # Add this line
-    )
+    visualizer = EpisodeGraphVisualizer(args.json_file, target_campaign=args.campaign)
     success = visualizer.run(args.output_file)
     
     if not success:
