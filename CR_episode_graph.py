@@ -72,6 +72,7 @@ class EpisodeGraphVisualizer:
             'object': '#F38181',
             'artifact': '#F38181',
             'faction': '#AA96DA',
+            'organization': '#AA96DA',
             'historical_event': '#FCBAD3',
             'mystery': '#A8D8EA'
         }
@@ -83,6 +84,7 @@ class EpisodeGraphVisualizer:
             'object': 20,
             'artifact': 20,
             'faction': 30,
+            'organization': 30,
             'historical_event': 25,
             'mystery': 25
         }
@@ -110,7 +112,7 @@ class EpisodeGraphVisualizer:
         }
     
     def load_json(self):
-        """Load and parse the JSON file."""
+        """Load and parse the JSON file, supporting multiple formats."""
         print(f"Loading JSON file: {self.json_file}")
         try:
             with open(self.json_file, 'r', encoding='utf-8') as f:
@@ -118,29 +120,64 @@ class EpisodeGraphVisualizer:
 
             self.graph = nx.DiGraph()
 
-            # Add nodes from entities
-            entities = data.get('entities', {})
-            for node_id, node_data in entities.items():
-                label = node_data.get('name', node_id)
-                node_type = node_data.get('type', 'unknown').lower().replace(' ', '_')
+            if 'nodes' in data and 'edges' in data:
+                # Handle "nodes" and "edges" format
+                nodes = data.get('nodes', [])
+                for node_data in nodes:
+                    node_id = node_data.get('id')
+                    if not node_id:
+                        print(f"  ? Skipping node with missing id: {node_data.get('label', 'N/A')}")
+                        continue
 
-                attributes = {'label': label, 'type': node_type}
-                if 'data' in node_data and isinstance(node_data['data'], dict):
-                    attributes.update(node_data['data'])
+                    attributes = node_data.copy()
+                    if 'id' in attributes:
+                        del attributes['id']
 
-                self.graph.add_node(node_id, **attributes)
+                    self.graph.add_node(node_id, **attributes)
 
-            # Add edges from relationships
-            relationships = data.get('relationships', [])
-            for edge in relationships:
-                source = edge.get('source')
-                target = edge.get('target')
-                relationship_type = edge.get('type', 'related')
+                edges = data.get('edges', [])
+                for edge_data in edges:
+                    source = edge_data.get('source')
+                    target = edge_data.get('target')
 
-                if source and target and self.graph.has_node(source) and self.graph.has_node(target):
-                    self.graph.add_edge(source, target, label=relationship_type)
-                else:
-                    print(f"  ? Skipping edge with missing node: {source} -> {target}")
+                    if source and target and self.graph.has_node(source) and self.graph.has_node(target):
+                        attributes = edge_data.copy()
+                        if 'source' in attributes: del attributes['source']
+                        if 'target' in attributes: del attributes['target']
+                        if 'relationship' in attributes:
+                            attributes['label'] = attributes.pop('relationship')
+
+                        self.graph.add_edge(source, target, **attributes)
+                    else:
+                        print(f"  ? Skipping edge with missing node: {source} -> {target}")
+
+            elif 'entities' in data and 'relationships' in data:
+                # Handle "entities" and "relationships" format
+                entities = data.get('entities', {})
+                for node_id, node_data in entities.items():
+                    label = node_data.get('name', node_id)
+                    node_type = node_data.get('type', 'unknown').lower().replace(' ', '_')
+
+                    attributes = {'label': label, 'type': node_type}
+                    if 'data' in node_data and isinstance(node_data['data'], dict):
+                        attributes.update(node_data['data'])
+
+                    self.graph.add_node(node_id, **attributes)
+
+                relationships = data.get('relationships', [])
+                for edge in relationships:
+                    source = edge.get('source')
+                    target = edge.get('target')
+                    relationship_type = edge.get('type', 'related')
+
+                    if source and target and self.graph.has_node(source) and self.graph.has_node(target):
+                        self.graph.add_edge(source, target, label=relationship_type)
+                    else:
+                        print(f"  ? Skipping edge with missing node: {source} -> {target}")
+
+            else:
+                print("✗ Error: JSON file does not contain a recognized graph structure ('nodes'/'edges' or 'entities'/'relationships').")
+                return False
 
             print(f"✓ Loaded graph with {self.graph.number_of_nodes()} nodes and {self.graph.number_of_edges()} edges")
             return True
@@ -150,6 +187,7 @@ class EpisodeGraphVisualizer:
         except Exception as e:
             print(f"✗ Error loading JSON file: {e}")
             return False
+
     
     def is_episode_title(self, title):
         """Check if a title matches common episode naming patterns."""
