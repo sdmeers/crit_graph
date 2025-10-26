@@ -2,1005 +2,1685 @@
   "nodes": [
     {
       "id": "event_execution",
-      "label": "Execution of Thjazi Fang",
+      "label": "The Execution of Thjazi Fang",
       "type": "event",
-      "description": "The public execution of Thjazi Fang by hanging, ordered by the Chamber of Lords-Advisory. A failed escape plan was attempted during the event.",
-      "location": "loc_guardianwall",
+      "description": "Public execution by hanging of Thjazi Fang at Guardian Wall under authority of Chamber of Lords-Advisory",
+      "location": "Guardian Wall, Dol-Makjar",
+      "time": "Dawn/morning",
       "characters": [
-        "char_thjazi",
-        "char_hal",
-        "char_azune",
-        "char_teor",
-        "char_loza",
-        "char_wicander",
-        "char_tyranny",
-        "char_bolaire",
-        "char_julien",
-        "char_kattigan",
-        "char_aranessa"
+        "Thjazi Fang",
+        "Halandil Fang",
+        "Azune Nayar",
+        "Loza Blade",
+        "Teor Pridesire",
+        "Wicander Halovar",
+        "Tyranny",
+        "Julien Davinos",
+        "Aranessa Royce",
+        "Bolaire Lathalia"
       ],
-      "artifacts": [
-        "item_glyph_fake"
-      ],
+      "organizations": ["Chamber of Lords-Advisory", "Revolutionary Guard", "Candescent Creed"],
       "outcomes": [
-        "Thjazi Fang is killed.",
-        "Thjazi panics at seeing something in the sky.",
-        "Thjazi gives Hal a cryptic message about Murray, the Penteveral, Bolaire, and Thimble.",
-        "The escape plan fails."
+        "Death of Thjazi Fang",
+        "Secret Message spell between Azune and Thjazi",
+        "Detection of false escape glyph",
+        "Thjazi sees something in sky and panics",
+        "Execution completed"
       ]
     },
     {
-      "id": "event_wake",
-      "label": "Wake (Farramh) for Thjazi Fang",
+      "id": "event_farramh",
+      "label": "The Farramh (Wake)",
       "type": "event",
-      "description": "An orcish wake (farramh) held at Halandil's home following Thjazi's execution. It serves as a meeting point for all major characters.",
-      "location": "loc_halshome",
+      "description": "Traditional orcish funeral gathering at Halandil's home with body viewing and rites",
+      "location": "Halandil Fang's home, The Rookery, Dol-Makjar",
+      "time": "Same day as execution, evening",
       "characters": [
-        "char_hal",
-        "char_shadia",
-        "char_olgud",
-        "char_thaisha",
-        "char_occtis",
-        "char_azune",
-        "char_teor",
-        "char_loza",
-        "char_wicander",
-        "char_tyranny",
-        "char_bolaire",
-        "char_elodie",
-        "char_hero",
-        "char_julien",
-        "char_aranessa",
-        "char_murray",
-        "char_vaelus",
-        "char_tunk",
-        "char_tashmara",
-        "char_emerald",
-        "char_davrasi"
+        "Halandil Fang",
+        "Shadia Fang",
+        "Thaisha Lloy",
+        "Occtis Tachonis",
+        "Azune Nayar",
+        "Teor Pridesire",
+        "Loza Blade",
+        "Wicander Halovar",
+        "Tyranny",
+        "Bolaire Lathalia",
+        "Julien Davinos",
+        "Aranessa Royce",
+        "Elodie",
+        "Hero Fang",
+        "Murray Mag'Nesson",
+        "Vaelus",
+        "Olgud Akarat"
       ],
-      "artifacts": [
-        "item_scimitar",
-        "item_deed"
-      ],
+      "organizations": ["Old Path", "Candescent Creed", "Sisters of Sylandri"],
+      "items": ["Thjazi's scimitar", "Stone of Nightsong"],
       "outcomes": [
-        "Characters meet, mourn, and reveal relationships.",
-        "Azune, Teor, and Occtis leave to investigate the flophouse.",
-        "Julien spits on Thjazi's corpse.",
-        "Vaelus arrives demanding the Stone of Nightsong.",
-        "The mysterious mask box is activated."
+        "Thaisha performs Old Path rites",
+        "Wicander returns Thjazi's scimitar",
+        "Confrontation between Thaisha and Julien",
+        "Julien spits on Thjazi's corpse",
+        "Vaelus arrives seeking Stone of Nightsong",
+        "Supernatural temperature drop",
+        "Shadow curse detected on Julien"
       ]
     },
     {
-      "id": "event_flophouse_investigation",
-      "label": "Flophouse Investigation",
+      "id": "event_hideout_raid",
+      "label": "The Raid on Thjazi's Hideout",
       "type": "event",
-      "description": "Azune, Teor, and Occtis investigate Thjazi's hidden flophouse to find Thimble and learn why the escape plan failed.",
-      "location": "loc_flophouse",
+      "description": "Masked attackers raid secret apartment, critically injure Thimble, steal artifacts",
+      "location": "Secret apartment in Ograhmson Leather Tannery, The Tanners",
+      "time": "Shortly before the wake",
       "characters": [
-        "char_azune",
-        "char_teor",
-        "char_occtis"
+        "Thimble",
+        "Azune Nayar",
+        "Occtis Tachonis",
+        "Teor Pridesire",
+        "Kattigan Vale"
       ],
-      "artifacts": [],
+      "organizations": ["Crow Keepers"],
+      "items": ["Stone of Nightsong", "Escape glyph"],
       "outcomes": [
-        "The room is found ransacked with signs of a battle and blood.",
-        "The dying Thimble is discovered hidden in a grate."
-      ]
-    },
-    {
-      "id": "event_thimble_revival",
-      "label": "Thimble's Revival",
-      "type": "event",
-      "description": "Teor revives the dying Thimble, who confirms the escape plan and her attack. Kattigan Vale arrives, having followed the group.",
-      "location": "loc_flophouse",
-      "characters": [
-        "char_teor",
-        "char_thimble",
-        "char_azune",
-        "char_occtis",
-        "char_kattigan"
-      ],
-      "artifacts": [
-        "item_glyph_real",
-        "item_letter"
-      ],
-      "outcomes": [
-        "Teor heals Thimble with Cure Wounds.",
-        "Thimble is devastated to learn of Thjazi's death.",
-        "It's confirmed the glyph on Thjazi was a fake.",
-        "Kattigan Vale joins the group.",
-        "Thimble finds a letter addressed to Bolaire."
-      ]
-    },
-    {
-      "id": "event_flophouse_attack",
-      "label": "Attack on Thimble (Flashback)",
-      "type": "event",
-      "description": "An attack on Thimble at the flophouse *before* the execution, preventing her from delivering the escape glyph.",
-      "location": "loc_flophouse",
-      "characters": [
-        "char_thimble"
-      ],
-      "artifacts": [
-        "item_glyph_real",
-        "item_stone"
-      ],
-      "outcomes": [
-        "Thimble was attacked by 7 masked figures (3 were killed).",
-        "The Stone of Nightsong was stolen.",
-        "Thimble was left for dead, hiding in the grate with the real glyph."
-      ]
-    },
-    {
-      "id": "event_kattigan_clue",
-      "label": "Kattigan's Investigation",
-      "type": "event",
-      "description": "Kattigan uses his 'Clue' spell to reconstruct the fight at the flophouse.",
-      "location": "loc_flophouse",
-      "characters": [
-        "char_kattigan"
-      ],
-      "artifacts": [
-        "item_stone"
-      ],
-      "outcomes": [
-        "Identified 7 attackers, 3 died.",
-        "Found crow feathers, implicating the Crow Keepers guild.",
-        "Noted one attacker wore fine boots.",
-        "Confirmed magical items, including the Stone of Nightsong, were stolen."
-      ]
-    },
-    {
-      "id": "event_julien_spit",
-      "label": "Julien Spits on Corpse",
-      "type": "event",
-      "description": "While alone with the body, Sir Julien Davinos expresses his hatred for Thjazi and spits on his corpse.",
-      "location": "loc_halshome",
-      "characters": [
-        "char_julien",
-        "char_thjazi"
-      ],
-      "artifacts": [],
-      "outcomes": [
-        "Julien's true feelings are revealed to the audience."
-      ]
-    },
-    {
-      "id": "event_julien_shadow",
-      "label": "Bolaire Sees Shadow",
-      "type": "event",
-      "description": "After Julien spits on the corpse (crossing funeral protections), Bolaire rolls a Natural 20 and perceives a shadow detach and follow Julien.",
-      "location": "loc_halshome",
-      "characters": [
-        "char_bolaire",
-        "char_julien"
-      ],
-      "artifacts": [],
-      "outcomes": [
-        "Bolaire becomes aware of a magical effect targeting Julien."
-      ]
-    },
-    {
-      "id": "event_vaelus_arrival",
-      "label": "Vaelus Arrives",
-      "type": "event",
-      "description": "Vaelus, an elf from the Sisters of Sylandri, interrupts the wake.",
-      "location": "loc_halshome",
-      "characters": [
-        "char_vaelus",
-        "char_hal",
-        "char_murray",
-        "char_bolaire",
-        "char_aranessa"
-      ],
-      "artifacts": [
-        "item_stone"
-      ],
-      "outcomes": [
-        "Vaelus accuses Thjazi of being a thief and demands the return of the Stone of Nightsong.",
-        "Bolaire confirms knowledge of the stone's religious significance.",
-        "Vaelus asks for Thimble."
+        "Combat between Thimble and 7 attackers",
+        "Thimble kills 3 attackers",
+        "Thimble falls through grate, hidden",
+        "4 attackers escape with Stone of Nightsong",
+        "Bodies and magical items removed",
+        "Teor's Cure Wounds saves Thimble from death",
+        "Crow feathers discovered",
+        "Kattigan's Clue spell reveals fight details"
       ]
     },
     {
       "id": "event_mask_activation",
-      "label": "Mask Box Activation",
+      "label": "Discovery at Fang Home",
       "type": "event",
-      "description": "As Thimble's name is spoken downstairs by Vaelus, a silver box held by Thaisha upstairs flies open, and shattered black ceramic inside assembles itself into a mask.",
-      "location": "loc_halshome",
-      "characters": [
-        "char_thaisha",
-        "char_hal",
-        "char_vaelus",
-        "char_murray",
-        "char_bolaire",
-        "char_thimble"
-      ],
-      "artifacts": [
-        "item_maskbox"
-      ],
-      "outcomes": [
-        "The box is revealed to contain a magical mask.",
-        "The episode ends on this cliffhanger."
-      ]
+      "description": "Black clay mask in silver box reforms when Thimble's name spoken",
+      "location": "Hal's study, upper floor of home",
+      "time": "End of wake",
+      "characters": ["Thaisha Lloy", "Halandil Fang"],
+      "items": ["Black clay mask", "Silver box"],
+      "outcomes": ["Mask activation triggered", "Cliffhanger unresolved"]
     },
     {
-      "id": "char_hal",
+      "id": "char_halandil",
       "label": "Halandil 'Hal' Fang",
       "type": "character",
-      "description": "An older orc, poet and performer. Brother of the deceased Thjazi Fang. He lives in The Rookery and is hosting the wake.",
-      "relationships": "Brother of Thjazi Fang; Former partner of Thaisha Lloy; Father of Shadia and Hero; Business partner of Olgud Akarat.",
-      "abilities": "Insightful (Nat 20), performer."
+      "description": "Older distinguished orc bard, theater owner and performer in The Rookery",
+      "race": "Orc",
+      "relationships": [
+        "Brother of Thjazi Fang",
+        "Father of Shadia and Hero",
+        "Former partner of Thaisha Lloy",
+        "Business partner of Olgud Akarat",
+        "Friend of Bolaire Lathalia"
+      ],
+      "abilities": ["Bardic performance", "Theater arts"],
+      "items": ["Deed to dithyramb of Azgra theater"],
+      "traits": ["Respected in The Rookery", "Distinguished", "Older"]
     },
     {
       "id": "char_azune",
       "label": "Azune Nayar",
       "type": "character",
-      "description": "A human-appearing Arcane Marshal of the Revolutionary Guard. He is tall, proud, and heavily armored. He served in the Falconer's Rebellion with Thjazi.",
-      "relationships": "Comrade of Thjazi, Teor, and Kattigan from the Falconer's Rebellion.",
-      "abilities": "Detect Magic (ritual and spell), Message (cantrip), False Life."
-    },
-    {
-      "id": "char_thaisha",
-      "label": "Thaisha Lloy",
-      "type": "character",
-      "description": "A tall orc druid from the Lloy family. She shows signs of aging but is slowed by her druidic connection. She was part of the failed plan to save Thjazi.",
-      "relationships": "Former partner of Hal; Mother of Shadia and Alogar; Knew Thjazi.",
-      "abilities": "Enrichment (spell), Druidcraft, Wild Shape (into Hala, a deer), Guidance."
-    },
-    {
-      "id": "char_occtis",
-      "label": "Occtis Tachonis",
-      "type": "character",
-      "description": "A small, young human man in worn noble clothing. He is a member of House Tachonis and was part of the failed escape plan.",
-      "relationships": "Member of House Tachonis; Works with Thaisha.",
-      "abilities": "Has a fox familiar named Pincushion 'Pin', Disguise Self."
-    },
-    {
-      "id": "char_teor",
-      "label": "Teor Pridesire",
-      "type": "character",
-      "description": "A tall, powerfully-built lion man (nama). He is a Vanguard Marshal and served in the Falconer's Rebellion. He is looking for his brother, Cyd.",
-      "relationships": "Served with Thjazi, Azune, and Loza Blade; Brother of Talcydimir 'Cyd' Pridesire.",
-      "abilities": "Perception, Athletics, Cure Wounds."
-    },
-    {
-      "id": "char_wicander",
-      "label": "Wicander 'Wick' Halovar",
-      "type": "character",
-      "description": "A beautiful young man, Light Priest of the Candescent Creed. He is from House Halovar and was involved in a failed political attempt to pardon Thjazi.",
-      "relationships": "Grandson of Photarch Yanessa Halovar; Son of Godard; Mentors Tyranny.",
-      "abilities": "Thaumaturgy, knowledge of Candescent Creed hymns."
-    },
-    {
-      "id": "char_tyranny",
-      "label": "Aspirant Tyranny",
-      "type": "character",
-      "description": "A bubblegum-skinned demon with goat features (hooves, horns, eyes). She is an Aspirant to the Candescent Creed, assigned to Wicander.",
-      "relationships": "Aspirant to Wicander; Sibling named Enmity.",
-      "abilities": "Demonic constitution (drank a bottle of Yahrgraz), throwing (hurled scimitar)."
-    },
-    {
-      "id": "char_bolaire",
-      "label": "Bolaire Lathalia",
-      "type": "character",
-      "description": "A dashing figure in fine clothes who wears a moving, sighing gray clay mask with empty black eyes. He deals with nobility and knew of Thjazi.",
-      "relationships": "Knew Thjazi (dealings); Acquaintance of Vaelus (let her into the city); Mentioned in Thjazi's final words.",
-      "abilities": "Arcane/Religious knowledge (Nat 20), perception of magical effects."
-    },
-    {
-      "id": "char_julien",
-      "label": "Sir Julien Davinos",
-      "type": "character",
-      "description": "A human knight from House Davinos, vassal to House Royce. He has a stern, stoic look and wears an intricate metal gauntlet on his left hand. He bears a deep hatred for Thjazi.",
-      "relationships": "Childhood friend and protector of Lady Aranessa; Captured Thjazi during his rebellion; Son of General Raimond Davinos.",
-      "abilities": "Knight, swordsman."
-    },
-    {
-      "id": "char_murray",
-      "label": "Murray Mag'Nesson",
-      "type": "character",
-      "description": "A dwarf woman with long auburn hair, a duster jacket, and gemstone teeth. She is an arcanist and knows many of the magical underbelly at the funeral.",
-      "relationships": "Works at the Penteveral; Acquaintance of Bolaire; Knew Thjazi; Mentioned in Thjazi's final words.",
-      "abilities": "Wizard magic, Arcane knowledge."
-    },
-    {
-      "id": "char_kattigan",
-      "label": "Kattigan Vale",
-      "type": "character",
-      "description": "A human ranger in his mid-40s, described as a 'wild man'. He is often drunk but highly capable. He served in the Falconer's Rebellion.",
-      "relationships": "Comrade of Teor and Azune; Knew Thjazi and Thimble; Has a wolf companion, Wulfric.",
-      "abilities": "Clue (spell), Survival, tracking."
-    },
-    {
-      "id": "char_thimble",
-      "label": "Thimble",
-      "type": "character",
-      "description": "A 4-inch tall pixie, Thjazi's partner in crime and adventure. She was attacked and left for dead while preparing Thjazi's escape.",
-      "relationships": "Thjazi's close partner; Knew Teor, Azune, Kattigan.",
-      "abilities": "Fairy, flight (wing is injured), swordplay (needles)."
-    },
-    {
-      "id": "char_vaelus",
-      "label": "Vaelus",
-      "type": "character",
-      "description": "A very tall elven woman in black armor and a chainmail veil of mourning. She is from the Sisters of Sylandri and has traveled far.",
-      "relationships": "Member of the Sisters of Sylandri; Acquaintance of Bolaire.",
-      "abilities": "Swings a censer as a weapon, ancient (forgotten what grieving is like)."
+      "description": "Human sorcerer serving as Arcane Marshal in Revolutionary Guard",
+      "race": "Human",
+      "relationships": [
+        "Served under Thjazi in Falconer's Rebellion",
+        "Friend of Teor Pridesire",
+        "Part of escape plan conspiracy"
+      ],
+      "abilities": ["Arcane magic", "Message spell", "Magical scanning"],
+      "traits": ["Sunset-colored eyes", "Tattooed 'Have mercy on those I send you'"],
+      "actions": ["Conducted magical scan on Thjazi", "Passed secret message to Thjazi", "Detected false escape glyph"]
     },
     {
       "id": "char_thjazi",
       "label": "Thjazi Fang",
       "type": "character",
-      "description": "An orc arcanist and 'hero' of the Falconer's Rebellion. Executed for murder, theft, and sedition. He is the central figure of the wake.",
-      "relationships": "Brother of Hal; Estranged husband of Aranessa Royce; Partner of Thimble; Comrade of Azune, Teor, Kattigan, Loza.",
-      "abilities": "Arcanist, 'dashing hero'."
+      "description": "Executed orc rebel, arcanist, thief and adventurer",
+      "race": "Orc",
+      "status": "Deceased (executed)",
+      "relationships": [
+        "Brother of Halandil",
+        "Estranged husband of Aranessa Royce",
+        "Partner of Thimble",
+        "Commander to many fighters"
+      ],
+      "crimes": ["Arcanism", "Theft", "Murder", "Sedition"],
+      "traits": ["Beloved by common people", "Controversial figure"],
+      "final_words": [
+        "Help Murray",
+        "Paint with Bolaire",
+        "Tell Thimble not to be scared",
+        "Letter for Bolaire",
+        "The Penteveral, you have to help her"
+      ]
     },
     {
-      "id": "char_shadia",
-      "label": "Shadia Fang",
+      "id": "char_thimble",
+      "label": "Thimble",
       "type": "character",
-      "description": "Young orcish woman, daughter of Hal and Thaisha. Grieving her uncle Thjazi.",
-      "relationships": "Daughter of Hal and Thaisha; Niece of Thjazi.",
-      "abilities": "Studying to be a performer."
+      "description": "Four-inch tall pixie from Faerie, aging after doors closed, wings damaged",
+      "race": "Pixie",
+      "status": "Critically injured, rescued",
+      "relationships": ["Partner of Thjazi"],
+      "abilities": ["Flight (damaged)", "Rogue skills", "Thievery"],
+      "traits": ["4 inches tall", "Approximately 18 years old", "Aging since Faerie doors closed"],
+      "origin": "Tír Cruthú, Faerie"
     },
     {
-      "id": "char_olgud",
-      "label": "Olgud Akarat",
+      "id": "char_teor",
+      "label": "Teor Pridesire",
       "type": "character",
-      "description": "Older orcish gentleman, Hal's business partner.",
-      "relationships": "Business partner and friend of Hal; 'Uncle' to Shadia.",
-      "abilities": "Theater producer."
+      "description": "Tall powerful lionfolk Vanguard Marshal and mercenary in golden armor",
+      "race": "Nama (lionfolk)",
+      "relationships": [
+        "Served with Thjazi in Falconer's Rebellion",
+        "Companion of Loza Blade",
+        "Brother of Talcydimir 'Cyd' Pridesire",
+        "Friend of Azune Nayar"
+      ],
+      "abilities": ["Cure Wounds", "Combat prowess", "Medicine"],
+      "traits": ["Tall", "Powerful", "Golden armor", "Purple vestments"]
+    },
+    {
+      "id": "char_thaisha",
+      "label": "Thaisha Lloy",
+      "type": "character",
+      "description": "Orc druid of the Old Path from noble Lloy smithing family",
+      "race": "Orc",
+      "relationships": [
+        "Mother of Shadia with Halandil",
+        "Mother of Alogar",
+        "From noble Lloy family",
+        "Part of escape plan conspiracy"
+      ],
+      "abilities": ["Old Path rites", "Druidic magic", "Nature connection"],
+      "traits": ["6'4\"", "Desaturated green skin", "Silver/red eyes"],
+      "companion": "Hala (deer)"
+    },
+    {
+      "id": "char_occtis",
+      "label": "Occtis Tachonis",
+      "type": "character",
+      "description": "Young anxious human necromancer, low in House Tachonis succession",
+      "race": "Human",
+      "relationships": [
+        "Friend of Thjazi",
+        "Part of escape plan conspiracy",
+        "Member of House Tachonis"
+      ],
+      "abilities": ["Necromancy", "Arcane magic"],
+      "traits": ["Young", "Anxious", "5'11\"", "Book strapped to leg"],
+      "familiar": "Pin (patchwork fox)"
+    },
+    {
+      "id": "char_wicander",
+      "label": "Wicander Halovar",
+      "type": "character",
+      "description": "Light Priest of Candescent Creed, grandson of Photarch, nervous demeanor",
+      "race": "Human",
+      "relationships": [
+        "Grandson of Photarch",
+        "Son of Godard Halovar",
+        "Ward/mentor to Tyranny",
+        "Failed to save Thjazi"
+      ],
+      "abilities": ["Light magic", "Healing"],
+      "traits": ["Teal/white hair", "Pearlescent face tattoos", "Nervous"]
+    },
+    {
+      "id": "char_tyranny",
+      "label": "Tyranny",
+      "type": "character",
+      "description": "Demon Aspirant to Candescent Creed with distinctive appearance",
+      "race": "Demon (tiefling-type)",
+      "relationships": [
+        "Ward of Wicander",
+        "Sister of Enmity"
+      ],
+      "abilities": ["Demon powers"],
+      "traits": ["Bubblegum pink skin", "Goat features", "Forked tongue", "Smells of chocolate and sulfur"]
+    },
+    {
+      "id": "char_julien",
+      "label": "Julien Davinos",
+      "type": "character",
+      "description": "Knight of House Davinos who captured Thjazi, has deep hatred for him",
+      "race": "Human",
+      "relationships": [
+        "Childhood friend of Aranessa",
+        "Captured Thjazi at Battle of Maharlian Falls",
+        "Mentor to Alogar (Thaisha's son)",
+        "Enemy of Thjazi"
+      ],
+      "abilities": ["Swordsmanship", "Combat"],
+      "traits": ["Curly black hair", "Metal gauntlet on left hand"],
+      "items": ["Rapier"],
+      "actions": ["Spat on Thjazi's corpse"],
+      "afflictions": ["Shadow curse"]
+    },
+    {
+      "id": "char_kattigan",
+      "label": "Kattigan Vale",
+      "type": "character",
+      "description": "Weathered ranger and bounty hunter, old friend who previously left the group",
+      "race": "Human",
+      "relationships": [
+        "Old friend of Thjazi, Teor, Azune",
+        "Left group previously"
+      ],
+      "abilities": ["Ranger skills", "Clue spell", "Tracking"],
+      "traits": ["6'4\"", "Weathered", "Cowled", "Drunk at funeral"],
+      "companion": "Wulfric (armored wolf)"
+    },
+    {
+      "id": "char_bolaire",
+      "label": "Bolaire Lathalia",
+      "type": "character",
+      "description": "Masked museum curator and antiquities expert with mysterious appearance",
+      "race": "Unknown",
+      "relationships": [
+        "Friend of Halandil",
+        "Had dealings with Thjazi",
+        "Mentioned in dying words"
+      ],
+      "abilities": ["Curse detection", "Antiquities expertise"],
+      "traits": ["Gray mask with moving features", "Blue lights in eye sockets"],
+      "actions": ["Detected curse on Julien"]
+    },
+    {
+      "id": "char_murray",
+      "label": "Murray Mag'Nesson",
+      "type": "character",
+      "description": "Dwarf wizard and arcanist mentioned in Thjazi's dying words",
+      "race": "Dwarf",
+      "relationships": [
+        "Friend/associate of Thjazi",
+        "Mentioned in dying words"
+      ],
+      "abilities": ["Wizardry", "Arcane magic"],
+      "traits": ["Auburn hair", "Flat brim hat", "Gem teeth", "Missing front teeth"],
+      "workplace": "The Penteveral"
+    },
+    {
+      "id": "char_vaelus",
+      "label": "Vaelus",
+      "type": "character",
+      "description": "Extremely tall elf Sister of Sylandri seeking the Stone of Nightsong",
+      "race": "Elf",
+      "relationships": [
+        "Seeking Stone of Nightsong",
+        "Traveled from Mournvale",
+        "Knows Bolaire"
+      ],
+      "abilities": ["Combat", "Divine magic", "Perception"],
+      "traits": ["Extremely tall", "Black robes", "Chainmail veil", "Scarred face"],
+      "items": ["Censer"]
+    },
+    {
+      "id": "char_aranessa",
+      "label": "Aranessa Royce",
+      "type": "character",
+      "description": "Noble lady of House Royce, estranged wife of Thjazi who still loved him",
+      "race": "Human",
+      "relationships": [
+        "Estranged wife of Thjazi (married ~40 years ago)",
+        "Childhood friend of Julien"
+      ],
+      "traits": ["Green and gold gown", "Grieving", "Emotional"],
+      "status": "Noble lady"
     },
     {
       "id": "char_loza",
       "label": "Loza Blade",
       "type": "character",
-      "description": "Ancient, broad-shouldered orcish woman with a battle axe. Former Commander of the Torn Banner. She is retiring.",
-      "relationships": "Former commander of Teor, Thjazi; Friend of Hal.",
-      "abilities": "Veteran warrior, knowledge of Old Path."
+      "description": "Ancient powerful orc, former Commander of Torn Banner, retiring",
+      "race": "Orc",
+      "relationships": [
+        "Thjazi's commander",
+        "Companion of Teor"
+      ],
+      "abilities": ["Combat mastery"],
+      "traits": ["Ancient", "Powerful", "Spite keeping her alive"],
+      "items": ["Battle axe"],
+      "status": "Retiring"
     },
     {
-      "id": "char_pin",
-      "label": "Pincushion 'Pin'",
+      "id": "char_shadia",
+      "label": "Shadia Fang",
       "type": "character",
-      "description": "A small fox familiar made of pieces of other foxes with purple button eyes.",
-      "relationships": "Familiar to Occtis; Friends with Wulfric.",
-      "abilities": "Familiar."
-    },
-    {
-      "id": "char_aranessa",
-      "label": "Lady Aranessa Royce",
-      "type": "character",
-      "description": "A noblewoman from House Royce, Thjazi's estranged widow. She is grieving and furious at House Halovar.",
-      "relationships": "Estranged widow of Thjazi; Childhood friend of Julien; Noble of House Royce.",
-      "abilities": "Noble bearing."
+      "description": "Daughter of Halandil and Thaisha",
+      "relationships": [
+        "Daughter of Halandil",
+        "Daughter of Thaisha"
+      ]
     },
     {
       "id": "char_hero",
-      "label": "Hero",
+      "label": "Hero Fang",
       "type": "character",
-      "description": "A young half-orc girl, daughter of Hal and Elodie.",
-      "relationships": "Daughter of Hal and Elodie; Half-sister of Shadia.",
-      "abilities": "Perceptive."
-    },
-    {
-      "id": "char_elodie",
-      "label": "Elodie",
-      "type": "character",
-      "description": "A human merchant woman, mother of Hero.",
-      "relationships": "Mother of Hero; Partner of Hal.",
-      "abilities": "Merchant."
-    },
-    {
-      "id": "char_wulfric",
-      "label": "Wulfric",
-      "type": "character",
-      "description": "A massive juvenile canine (wolf) companion to Kattigan.",
-      "relationships": "Companion to Kattigan; Friends with Pin.",
-      "abilities": "Animal companion, armored."
-    },
-    {
-      "id": "char_enmity",
-      "label": "Aspirant Enmity",
-      "type": "character",
-      "description": "A demon with ram-like horns, sibling to Tyranny, and another Aspirant of the Candescent Creed.",
-      "relationships": "Sibling of Tyranny.",
-      "abilities": "Demon, Candescent Creed Aspirant."
-    },
-    {
-      "id": "char_yanessa",
-      "label": "Photarch Yanessa Halovar",
-      "type": "character",
-      "description": "The matriarch of House Halovar and leader of the Candescent Creed. She gave the speech at the execution and ultimately allowed it to proceed.",
-      "relationships": "Grandmother of Wicander; Mother of Godard.",
-      "abilities": "Leader of House Halovar."
-    },
-    {
-      "id": "char_casimir",
-      "label": "Casimir Gavendale",
-      "type": "character",
-      "description": "An old member of the Torn Banner. He was supposed to provide the escape wagon for Thjazi.",
-      "relationships": "Former member of Torn Banner.",
-      "abilities": "Unknown."
+      "description": "Daughter of Halandil, mother is Elodie (merchant)",
+      "relationships": [
+        "Daughter of Halandil",
+        "Daughter of Elodie"
+      ]
     },
     {
       "id": "char_cyd",
       "label": "Talcydimir 'Cyd' Pridesire",
       "type": "character",
-      "description": "Teor's younger brother. He was supposed to drive the escape wagon for Thjazi and is currently missing.",
-      "relationships": "Brother of Teor; Former member of Torn Banner.",
-      "abilities": "Unknown."
+      "description": "Brother of Teor, should have driven escape wagon but never showed",
+      "relationships": ["Brother of Teor Pridesire"],
+      "status": "Missing"
     },
     {
-      "id": "char_tunk",
-      "label": "Tunk",
+      "id": "char_olgud",
+      "label": "Olgud Akarat",
       "type": "character",
-      "description": "A beastfolk warrior with a boar's head, formerly of the Torn Banner.",
-      "relationships": "Attended wake; Former Torn Banner.",
-      "abilities": "Warrior."
+      "description": "Business partner of Halandil",
+      "relationships": ["Business partner of Halandil"]
     },
     {
-      "id": "char_tashmara",
-      "label": "Tashmara Cobblegrave",
+      "id": "char_elodie",
+      "label": "Elodie",
       "type": "character",
-      "description": "An arcanist present at Thjazi's funeral.",
-      "relationships": "Acquaintance of Murray.",
-      "abilities": "Arcanist."
+      "description": "Merchant, mother of Hero Fang",
+      "relationships": ["Mother of Hero"],
+      "profession": "Merchant"
     },
     {
-      "id": "char_emerald",
-      "label": "Uncle Emerald",
+      "id": "char_photarch",
+      "label": "Photarch Yanessa Halovar",
       "type": "character",
-      "description": "A tiny gnome arcanist at Thjazi's funeral.",
-      "relationships": "Acquaintance of Murray.",
-      "abilities": "Arcanist."
+      "description": "Grandmother of Wicander, head of House Halovar and Candescent Creed",
+      "relationships": ["Grandmother of Wicander", "Mother of Godard Halovar"],
+      "status": "Photarch of Candescent Creed"
     },
     {
-      "id": "char_davrasi",
-      "label": "Davrasi Gaunt",
+      "id": "char_godard",
+      "label": "Godard Halovar",
       "type": "character",
-      "description": "A sallow-faced arcanist at Thjazi's funeral, looking to acquire skulls.",
-      "relationships": "Acquaintance of Murray.",
-      "abilities": "Arcanist."
+      "description": "Father of Wicander",
+      "relationships": ["Father of Wicander", "Son of Photarch"]
     },
     {
-      "id": "loc_dolmakjar",
+      "id": "char_alogar",
+      "label": "Alogar",
+      "type": "character",
+      "description": "Son of Thaisha and Halandil, mentored by Julien Davinos",
+      "relationships": ["Son of Thaisha Lloy", "Son of Halandil Fang", "Mentored by Julien"]
+    },
+    {
+      "id": "char_enmity",
+      "label": "Enmity",
+      "type": "character",
+      "description": "Demon Aspirant, sister of Tyranny",
+      "relationships": ["Sister of Tyranny"],
+      "status": "Another Aspirant"
+    },
+    {
+      "id": "loc_dol_makjar",
       "label": "Dol-Makjar",
       "type": "location",
-      "description": "A city of gray stone at the eastern edge of Kahad, built on mountainsides along the River Vrosh. It is the seat of the revolution against the gods.",
-      "neighborhood": "Contains The Rookery, The Tanners.",
-      "features": "Guardian Wall, towering spires, Revolutionary Council."
+      "description": "City of revolution at eastern edge of Kahad, seat of Revolutionary Council",
+      "region": "Eastern edge of Kahad",
+      "features": ["Guardian Wall", "River Vrosh", "Multiple neighborhoods"],
+      "significance": "City of revolution against gods"
     },
     {
-      "id": "loc_guardianwall",
+      "id": "loc_guardian_wall",
       "label": "Guardian Wall",
       "type": "location",
-      "description": "A massive wall at the eastern edge of Dol-Makjar, carved with 80-foot-tall statues of heroes from the Shapers' War.",
-      "neighborhood": "Dol-Makjar",
-      "features": "Statues of orcs, dwarves, elves, humans, etc. Site of Thjazi's execution."
+      "description": "Monument with 80-foot statues of Shapers' War heroes carved from mountainside",
+      "parent_location": "Dol-Makjar",
+      "features": ["80-foot statues", "Carved from mountainside"],
+      "significance": "Site of Thjazi's execution (symbolic)"
     },
     {
       "id": "loc_rookery",
       "label": "The Rookery",
       "type": "location",
-      "description": "A neighborhood in Dol-Makjar named for its aviaries. A vertical area of towers and sky bridges, home to poets, performers, and artists.",
-      "neighborhood": "Dol-Makjar",
-      "features": "Hal's home, aviaries, many magpies."
-    },
-    {
-      "id": "loc_halshome",
-      "label": "Halandil's Home",
-      "type": "location",
-      "description": "A modest, medium-sized house in The Rookery, with views of the river. Has a large greeting room for gatherings and an upstairs study filled with scrolls and instruments.",
-      "neighborhood": "The Rookery",
-      "features": "Site of Thjazi's wake (farramh)."
+      "description": "Neighborhood of poets, performers, actors with towers and sky bridges",
+      "parent_location": "Dol-Makjar",
+      "features": ["Towers", "Sky bridges", "Theater at base", "Aviaries"],
+      "character": "Artistic and performative",
+      "residents": ["Halandil Fang"]
     },
     {
       "id": "loc_tanners",
       "label": "The Tanners",
       "type": "location",
-      "description": "A grimy, working-class neighborhood in the south of Dol-Makjar, named for its tanneries.",
-      "neighborhood": "Dol-Makjar",
-      "features": "Smell of curing leather, Ograhmson Leather Tannery."
+      "description": "Working class, grimy neighborhood with tanneries",
+      "parent_location": "Dol-Makjar",
+      "features": ["Tanneries", "Ograhmson Leather Tannery"],
+      "character": "Working class, grimy"
     },
     {
-      "id": "loc_flophouse",
-      "label": "Thjazi's Flophouse",
+      "id": "loc_villa_aurora",
+      "label": "Villa Aurora",
       "type": "location",
-      "description": "A secret apartment hidden within the Ograhmson Leather Tannery in The Tanners. Used by Thjazi as an illegal arcanist's hideout.",
-      "neighborhood": "The Tanners",
-      "features": "Hidden door (activated by 'S' in sign), secret staircase, ransacked room, floor grate."
-    },
-    {
-      "id": "loc_mournvale",
-      "label": "The Mournvale",
-      "type": "location",
-      "description": "A location Vaelus traveled from. Thjazi and Thimble also adventured there.",
-      "neighborhood": "Unknown",
-      "features": "Unknown."
+      "description": "Estate of House Halovar",
+      "parent_location": "Dol-Makjar",
+      "owner": "House Halovar",
+      "significance": "Seat of Candescent Creed",
+      "note": "Aranessa kept waiting there"
     },
     {
       "id": "loc_penteveral",
       "label": "The Penteveral",
       "type": "location",
-      "description": "An institution of magical learning where Murray Mag'Nesson works.",
-      "neighborhood": "Dol-Makjar",
-      "features": "Mentioned in Thjazi's last words."
+      "description": "Institution mentioned by Thjazi, where Murray works",
+      "type_detail": "Possibly library/archive",
+      "staff": ["Murray Mag'Nesson"]
     },
     {
-      "id": "org_revguard",
-      "label": "Revolutionary Guard",
-      "type": "organization",
-      "description": "The official guard force of Dol-Makjar.",
-      "members": [
-        "char_azune"
-      ],
-      "status": "Active."
-    },
-    {
-      "id": "org_sunderedhouses",
+      "id": "org_sundered_houses",
       "label": "Sundered Houses",
       "type": "organization",
-      "description": "A coalition of noble houses (Tachonis, Halovar, Royce, Einfasen, Cormoray) that form the Chamber of Lords-Advisory. They ordered Thjazi's execution and are gaining power.",
-      "members": [
-        "char_occtis",
-        "char_wicander",
-        "char_aranessa",
-        "char_julien",
-        "char_yanessa"
-      ],
-      "status": "Active, consolidating power."
+      "description": "Coalition of noble families gaining power in Dol-Makjar",
+      "houses": ["Tachonis", "Halovar", "Royce", "Davinos", "Einfasen", "Cormoray"],
+      "power": "Chamber of Lords-Advisory",
+      "status": "Consolidating power vs Revolutionary Council"
     },
     {
-      "id": "org_candescentcreed",
+      "id": "org_candescent_creed",
       "label": "Candescent Creed",
       "type": "organization",
-      "description": "A new religious faith adopted by House Halovar, centered on 'The Light'.",
-      "members": [
-        "char_wicander",
-        "char_tyranny",
-        "char_enmity",
-        "char_yanessa"
-      ],
-      "status": "Active."
+      "description": "Religious order worshipping abstract divinity called 'the Light'",
+      "leader": "Photarch (Wicander's grandmother, House Halovar)",
+      "beliefs": ["Worship of the Light", "Abstract divinity"],
+      "programs": ["Demon redemption (Aspirants)"],
+      "symbol": "Light above pillar",
+      "headquarters": "Villa Aurora"
     },
     {
-      "id": "org_oldpath",
-      "label": "The Old Path",
+      "id": "org_revolutionary_guard",
+      "label": "Revolutionary Guard",
       "type": "organization",
-      "description": "An ancient orcish custom or faith, mentioned by Olgud and Loza. Involves funeral rites.",
-      "members": [
-        "char_loza"
-      ],
-      "status": "Active."
+      "description": "Military and law enforcement serving Revolutionary Council",
+      "members": ["Azune Nayar (Arcane Marshal)"],
+      "allegiance": "Revolutionary Council (complicated)"
     },
     {
-      "id": "org_falconers",
-      "label": "Falconer's Rebellion",
+      "id": "org_revolutionary_council",
+      "label": "Revolutionary Council",
       "type": "organization",
-      "description": "A past war or rebellion. Thjazi was a hero of this conflict.",
-      "members": [
-        "char_thjazi",
-        "char_azune",
-        "char_teor",
-        "char_kattigan",
-        "char_loza"
-      ],
-      "status": "Ended years ago."
+      "description": "Governing body of Dol-Makjar, seat of power in city",
+      "status": "In tension with Sundered Houses"
     },
     {
-      "id": "org_tornbanner",
+      "id": "org_torn_banner",
       "label": "Torn Banner",
       "type": "organization",
-      "description": "A mercenary company that fought in the Falconer's Rebellion, commanded by Loza Blade.",
-      "members": [
-        "char_loza",
-        "char_thjazi",
-        "char_azune",
-        "char_teor",
-        "char_kattigan",
-        "char_casimir",
-        "char_cyd",
-        "char_tunk"
-      ],
-      "status": "Disbanded."
+      "description": "Mercenary company, mostly retired or disbanded",
+      "status": "Mostly retired/disbanded",
+      "members": ["Loza Blade", "Teor Pridesire", "Thjazi Fang", "Casimir Gavendale"]
     },
     {
-      "id": "org_crowkeepers",
+      "id": "org_crow_keepers",
       "label": "Crow Keepers",
       "type": "organization",
-      "description": "One of the oldest thieves' guilds in Dol-Makjar. Implicated in the attack on Thimble.",
-      "members": [],
-      "status": "Active."
+      "description": "Thieves guild identified by crow feathers at crime scene",
+      "evidence": "Crow feathers at hideout raid",
+      "suspected_action": "Raided Thjazi's hideout"
     },
     {
-      "id": "org_sylsyst",
+      "id": "org_old_path",
+      "label": "Old Path",
+      "type": "organization",
+      "description": "Druidic and orcish tradition",
+      "practitioners": ["Thaisha Lloy", "Loza Blade"],
+      "practices": ["Funeral rites", "Nature connection"]
+    },
+    {
+      "id": "org_sisters_sylandri",
       "label": "Sisters of Sylandri",
       "type": "organization",
-      "description": "An elven religious order dedicated to the fallen goddess of life, Sylandri.",
-      "members": [
-        "char_vaelus"
-      ],
-      "status": "Active."
+      "description": "Religious order to which Vaelus belongs",
+      "members": ["Vaelus"],
+      "origin": "Mournvale"
     },
     {
-      "id": "item_glyph_real",
-      "label": "Thimble's Escape Glyph",
-      "type": "artifact",
-      "description": "A small ceramic rune with conjuration and illusion magic, created by Thimble to teleport Thjazi.",
-      "origin": "Made by Thimble.",
-      "status": "In Azune's possession, recovered from the flophouse."
+      "id": "org_house_halovar",
+      "label": "House Halovar",
+      "type": "organization",
+      "description": "Sundered House, seat of Candescent Creed",
+      "members": ["Photarch Yanessa", "Godard", "Wicander"],
+      "seat": "Villa Aurora"
     },
     {
-      "id": "item_glyph_fake",
-      "label": "Fake Escape Glyph",
-      "type": "artifact",
-      "description": "An unknown item planted on Thjazi that mimicked the magic signature (conjuration/illusion) of the real glyph, fooling Azune's scan.",
-      "origin": "Unknown, planted by the conspirators.",
-      "status": "On Thjazi's body (now at Hal's home)."
+      "id": "org_house_royce",
+      "label": "House Royce",
+      "type": "organization",
+      "description": "Sundered House led by Lady Aranessa",
+      "members": ["Aranessa Royce"],
+      "vassals": ["House Davinos"]
     },
     {
-      "id": "item_stone",
+      "id": "org_house_davinos",
+      "label": "House Davinos",
+      "type": "organization",
+      "description": "Vassal house of House Royce",
+      "members": ["Julien Davinos"],
+      "vassals_of": "House Royce"
+    },
+    {
+      "id": "org_house_tachonis",
+      "label": "House Tachonis",
+      "type": "organization",
+      "description": "Sundered House, Occtis's family",
+      "members": ["Occtis Tachonis", "Lord Primus Tachonis (implied)"]
+    },
+    {
+      "id": "org_chamber_lords",
+      "label": "Chamber of Lords-Advisory",
+      "type": "organization",
+      "description": "Governing body that ordered Thjazi's execution",
+      "power": "Ordered execution",
+      "composition": "Sundered Houses"
+    },
+    {
+      "id": "hist_shapers_war",
+      "label": "Shapers' War",
+      "type": "historical_event",
+      "description": "Mortal rebellion against seven gods resulting in their defeat",
+      "timeframe": "~70 years ago",
+      "outcome": "Gods defeated/killed",
+      "legacy": ["Revolutionary Council", "Changed world", "Guardian Wall monuments"]
+    },
+    {
+      "id": "hist_falconers_rebellion",
+      "label": "Falconer's Rebellion",
+      "type": "historical_event",
+      "description": "Military conflict where many characters met and fought together",
+      "participants": ["Thjazi", "Azune", "Teor", "Loza"]
+    },
+    {
+      "id": "hist_faerie_closure",
+      "label": "Closing of Faerie Doors",
+      "type": "historical_event",
+      "description": "Doors to Faerie closed during or after Shapers' War",
+      "timeframe": "During/after Shapers' War",
+      "effects": ["Thimble began aging", "Cut off from Tír Cruthú"]
+    },
+    {
+      "id": "hist_maharlian_falls",
+      "label": "Battle of Maharlian Falls",
+      "type": "historical_event",
+      "description": "Battle where Julien captured Thjazi",
+      "outcome": "Thjazi captured, given clemency initially",
+      "participants": ["Julien Davinos", "Thjazi Fang"]
+    },
+    {
+      "id": "artifact_stone_nightsong",
       "label": "Stone of Nightsong",
       "type": "artifact",
-      "description": "A stone artifact, described as a bird (nightingale) embracing itself. It's a relic of the fallen goddess Sylandri, meant to ferry elven souls past the underworld.",
-      "origin": "Created by a celestial of Sylandri after the Shapers' War.",
-      "status": "Stolen from Thimble's flophouse by the Crow Keepers."
+      "description": "Magical artifact created after celestial nightingale's destruction",
+      "origin": "Created after celestial nightingale destruction",
+      "function": "Ferries elven souls through underworld to afterlife",
+      "history": "Used in Shapers' War",
+      "status": "Stolen from Thjazi's hideout",
+      "seekers": ["Vaelus"]
     },
     {
-      "id": "item_letter",
-      "label": "Letter to Bolaire",
+      "id": "artifact_escape_glyph",
+      "label": "Escape Glyph",
       "type": "artifact",
-      "description": "A letter Thimble found in the wreckage of the flophouse, addressed to Bolaire.",
-      "origin": "Thjazi's flophouse.",
-      "status": "In Thimble's possession."
+      "description": "Magical Misty Step item meant to teleport Thjazi from execution",
+      "creator": "Thimble",
+      "purpose": "Teleport Thjazi from execution",
+      "function": "Misty Step spell",
+      "status": "Real one at hideout, fake one on Thjazi's body",
+      "problem": "Plan failed - Thjazi had wrong glyph"
     },
     {
-      "id": "item_scimitar",
+      "id": "artifact_black_mask",
+      "label": "Black Clay Mask",
+      "type": "artifact",
+      "description": "Magical artifact that reforms when 'Thimble' is spoken",
+      "location": "Silver box in Thaisha's possession",
+      "trigger": "Speaking 'Thimble'",
+      "connection": "Similar to Bolaire's mask",
+      "origin": "From Thjazi",
+      "status": "Reforms when triggered"
+    },
+    {
+      "id": "artifact_scimitar",
       "label": "Thjazi's Scimitar",
       "type": "artifact",
-      "description": "Thjazi's personal weapon. It was confiscated and given to Wicander, who returned it to Hal.",
-      "origin": "Thjazi Fang.",
-      "status": "In Hal's possession, placed on the deed in his study."
+      "description": "Well-used weapon with blood of magpie, returned to Hal",
+      "status": "Returned to Halandil by Wicander",
+      "traits": ["Well-used", "Blood of magpie"],
+      "current_holder": "Halandil Fang"
     },
     {
-      "id": "item_deed",
-      "label": "Deed to Dithyramb of Azgra",
-      "type": "artifact",
-      "description": "A deed of title for an ancient public space, granted to Hal for his theater.",
-      "origin": "Revolutionary Council.",
-      "status": "On Hal's desk."
+      "id": "mystery_failed_escape",
+      "label": "Mystery: Failed Escape Plan",
+      "type": "mystery",
+      "question": "Why did the escape plan fail?",
+      "elements": ["Wrong glyph on Thjazi", "Cyd missing", "Thimble attacked"],
+      "indication": "Betrayal suspected"
     },
     {
-      "id": "item_maskbox",
-      "label": "Silver Box / Assembling Mask",
-      "type": "artifact",
-      "description": "A silver box Thaisha brought to the wake. When Thimble's name was spoken, it opened to reveal shattered black ceramic fragments that began assembling into a mask.",
-      "origin": "Given to Thaisha by Thjazi.",
-      "status": "Activating in Hal's study."
+      "id": "mystery_sky_vision",
+      "label": "Mystery: Thjazi's Sky Vision",
+      "type": "mystery",
+      "question": "What did Thjazi see in the sky?",
+      "witness": "Halandil (natural 20 insight)",
+      "effect": "Caused Thjazi to panic before death"
+    },
+    {
+      "id": "mystery_hideout_raid",
+      "label": "Mystery: Who Knew About Hideout",
+      "type": "mystery",
+      "question": "Who knew about the hideout location?",
+      "evidence": "Crow Keepers connection via feathers",
+      "stolen": ["Stone of Nightsong", "Magical items", "Bodies"]
+    },
+    {
+      "id": "mystery_stone_purpose",
+      "label": "Mystery: Stone of Nightsong Purpose",
+      "type": "mystery",
+      "question": "Why steal the Stone of Nightsong?",
+      "seekers": ["Vaelus", "Unknown thieves"],
+      "history": "Elven artifact from Shapers' War"
+    },
+    {
+      "id": "mystery_julien_shadow",
+      "label": "Mystery: Julien's Shadow Curse",
+      "type": "mystery",
+      "question": "What curse follows Julien?",
+      "detector": "Bolaire (natural 20)",
+      "source": "Spitting on corpse during funeral rites"
+    },
+    {
+      "id": "mystery_black_mask",
+      "label": "Mystery: The Reforming Mask",
+      "type": "mystery",
+      "question": "What is the reforming black mask?",
+      "trigger": "Speaking 'Thimble'",
+      "connection": "Similar to Bolaire's mask",
+      "source": "Thjazi's silver box"
+    },
+    {
+      "id": "mystery_messages",
+      "label": "Mystery: Thjazi's Final Messages",
+      "type": "mystery",
+      "elements": [
+        "Help Murray (dwarf wizard)",
+        "Paint with Bolaire (museum curator)",
+        "Tell Thimble not to be scared",
+        "Letter for Bolaire",
+        "The Penteveral, you have to help her"
+      ]
+    },
+    {
+      "id": "mystery_missing_cyd",
+      "label": "Mystery: Missing Cyd",
+      "type": "mystery",
+      "person": "Talcydimir Pridesire",
+      "role": "Should have driven escape wagon",
+      "status": "Never showed up"
     }
   ],
   "edges": [
     {
       "source": "event_execution",
-      "target": "loc_guardianwall",
-      "relationship": "occurred_at"
+      "target": "event_farramh",
+      "relationship": "leads_to",
+      "description": "Execution in morning leads to wake in evening"
     },
     {
-      "source": "event_execution",
-      "target": "char_thjazi",
-      "relationship": "target_of"
+      "source": "event_hideout_raid",
+      "target": "event_farramh",
+      "relationship": "occurs_before",
+      "description": "Raid happens shortly before wake begins"
     },
     {
-      "source": "event_execution",
-      "target": "char_hal",
-      "relationship": "witnessed_by"
-    },
-    {
-      "source": "event_execution",
-      "target": "char_azune",
-      "relationship": "participated_in"
-    },
-    {
-      "source": "event_execution",
-      "target": "char_teor",
-      "relationship": "witnessed_by"
-    },
-    {
-      "source": "event_execution",
-      "target": "char_kattigan",
-      "relationship": "witnessed_by"
-    },
-    {
-      "source": "event_execution",
-      "target": "char_wicander",
-      "relationship": "witnessed_by"
-    },
-    {
-      "source": "event_execution",
-      "target": "char_julien",
-      "relationship": "witnessed_by"
-    },
-    {
-      "source": "event_execution",
-      "target": "char_bolaire",
-      "relationship": "witnessed_by"
-    },
-    {
-      "source": "event_execution",
-      "target": "org_sunderedhouses",
-      "relationship": "ordered_by"
-    },
-    {
-      "source": "event_execution",
-      "target": "event_wake",
-      "relationship": "leads_to"
-    },
-    {
-      "source": "event_wake",
-      "target": "loc_halshome",
-      "relationship": "occurred_at"
-    },
-    {
-      "source": "event_wake",
-      "target": "char_hal",
-      "relationship": "hosted_by"
-    },
-    {
-      "source": "event_wake",
-      "target": "char_thjazi",
-      "relationship": "honors"
-    },
-    {
-      "source": "event_wake",
-      "target": "event_flophouse_investigation",
-      "relationship": "leads_to"
-    },
-    {
-      "source": "event_wake",
-      "target": "event_julien_spit",
-      "relationship": "contains"
-    },
-    {
-      "source": "event_wake",
-      "target": "event_julien_shadow",
-      "relationship": "contains"
-    },
-    {
-      "source": "event_wake",
-      "target": "event_vaelus_arrival",
-      "relationship": "contains"
-    },
-    {
-      "source": "event_wake",
+      "source": "event_farramh",
       "target": "event_mask_activation",
-      "relationship": "contains"
+      "relationship": "contains",
+      "description": "Mask activation occurs at end of wake"
     },
     {
-      "source": "event_flophouse_investigation",
-      "target": "loc_flophouse",
-      "relationship": "occurred_at"
-    },
-    {
-      "source": "event_flophouse_investigation",
-      "target": "char_azune",
-      "relationship": "participant"
-    },
-    {
-      "source": "event_flophouse_investigation",
-      "target": "char_teor",
-      "relationship": "participant"
-    },
-    {
-      "source": "event_flophouse_investigation",
-      "target": "char_occtis",
-      "relationship": "participant"
-    },
-    {
-      "source": "event_flophouse_investigation",
-      "target": "event_thimble_revival",
-      "relationship": "leads_to"
-    },
-    {
-      "source": "event_thimble_revival",
-      "target": "char_teor",
-      "relationship": "performed_by"
-    },
-    {
-      "source": "event_thimble_revival",
-      "target": "char_thimble",
-      "relationship": "target_of"
-    },
-    {
-      "source": "event_thimble_revival",
-      "target": "char_kattigan",
-      "relationship": "witnessed_by"
-    },
-    {
-      "source": "event_thimble_revival",
-      "target": "event_kattigan_clue",
-      "relationship": "leads_to"
-    },
-    {
-      "source": "event_kattigan_clue",
-      "target": "char_kattigan",
-      "relationship": "performed_by"
-    },
-    {
-      "source": "event_kattigan_clue",
-      "target": "org_crowkeepers",
-      "relationship": "implicated"
-    },
-    {
-      "source": "event_kattigan_clue",
-      "target": "item_stone",
-      "relationship": "identified_stolen"
-    },
-    {
-      "source": "event_flophouse_attack",
-      "target": "loc_flophouse",
-      "relationship": "occurred_at"
-    },
-    {
-      "source": "event_flophouse_attack",
-      "target": "char_thimble",
-      "relationship": "target_of"
-    },
-    {
-      "source": "event_flophouse_attack",
-      "target": "org_crowkeepers",
-      "relationship": "perpetrated_by"
-    },
-    {
-      "source": "event_flophouse_attack",
-      "target": "item_stone",
-      "relationship": "stolen_during"
-    },
-    {
-      "source": "event_vaelus_arrival",
-      "target": "char_vaelus",
-      "relationship": "initiated_by"
-    },
-    {
-      "source": "event_vaelus_arrival",
-      "target": "item_stone",
-      "relationship": "seeking"
-    },
-    {
-      "source": "event_mask_activation",
-      "target": "item_maskbox",
-      "relationship": "central_to"
-    },
-    {
-      "source": "event_mask_activation",
-      "target": "char_thimble",
-      "relationship": "triggered_by_name"
-    },
-    {
-      "source": "char_hal",
+      "source": "char_halandil",
       "target": "char_thjazi",
-      "relationship": "brother_of"
+      "relationship": "brother",
+      "description": "Hal is Thjazi's brother"
     },
     {
-      "source": "char_hal",
+      "source": "char_halandil",
+      "target": "char_shadia",
+      "relationship": "father",
+      "description": "Hal is father of Shadia"
+    },
+    {
+      "source": "char_halandil",
+      "target": "char_hero",
+      "relationship": "father",
+      "description": "Hal is father of Hero"
+    },
+    {
+      "source": "char_halandil",
+      "target": "char_alogar",
+      "relationship": "father",
+      "description": "Hal is father of Alogar"
+    },
+    {
+      "source": "char_halandil",
       "target": "char_thaisha",
-      "relationship": "former_partners"
+      "relationship": "former_partner",
+      "description": "Former romantic partner, co-parent"
     },
     {
-      "source": "char_hal",
-      "target": "char_shadia",
-      "relationship": "father_of"
+      "source": "char_halandil",
+      "target": "char_olgud",
+      "relationship": "business_partner",
+      "description": "Business partners in theater"
     },
     {
-      "source": "char_hal",
-      "target": "char_hero",
-      "relationship": "father_of"
+      "source": "char_halandil",
+      "target": "char_bolaire",
+      "relationship": "friend",
+      "description": "Friends and associates"
     },
     {
-      "source": "char_thaisha",
-      "target": "char_shadia",
-      "relationship": "mother_of"
+      "source": "char_halandil",
+      "target": "event_farramh",
+      "relationship": "hosts",
+      "description": "Hosts wake at his home"
     },
     {
-      "source": "char_elodie",
-      "target": "char_hero",
-      "relationship": "mother_of"
+      "source": "char_halandil",
+      "target": "event_mask_activation",
+      "relationship": "witnesses",
+      "description": "Present when mask reforms"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "char_halandil",
+      "relationship": "brother",
+      "description": "Brothers"
     },
     {
       "source": "char_thjazi",
       "target": "char_aranessa",
-      "relationship": "estranged_husband_of"
+      "relationship": "estranged_husband",
+      "description": "Married ~40 years ago, estranged but she still loved him"
     },
     {
       "source": "char_thjazi",
       "target": "char_thimble",
-      "relationship": "partner_of"
+      "relationship": "partner",
+      "description": "Criminal and adventuring partner"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "char_azune",
+      "relationship": "commander",
+      "description": "Commanded Azune in Falconer's Rebellion"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "char_teor",
+      "relationship": "commander",
+      "description": "Served together in conflicts"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "char_loza",
+      "relationship": "served_under",
+      "description": "Loza was Thjazi's commander"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "char_kattigan",
+      "relationship": "friend",
+      "description": "Old friend from adventuring days"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "char_julien",
+      "relationship": "enemy",
+      "description": "Captured by Julien, mutual hatred"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "char_murray",
+      "relationship": "friend",
+      "description": "Friend, mentioned in dying words"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "char_bolaire",
+      "relationship": "associate",
+      "description": "Had dealings through intermediary, mentioned in dying words"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "event_execution",
+      "relationship": "executed_in",
+      "description": "Executed by hanging"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "artifact_escape_glyph",
+      "relationship": "intended_user",
+      "description": "Glyph meant to save him, but he had fake one"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "artifact_scimitar",
+      "relationship": "wielded",
+      "description": "His well-used weapon"
+    },
+    {
+      "source": "char_thjazi",
+      "target": "artifact_black_mask",
+      "relationship": "possessed",
+      "description": "Mask came from Thjazi"
+    },
+    {
+      "source": "char_azune",
+      "target": "char_teor",
+      "relationship": "friend",
+      "description": "Friends and comrades"
+    },
+    {
+      "source": "char_azune",
+      "target": "char_thaisha",
+      "relationship": "conspirator",
+      "description": "Part of escape plan conspiracy"
+    },
+    {
+      "source": "char_azune",
+      "target": "char_occtis",
+      "relationship": "conspirator",
+      "description": "Part of escape plan conspiracy"
+    },
+    {
+      "source": "char_azune",
+      "target": "event_execution",
+      "relationship": "participated_in",
+      "description": "Conducted magical scan, passed secret message"
+    },
+    {
+      "source": "char_azune",
+      "target": "event_hideout_raid",
+      "relationship": "investigated",
+      "description": "Investigated crime scene"
+    },
+    {
+      "source": "char_azune",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
+    },
+    {
+      "source": "char_thimble",
+      "target": "event_hideout_raid",
+      "relationship": "victim_of",
+      "description": "Critically injured by attackers"
+    },
+    {
+      "source": "char_thimble",
+      "target": "event_farramh",
+      "relationship": "discussed_at",
+      "description": "Subject of conversation, name triggers mask"
+    },
+    {
+      "source": "char_thimble",
+      "target": "artifact_escape_glyph",
+      "relationship": "created",
+      "description": "Created both real and fake glyphs"
+    },
+    {
+      "source": "char_thimble",
+      "target": "artifact_stone_nightsong",
+      "relationship": "possessed",
+      "description": "Had stone in hideout, stolen"
+    },
+    {
+      "source": "char_thimble",
+      "target": "artifact_black_mask",
+      "relationship": "triggers",
+      "description": "Speaking name activates mask"
+    },
+    {
+      "source": "char_teor",
+      "target": "char_loza",
+      "relationship": "companion",
+      "description": "Current companion of Loza"
     },
     {
       "source": "char_teor",
       "target": "char_cyd",
-      "relationship": "brother_of"
-    },
-    {
-      "source": "char_azune",
-      "target": "org_falconers",
-      "relationship": "veteran_of"
+      "relationship": "brother",
+      "description": "Brothers"
     },
     {
       "source": "char_teor",
-      "target": "org_falconers",
-      "relationship": "veteran_of"
+      "target": "event_execution",
+      "relationship": "attended",
+      "description": "Arrived late to execution"
     },
     {
-      "source": "char_kattigan",
-      "target": "org_falconers",
-      "relationship": "veteran_of"
+      "source": "char_teor",
+      "target": "event_hideout_raid",
+      "relationship": "responded_to",
+      "description": "Cast Cure Wounds to save Thimble"
     },
     {
-      "source": "char_loza",
-      "target": "org_tornbanner",
-      "relationship": "commander_of"
+      "source": "char_teor",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
     },
     {
-      "source": "char_julien",
-      "target": "char_aranessa",
-      "relationship": "childhood_friend"
+      "source": "char_thaisha",
+      "target": "char_shadia",
+      "relationship": "mother",
+      "description": "Mother of Shadia"
     },
     {
-      "source": "char_julien",
-      "target": "char_thjazi",
-      "relationship": "captured"
+      "source": "char_thaisha",
+      "target": "char_alogar",
+      "relationship": "mother",
+      "description": "Mother of Alogar"
     },
     {
-      "source": "char_wicander",
-      "target": "char_yanessa",
-      "relationship": "grandson_of"
+      "source": "char_thaisha",
+      "target": "char_occtis",
+      "relationship": "conspirator",
+      "description": "Part of escape plan conspiracy"
+    },
+    {
+      "source": "char_thaisha",
+      "target": "char_julien",
+      "relationship": "enemy",
+      "description": "Confrontation at wake"
+    },
+    {
+      "source": "char_thaisha",
+      "target": "event_farramh",
+      "relationship": "performed_rites",
+      "description": "Performed Old Path funeral rites"
+    },
+    {
+      "source": "char_thaisha",
+      "target": "event_mask_activation",
+      "relationship": "witnesses",
+      "description": "Present when mask reforms"
+    },
+    {
+      "source": "char_occtis",
+      "target": "event_hideout_raid",
+      "relationship": "investigated",
+      "description": "Investigated crime scene"
+    },
+    {
+      "source": "char_occtis",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
     },
     {
       "source": "char_wicander",
       "target": "char_tyranny",
-      "relationship": "mentor_to"
+      "relationship": "ward_mentor",
+      "description": "Mentor and ward relationship"
+    },
+    {
+      "source": "char_wicander",
+      "target": "char_photarch",
+      "relationship": "grandson",
+      "description": "Grandson of Photarch"
+    },
+    {
+      "source": "char_wicander",
+      "target": "char_godard",
+      "relationship": "son",
+      "description": "Son of Godard"
+    },
+    {
+      "source": "char_wicander",
+      "target": "event_execution",
+      "relationship": "attended",
+      "description": "Present in nobles' box, failed to save Thjazi"
+    },
+    {
+      "source": "char_wicander",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Returned Thjazi's scimitar to Hal"
+    },
+    {
+      "source": "char_wicander",
+      "target": "artifact_scimitar",
+      "relationship": "returned",
+      "description": "Returned scimitar to Halandil"
     },
     {
       "source": "char_tyranny",
       "target": "char_enmity",
-      "relationship": "sibling_of"
+      "relationship": "sister",
+      "description": "Sisters, both demon Aspirants"
     },
     {
-      "source": "char_occtis",
-      "target": "org_sunderedhouses",
-      "relationship": "member_of"
+      "source": "char_tyranny",
+      "target": "event_execution",
+      "relationship": "attended",
+      "description": "Present with Wicander"
     },
     {
-      "source": "char_occtis",
-      "target": "char_pin",
-      "relationship": "familiar"
+      "source": "char_tyranny",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
+    },
+    {
+      "source": "char_julien",
+      "target": "char_aranessa",
+      "relationship": "childhood_friend",
+      "description": "Childhood friends"
+    },
+    {
+      "source": "char_julien",
+      "target": "char_alogar",
+      "relationship": "mentor",
+      "description": "Julien mentors Alogar"
+    },
+    {
+      "source": "char_julien",
+      "target": "event_execution",
+      "relationship": "attended",
+      "description": "Present in nobles' box"
+    },
+    {
+      "source": "char_julien",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Spat on Thjazi's corpse, confronted Thaisha"
+    },
+    {
+      "source": "char_julien",
+      "target": "mystery_julien_shadow",
+      "relationship": "afflicted_by",
+      "description": "Cursed after spitting on corpse"
     },
     {
       "source": "char_kattigan",
-      "target": "char_wulfric",
-      "relationship": "companion"
+      "target": "event_hideout_raid",
+      "relationship": "investigated",
+      "description": "Used Clue spell to reveal fight details"
+    },
+    {
+      "source": "char_kattigan",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present drunk at funeral"
+    },
+    {
+      "source": "char_bolaire",
+      "target": "event_execution",
+      "relationship": "attended",
+      "description": "Present at back of nobles' gallery"
+    },
+    {
+      "source": "char_bolaire",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Detected curse on Julien with nat 20"
+    },
+    {
+      "source": "char_bolaire",
+      "target": "mystery_julien_shadow",
+      "relationship": "detected",
+      "description": "Detected shadow curse on Julien"
+    },
+    {
+      "source": "char_bolaire",
+      "target": "artifact_black_mask",
+      "relationship": "connection",
+      "description": "Mask similar to Bolaire's own mask"
+    },
+    {
+      "source": "char_murray",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
     },
     {
       "source": "char_murray",
       "target": "loc_penteveral",
-      "relationship": "works_at"
+      "relationship": "works_at",
+      "description": "Works at the Penteveral"
+    },
+    {
+      "source": "char_murray",
+      "target": "mystery_messages",
+      "relationship": "mentioned_in",
+      "description": "Thjazi said 'Help Murray'"
     },
     {
       "source": "char_vaelus",
-      "target": "org_sylsyst",
-      "relationship": "member_of"
+      "target": "char_bolaire",
+      "relationship": "knows",
+      "description": "Acquainted"
     },
     {
       "source": "char_vaelus",
-      "target": "item_stone",
-      "relationship": "seeking"
+      "target": "event_farramh",
+      "relationship": "arrived_at",
+      "description": "Arrived seeking Stone of Nightsong"
     },
     {
-      "source": "item_stone",
-      "target": "org_sylsyst",
-      "relationship": "relic_of"
+      "source": "char_vaelus",
+      "target": "artifact_stone_nightsong",
+      "relationship": "seeking",
+      "description": "Traveled from Mournvale to find stone"
+    },
+    {
+      "source": "char_aranessa",
+      "target": "event_execution",
+      "relationship": "attended",
+      "description": "Present in nobles' box, grieving"
+    },
+    {
+      "source": "char_aranessa",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake for husband"
+    },
+    {
+      "source": "char_loza",
+      "target": "event_execution",
+      "relationship": "attended",
+      "description": "Present in crowd"
+    },
+    {
+      "source": "char_loza",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
+    },
+    {
+      "source": "char_shadia",
+      "target": "char_thaisha",
+      "relationship": "daughter",
+      "description": "Daughter of Thaisha"
+    },
+    {
+      "source": "char_shadia",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
+    },
+    {
+      "source": "char_hero",
+      "target": "char_elodie",
+      "relationship": "daughter",
+      "description": "Daughter of Elodie"
+    },
+    {
+      "source": "char_hero",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
+    },
+    {
+      "source": "char_elodie",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
+    },
+    {
+      "source": "char_olgud",
+      "target": "event_farramh",
+      "relationship": "attended",
+      "description": "Present at wake"
+    },
+    {
+      "source": "char_cyd",
+      "target": "mystery_missing_cyd",
+      "relationship": "subject_of",
+      "description": "Missing person who should have driven wagon"
+    },
+    {
+      "source": "char_cyd",
+      "target": "mystery_failed_escape",
+      "relationship": "element_of",
+      "description": "His absence contributed to failed escape"
+    },
+    {
+      "source": "char_photarch",
+      "target": "char_godard",
+      "relationship": "mother",
+      "description": "Mother of Godard"
+    },
+    {
+      "source": "char_photarch",
+      "target": "org_candescent_creed",
+      "relationship": "leads",
+      "description": "Photarch of Candescent Creed"
+    },
+    {
+      "source": "char_godard",
+      "target": "org_house_halovar",
+      "relationship": "member",
+      "description": "Member of House Halovar"
+    },
+    {
+      "source": "loc_guardian_wall",
+      "target": "loc_dol_makjar",
+      "relationship": "located_in",
+      "description": "Part of Dol-Makjar"
+    },
+    {
+      "source": "loc_guardian_wall",
+      "target": "event_execution",
+      "relationship": "location_of",
+      "description": "Site of execution"
+    },
+    {
+      "source": "loc_rookery",
+      "target": "loc_dol_makjar",
+      "relationship": "located_in",
+      "description": "Neighborhood in Dol-Makjar"
+    },
+    {
+      "source": "loc_rookery",
+      "target": "event_farramh",
+      "relationship": "location_of",
+      "description": "Wake held at Hal's home in Rookery"
+    },
+    {
+      "source": "loc_tanners",
+      "target": "loc_dol_makjar",
+      "relationship": "located_in",
+      "description": "Neighborhood in Dol-Makjar"
+    },
+    {
+      "source": "loc_tanners",
+      "target": "event_hideout_raid",
+      "relationship": "location_of",
+      "description": "Hideout raid occurred here"
+    },
+    {
+      "source": "loc_villa_aurora",
+      "target": "loc_dol_makjar",
+      "relationship": "located_in",
+      "description": "Estate in Dol-Makjar"
+    },
+    {
+      "source": "loc_villa_aurora",
+      "target": "org_candescent_creed",
+      "relationship": "headquarters_of",
+      "description": "Seat of Candescent Creed"
+    },
+    {
+      "source": "loc_villa_aurora",
+      "target": "org_house_halovar",
+      "relationship": "seat_of",
+      "description": "Seat of House Halovar"
+    },
+    {
+      "source": "org_sundered_houses",
+      "target": "org_house_halovar",
+      "relationship": "includes",
+      "description": "House Halovar is one of Sundered Houses"
+    },
+    {
+      "source": "org_sundered_houses",
+      "target": "org_house_royce",
+      "relationship": "includes",
+      "description": "House Royce is one of Sundered Houses"
+    },
+    {
+      "source": "org_sundered_houses",
+      "target": "org_house_tachonis",
+      "relationship": "includes",
+      "description": "House Tachonis is one of Sundered Houses"
+    },
+    {
+      "source": "org_sundered_houses",
+      "target": "org_chamber_lords",
+      "relationship": "forms",
+      "description": "Sundered Houses form Chamber of Lords-Advisory"
+    },
+    {
+      "source": "org_candescent_creed",
+      "target": "char_wicander",
+      "relationship": "led_by",
+      "description": "Wicander is Light Priest"
+    },
+    {
+      "source": "org_candescent_creed",
+      "target": "char_tyranny",
+      "relationship": "includes",
+      "description": "Tyranny is demon Aspirant"
+    },
+    {
+      "source": "org_candescent_creed",
+      "target": "char_enmity",
+      "relationship": "includes",
+      "description": "Enmity is demon Aspirant"
+    },
+    {
+      "source": "org_revolutionary_guard",
+      "target": "char_azune",
+      "relationship": "employs",
+      "description": "Azune is Arcane Marshal"
+    },
+    {
+      "source": "org_revolutionary_council",
+      "target": "org_sundered_houses",
+      "relationship": "in_tension_with",
+      "description": "Power struggle between Council and Houses"
+    },
+    {
+      "source": "org_torn_banner",
+      "target": "char_loza",
+      "relationship": "commanded_by",
+      "description": "Loza was commander"
+    },
+    {
+      "source": "org_torn_banner",
+      "target": "char_thjazi",
+      "relationship": "included",
+      "description": "Thjazi was member"
+    },
+    {
+      "source": "org_torn_banner",
+      "target": "char_teor",
+      "relationship": "included",
+      "description": "Teor was member"
+    },
+    {
+      "source": "org_torn_banner",
+      "target": "hist_falconers_rebellion",
+      "relationship": "fought_in",
+      "description": "Mercenary company in rebellion"
+    },
+    {
+      "source": "org_crow_keepers",
+      "target": "event_hideout_raid",
+      "relationship": "suspected_in",
+      "description": "Crow feathers found at scene"
+    },
+    {
+      "source": "org_crow_keepers",
+      "target": "mystery_hideout_raid",
+      "relationship": "suspected_of",
+      "description": "Evidence links them to raid"
+    },
+    {
+      "source": "org_old_path",
+      "target": "char_thaisha",
+      "relationship": "practiced_by",
+      "description": "Thaisha is druid of Old Path"
+    },
+    {
+      "source": "org_old_path",
+      "target": "char_loza",
+      "relationship": "practiced_by",
+      "description": "Loza follows Old Path"
+    },
+    {
+      "source": "org_old_path",
+      "target": "event_farramh",
+      "relationship": "rites_performed",
+      "description": "Traditional rites performed at wake"
+    },
+    {
+      "source": "org_sisters_sylandri",
+      "target": "char_vaelus",
+      "relationship": "includes",
+      "description": "Vaelus is a Sister"
+    },
+    {
+      "source": "org_house_halovar",
+      "target": "char_photarch",
+      "relationship": "led_by",
+      "description": "Photarch is matriarch"
+    },
+    {
+      "source": "org_house_royce",
+      "target": "char_aranessa",
+      "relationship": "led_by",
+      "description": "Aranessa is Lady of House Royce"
+    },
+    {
+      "source": "org_house_royce",
+      "target": "org_house_davinos",
+      "relationship": "has_vassal",
+      "description": "House Davinos is vassal of House Royce"
+    },
+    {
+      "source": "org_house_davinos",
+      "target": "char_julien",
+      "relationship": "includes",
+      "description": "Julien is knight of House Davinos"
+    },
+    {
+      "source": "org_house_tachonis",
+      "target": "char_occtis",
+      "relationship": "includes",
+      "description": "Occtis is member, low in succession"
+    },
+    {
+      "source": "org_chamber_lords",
+      "target": "event_execution",
+      "relationship": "ordered",
+      "description": "Ordered Thjazi's execution"
+    },
+    {
+      "source": "hist_shapers_war",
+      "target": "loc_guardian_wall",
+      "relationship": "commemorated_by",
+      "description": "Wall features war heroes"
+    },
+    {
+      "source": "hist_shapers_war",
+      "target": "artifact_stone_nightsong",
+      "relationship": "artifact_from",
+      "description": "Stone used in the war"
+    },
+    {
+      "source": "hist_shapers_war",
+      "target": "org_revolutionary_council",
+      "relationship": "created",
+      "description": "War resulted in Revolutionary Council"
+    },
+    {
+      "source": "hist_falconers_rebellion",
+      "target": "char_thjazi",
+      "relationship": "involved",
+      "description": "Thjazi fought in rebellion"
+    },
+    {
+      "source": "hist_falconers_rebellion",
+      "target": "char_azune",
+      "relationship": "involved",
+      "description": "Azune served under Thjazi"
+    },
+    {
+      "source": "hist_falconers_rebellion",
+      "target": "char_teor",
+      "relationship": "involved",
+      "description": "Teor fought in rebellion"
+    },
+    {
+      "source": "hist_falconers_rebellion",
+      "target": "char_loza",
+      "relationship": "involved",
+      "description": "Loza was commander"
+    },
+    {
+      "source": "hist_faerie_closure",
+      "target": "char_thimble",
+      "relationship": "affected",
+      "description": "Thimble began aging when doors closed"
+    },
+    {
+      "source": "hist_faerie_closure",
+      "target": "hist_shapers_war",
+      "relationship": "resulted_from",
+      "description": "Occurred during or after war"
+    },
+    {
+      "source": "hist_maharlian_falls",
+      "target": "char_julien",
+      "relationship": "participated_in",
+      "description": "Julien captured Thjazi here"
+    },
+    {
+      "source": "hist_maharlian_falls",
+      "target": "char_thjazi",
+      "relationship": "captured_in",
+      "description": "Thjazi captured and given clemency"
+    },
+    {
+      "source": "artifact_stone_nightsong",
+      "target": "event_hideout_raid",
+      "relationship": "stolen_in",
+      "description": "Stolen during raid"
+    },
+    {
+      "source": "artifact_stone_nightsong",
+      "target": "mystery_stone_purpose",
+      "relationship": "subject_of",
+      "description": "Mystery of why it was stolen"
+    },
+    {
+      "source": "artifact_escape_glyph",
+      "target": "event_execution",
+      "relationship": "failed_at",
+      "description": "Plan failed, wrong glyph on Thjazi"
+    },
+    {
+      "source": "artifact_escape_glyph",
+      "target": "mystery_failed_escape",
+      "relationship": "element_of",
+      "description": "Wrong glyph contributed to failure"
+    },
+    {
+      "source": "artifact_black_mask",
+      "target": "event_mask_activation",
+      "relationship": "activates_in",
+      "description": "Mask reforms during event"
+    },
+    {
+      "source": "artifact_black_mask",
+      "target": "mystery_black_mask",
+      "relationship": "subject_of",
+      "description": "Mystery of what the mask is"
+    },
+    {
+      "source": "artifact_scimitar",
+      "target": "event_farramh",
+      "relationship": "returned_at",
+      "description": "Wicander returned it to Hal at wake"
+    },
+    {
+      "source": "artifact_scimitar",
+      "target": "char_halandil",
+      "relationship": "given_to",
+      "description": "Now in Hal's possession"
+    },
+    {
+      "source": "mystery_failed_escape",
+      "target": "event_execution",
+      "relationship": "relates_to",
+      "description": "Escape plan failed at execution"
+    },
+    {
+      "source": "mystery_failed_escape",
+      "target": "event_hideout_raid",
+      "relationship": "connected_to",
+      "description": "Raid may be part of betrayal"
+    },
+    {
+      "source": "mystery_sky_vision",
+      "target": "event_execution",
+      "relationship": "occurred_during",
+      "description": "Thjazi saw something before death"
+    },
+    {
+      "source": "mystery_sky_vision",
+      "target": "char_halandil",
+      "relationship": "witnessed_by",
+      "description": "Hal noticed Thjazi's reaction with nat 20"
+    },
+    {
+      "source": "mystery_hideout_raid",
+      "target": "event_hideout_raid",
+      "relationship": "centers_on",
+      "description": "Mystery of who knew location"
+    },
+    {
+      "source": "mystery_julien_shadow",
+      "target": "event_farramh",
+      "relationship": "originated_in",
+      "description": "Curse followed desecration of corpse"
+    },
+    {
+      "source": "mystery_julien_shadow",
+      "target": "char_julien",
+      "relationship": "afflicts",
+      "description": "Julien is cursed"
+    },
+    {
+      "source": "mystery_messages",
+      "target": "char_thjazi",
+      "relationship": "spoken_by",
+      "description": "Thjazi's dying words"
+    },
+    {
+      "source": "mystery_messages",
+      "target": "event_execution",
+      "relationship": "occurred_during",
+      "description": "Final words before death"
+    },
+    {
+      "source": "mystery_messages",
+      "target": "char_murray",
+      "relationship": "mentions",
+      "description": "Help Murray"
+    },
+    {
+      "source": "mystery_messages",
+      "target": "char_bolaire",
+      "relationship": "mentions",
+      "description": "Paint with Bolaire, letter for Bolaire"
+    },
+    {
+      "source": "mystery_messages",
+      "target": "char_thimble",
+      "relationship": "mentions",
+      "description": "Tell Thimble not to be scared"
+    },
+    {
+      "source": "mystery_messages",
+      "target": "loc_penteveral",
+      "relationship": "mentions",
+      "description": "The Penteveral, you have to help her"
+    },
+    {
+      "source": "mystery_missing_cyd",
+      "target": "mystery_failed_escape",
+      "relationship": "part_of",
+      "description": "Cyd's absence is part of failed escape mystery"
+    },
+    {
+      "source": "mystery_missing_cyd",
+      "target": "char_teor",
+      "relationship": "concerns",
+      "description": "Teor's brother is missing"
     }
   ]
 }
