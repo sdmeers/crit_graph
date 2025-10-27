@@ -1081,93 +1081,44 @@ Respond with ONLY valid JSON (no markdown, no explanation):
         )
         
         if self.sequenced:
-            # Chronological/hierarchical layout
-            print("  Using sequenced layout (events in chronological order)...")
-            
-            # First, analyze events to assign sequential positions
+            # Chronological layout for events
+            print("  Using sequenced layout (events in a straight line)...")
+
             events = []
             for node_id in self.graph.nodes():
                 node_data = self.graph.nodes[node_id]
                 node_type = node_data.get('type', 'unknown')
                 if isinstance(node_type, list):
                     node_type = node_type[0] if node_type else 'unknown'
-                
+
                 if node_type in ['event', 'historical_event']:
                     episode_num, sequence = self.extract_event_sequence(node_data)
-                    
                     events.append({
                         'id': node_id,
                         'episode': episode_num,
                         'sequence': sequence,
                         'label': node_data.get('label', str(node_id))
                     })
-            
-            # Sort events by episode and sequence
+
             events.sort(key=lambda x: (x['episode'], x['sequence']))
-            
-            # Assign hierarchical levels (x-positions) to events
-            print(f"  Arranging {len(events)} events chronologically...")
+
+            print(f"  Arranging {len(events)} events in a sequence...")
+            node_spacing = 300  # Horizontal space between event nodes
             for idx, event in enumerate(events):
-                # Assign level for hierarchical layout
-                # Level determines horizontal position (left to right)
-                self.graph.nodes[event['id']]['level'] = idx
-                # Fixed y-position to keep events in a line
+                self.graph.nodes[event['id']]['x'] = idx * node_spacing
                 self.graph.nodes[event['id']]['y'] = 0
-            
-            # Assign levels to non-event nodes (they'll cluster around events)
-            non_event_nodes = [n for n in self.graph.nodes() 
-                            if n not in [e['id'] for e in events]]
-            
-            for node_id in non_event_nodes:
-                # Find connected events to determine approximate position
-                connected_events = []
-                for neighbor in self.graph.neighbors(node_id):
-                    if neighbor in [e['id'] for e in events]:
-                        connected_events.append(neighbor)
-                
-                if connected_events:
-                    # Position near the average of connected events
-                    avg_level = sum(self.graph.nodes[e].get('level', 0) 
-                                for e in connected_events) / len(connected_events)
-                    self.graph.nodes[node_id]['level'] = avg_level
-                else:
-                    # No connected events, position at end
-                    self.graph.nodes[node_id]['level'] = len(events)
-            
-            # Configure hierarchical layout for chronological ordering
-            net.set_options("""
-            {
-                "layout": {
-                    "hierarchical": {
-                        "enabled": true,
-                        "direction": "LR",
-                        "sortMethod": "directed",
-                        "levelSeparation": 250,
-                        "nodeSpacing": 150,
-                        "treeSpacing": 200,
-                        "blockShifting": true,
-                        "edgeMinimization": true,
-                        "parentCentralization": true
-                    }
-                },
-                "physics": {
-                    "enabled": false
-                },
-                "edges": {
-                    "smooth": {
-                        "enabled": true,
-                        "type": "cubicBezier",
-                        "roundness": 0.5
-                    }
-                },
-                "interaction": {
-                    "hover": true,
-                    "navigationButtons": true,
-                    "keyboard": true
-                }
-            }
-            """)
-            
+                self.graph.nodes[event['id']]['fixed'] = True
+
+            # Use force-directed layout for all nodes, but events are fixed
+            net.barnes_hut(
+                gravity=-15000,
+                central_gravity=0.5,
+                spring_length=200,
+                spring_strength=0.01,
+                damping=0.09
+            )
+            net.show_buttons(filter_=['physics'])
+
         else:
             # Original force-directed layout
             print("  Using force-directed layout...")
