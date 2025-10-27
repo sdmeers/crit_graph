@@ -14,7 +14,7 @@ Required installations:
 pip install requests beautifulsoup4 networkx pyvis
 
 Usage:
-python CR_episode_graph.py <json_file> <output_html_file> [--campaign CAMPAIGN]
+python CR_episode_graph.py <json_file> <output_html_file> [--campaign CAMPAIGN] [--sequenced]
 """
 
 import requests
@@ -30,11 +30,11 @@ import argparse
 import json
 
 class EpisodeGraphVisualizer:
-    def __init__(self, json_file, target_campaign=4):
+    def __init__(self, json_file, target_campaign=4, sequenced=False):
         self.json_file = json_file
         self.base_url = "https://criticalrole.fandom.com"
         self.target_campaign = target_campaign
-        self.sequenced = sequenced  # Add this line
+        self.sequenced = sequenced  # Fixed: now receives as parameter
         self.graph = None
         self.session = requests.Session()
         self.session.headers.update({
@@ -1477,7 +1477,11 @@ def main():
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
     
-    visualizer = EpisodeGraphVisualizer(args.json_file, target_campaign=args.campaign)
+    visualizer = EpisodeGraphVisualizer(
+        args.json_file, 
+        target_campaign=args.campaign,
+        sequenced=args.sequenced
+    )
     success = visualizer.run(args.output_file)
     
     if not success:
