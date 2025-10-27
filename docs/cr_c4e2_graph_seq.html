@@ -1,0 +1,372 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 900px;
+                 background-color: #1a1a1a;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    
+    <style>
+    body { margin: 0; padding: 0; overflow: hidden; }
+    #mynetwork { width: 100vw; height: 100vh; }
+    #legend {
+        position: absolute; top: 20px; right: 20px;
+        background-color: rgba(26, 26, 26, 0.95);
+        border: 2px solid #444; border-radius: 8px; padding: 15px;
+        color: white; font-family: Arial, sans-serif; font-size: 13px;
+        max-width: 280px; max-height: 80vh; overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); z-index: 1000;
+    }
+    #legend h3 {
+        margin: 0 0 10px 0; font-size: 16px;
+        border-bottom: 1px solid #555; padding-bottom: 8px;
+    }
+    .legend-section { margin-bottom: 15px; }
+    .legend-section h4 { margin: 0 0 8px 0; font-size: 14px; color: #aaa; }
+    .legend-item {
+        display: flex; align-items: center; margin: 5px 0; font-size: 12px;
+    }
+    .legend-color {
+        width: 20px; height: 20px; border-radius: 3px;
+        margin-right: 8px; flex-shrink: 0;
+    }
+    .legend-line {
+        width: 30px; height: 3px; margin-right: 8px; flex-shrink: 0;
+    }
+    #legend-close {
+        position: absolute; top: 10px; right: 10px;
+        cursor: pointer; font-size: 18px; color: #aaa;
+    }
+    #legend-close:hover { color: white; }
+    #legend-toggle {
+        position: absolute; top: 20px; right: 20px;
+        background-color: rgba(26, 26, 26, 0.95);
+        border: 2px solid #444; border-radius: 8px; padding: 10px 15px;
+        color: white; font-family: Arial, sans-serif; font-size: 14px;
+        cursor: pointer; z-index: 1001; display: none;
+    }
+    #legend-toggle:hover { background-color: rgba(40, 40, 40, 0.95); }
+    </style>
+    </head>
+
+
+    <body>
+
+    <div id="legend">
+        <span id="legend-close">✕</span>
+        <h3>📊 Critical Role C4</h3>
+        
+        <div class="legend-section">
+            <h4>Node Types</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FF6B6B;"></div>
+                <span>Event</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4ECDC4;"></div>
+                <span>Character</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #95E1D3;"></div>
+                <span>Location</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #F38181;"></div>
+                <span>Object</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #AA96DA;"></div>
+                <span>Faction</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FCBAD3;"></div>
+                <span>Historical Event</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #A8D8EA;"></div>
+                <span>Mystery</span>
+            </div>
+        </div>
+        
+        <div class="legend-section">
+            <h4>Key Relationships</h4>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #00BFFF;"></div>
+                <span>Family</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #FF1493;"></div>
+                <span>Romantic</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #00FF00;"></div>
+                <span>Friend/Ally</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #FF0000;"></div>
+                <span>Enemy/Hostile</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #8A2BE2;"></div>
+                <span>Conspiracy</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background-color: #FFD700;"></div>
+                <span>Membership</span>
+            </div>
+        </div>
+        
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555; font-size: 11px; color: #aaa;">
+            💡 Click nodes to open wiki<br>
+            💡 Drag to move, scroll to zoom<br>
+            💡 Click and drag background to pan<br>
+            <br>
+            🤖 Enhanced with LLM validation
+        </div>
+    </div>
+
+    <button id="legend-toggle">Show Legend</button>
+    
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"characters": ["Azune", "Teor", "Kattigan", "Loza Blade", "Tunk", "Milo", "Thimble", "Casimir"], "color": "#FF6B6B", "description": "Battle scene from 12-13 years ago during Falconer\u0027s Rebellion", "fixed": true, "font": {"color": "white"}, "id": "event_1", "label": "Flashback Battle Scene", "location": "Battlefield (unspecified)", "outcomes": ["Death saving throws", "Kattigan stabilized by Teor", "Azune stabilized", "Casimir saves Thjazi"], "shape": "dot", "size": 40, "title": "\u003cb\u003eFlashback Battle Scene\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eDescription: Battle scene from 12-13 years ago during Falconer\u0027s Rebellion\u003cbr\u003eLocation: Battlefield (unspecified)\u003cbr\u003eCharacters: Azune, Teor, Kattigan, Loza Blade, Tunk, Milo, Thimble, Casimir\u003cbr\u003eOutcomes: Death saving throws, Kattigan stabilized by Teor, Azune stabilized, Casimir saves Thjazi", "type": "event", "x": 0, "y": 0}, {"characters": ["Hal", "Thaisha", "Shadia", "Thimble", "Occtis", "Vaelus", "Bolaire", "Murray", "Julien", "Aranessa", "Azune", "Teor", "Kattigan", "Loza Blade", "Olgud", "Elodie", "Hero"], "color": "#FF6B6B", "description": "Funeral gathering at Hal\u0027s home in The Rookery", "fixed": true, "font": {"color": "white"}, "id": "event_2", "label": "Wake of Thjazi Fang", "location": "The Rookery, Hal\u0027s home", "shape": "dot", "size": 40, "subevents": ["Musical performance of \u0027Broken Wing\u0027", "Discovery of fake glyph", "Discussion of betrayal", "Planning to investigate Crow Keepers"], "title": "\u003cb\u003eWake of Thjazi Fang\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eMatch Confidence: 82%\u003cbr\u003eDescription: Funeral gathering at Hal\u0027s home in The Rookery\u003cbr\u003eLocation: The Rookery, Hal\u0027s home\u003cbr\u003eCharacters: Hal, Thaisha, Shadia, Thimble, Occtis, Vaelus, Bolaire, Murray, Julien, Aranessa, Azune, Teor, Kattigan, Loza Blade, Olgud, Elodie, Hero\u003cbr\u003eSubevents: Musical performance of \u0027Broken Wing\u0027, Discovery of fake glyph, Discussion of betrayal, Planning to investigate Crow Keepers\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e", "type": "event", "url": "https://criticalrole.fandom.com/wiki/Stone_of_Nightsong", "x": 300, "y": 0}, {"artifacts": ["Silver coffin/box with mask fragments", "Coffin of Olbalad"], "characters": ["Thaisha", "Hal", "Bolaire", "Murray", "Vaelus", "Shadia"], "color": "#FF6B6B", "description": "Thaisha opens mysterious box and collapses", "fixed": true, "font": {"color": "white"}, "id": "event_3", "label": "Box Incident at Wake", "location": "Hal\u0027s office, The Rookery", "outcomes": ["Thaisha loses consciousness", "Mist appears in box", "Temperature drops"], "shape": "dot", "size": 40, "title": "\u003cb\u003eBox Incident at Wake\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eDescription: Thaisha opens mysterious box and collapses\u003cbr\u003eLocation: Hal\u0027s office, The Rookery\u003cbr\u003eCharacters: Thaisha, Hal, Bolaire, Murray, Vaelus, Shadia\u003cbr\u003eArtifacts: Silver coffin/box with mask fragments, Coffin of Olbalad\u003cbr\u003eOutcomes: Thaisha loses consciousness, Mist appears in box, Temperature drops", "type": "event", "x": 600, "y": 0}, {"characters": ["Thimble", "Kattigan", "Occtis", "Wulfric", "Solomon", "Crow Keeper guards"], "color": "#FF6B6B", "description": "Thimble, Kattigan, and Occtis head to The Guard Tower tavern", "fixed": true, "font": {"color": "white"}, "id": "event_9", "label": "Journey to Crow Keepers", "location": "The Guard Tower, Caravan Hill", "outcomes": ["Combat initiated with Crow Keepers", "Thimble asks about Casimir"], "shape": "dot", "size": 40, "title": "\u003cb\u003eJourney to Crow Keepers\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eDescription: Thimble, Kattigan, and Occtis head to The Guard Tower tavern\u003cbr\u003eLocation: The Guard Tower, Caravan Hill\u003cbr\u003eCharacters: Thimble, Kattigan, Occtis, Wulfric, Solomon, Crow Keeper guards\u003cbr\u003eOutcomes: Combat initiated with Crow Keepers, Thimble asks about Casimir", "type": "event", "x": 2400, "y": 0}, {"characters": ["Murray", "Bolaire"], "color": "#FF6B6B", "description": "Murray and Bolaire examine the mysterious coffin overnight", "discoveries": ["Coffin made from ancient materials but recently constructed", "References to Obsidia and Olbalad", "Celestial inscriptions", "Wood from Wastes where Sylandri died", "Tool dropped into mist never returns"], "fixed": true, "font": {"color": "white"}, "id": "event_4", "label": "Investigation at The Archanade", "location": "The Archanade, Lloy Wing, Lugzash", "shape": "dot", "size": 40, "title": "\u003cb\u003eInvestigation at The Archanade\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eDescription: Murray and Bolaire examine the mysterious coffin overnight\u003cbr\u003eLocation: The Archanade, Lloy Wing, Lugzash\u003cbr\u003eCharacters: Murray, Bolaire\u003cbr\u003eDiscoveries: Coffin made from ancient materials but recently constructed, References to Obsidia and Olbalad, Celestial inscriptions, Wood from Wastes where Sylandri died, Tool dropped into mist never returns", "type": "event", "x": 900, "y": 0}, {"characters": ["Teor", "Wicander", "Tyranny", "Yanessa", "Godard", "Filoneus"], "color": "#FF6B6B", "description": "Teor hired as bodyguard for Wicander at Villa Aurora", "fixed": true, "font": {"color": "white"}, "id": "event_5", "label": "Teor\u0027s Recruitment", "location": "Villa Aurora, Mirzash", "shape": "dot", "size": 40, "subevents": ["Teor heals injured worker", "Meeting with Photarch Yanessa", "Grandmother\u0027s warnings about past"], "title": "\u003cb\u003eTeor\u0027s Recruitment\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eDescription: Teor hired as bodyguard for Wicander at Villa Aurora\u003cbr\u003eLocation: Villa Aurora, Mirzash\u003cbr\u003eCharacters: Teor, Wicander, Tyranny, Yanessa, Godard, Filoneus\u003cbr\u003eSubevents: Teor heals injured worker, Meeting with Photarch Yanessa, Grandmother\u0027s warnings about past", "type": "event", "x": 1200, "y": 0}, {"characters": ["Wicander", "Tyranny", "Yanessa", "Godard", "Enmity"], "color": "#FF6B6B", "description": "Wicander shown the true source of Filament", "fixed": true, "font": {"color": "white"}, "id": "event_10", "label": "Revelation of the Prismatic Retort", "location": "Villa Aurora basement", "revelations": ["30-foot chained angel revealed", "Angel is Wicander\u0027s grandfather", "Filament is angel\u0027s blood", "Truth about Candescent Creed exposed"], "shape": "dot", "size": 40, "title": "\u003cb\u003eRevelation of the Prismatic Retort\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eDescription: Wicander shown the true source of Filament\u003cbr\u003eLocation: Villa Aurora basement\u003cbr\u003eCharacters: Wicander, Tyranny, Yanessa, Godard, Enmity\u003cbr\u003eRevelations: 30-foot chained angel revealed, Angel is Wicander\u0027s grandfather, Filament is angel\u0027s blood, Truth about Candescent Creed exposed", "type": "event", "x": 2700, "y": 0}, {"abilities": ["Thaumaturgy", "Healing Word", "Lyre player"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Half-orc priest, Thjazi\u0027s brother, father of Hero and Shadia", "font": {"color": "white"}, "id": "char_hal", "image": "https://static.wikia.nocookie.net/criticalrole/images/7/71/Halandil_Fang_-_Official.jpg", "label": "Halovar (Hal) Fang", "relationships": ["Brother of Thjazi", "Former partner of Thaisha", "Father of Shadia and Hero"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eHalovar (Hal) Fang\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Half-orc priest, Thjazi\u0027s brother, father of Hero and Shadia\u003cbr\u003eRelationships: Brother of Thjazi, Former partner of Thaisha, Father of Shadia and Hero\u003cbr\u003eAbilities: Thaumaturgy, Healing Word, Lyre player\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/7/71/Halandil_Fang_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Halandil_Fang"}, {"abilities": ["Druidic magic", "Guidance", "Speak with Animals"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Druid of Circle of Ancients, half-orc, mother of Shadia", "font": {"color": "white"}, "id": "char_thaisha", "image": "https://static.wikia.nocookie.net/criticalrole/images/b/b3/Thaisha_Lloy_-_Official.jpg", "label": "Thaisha Lloy", "relationships": ["Former partner of Hal", "Mother of Shadia", "Friend of Thjazi", "Works with Occtis"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eThaisha Lloy\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Druid of Circle of Ancients, half-orc, mother of Shadia\u003cbr\u003eRelationships: Former partner of Hal, Mother of Shadia, Friend of Thjazi, Works with Occtis\u003cbr\u003eAbilities: Druidic magic, Guidance, Speak with Animals\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/b/b3/Thaisha_Lloy_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Thaisha_Lloy"}, {"abilities": ["Flight", "Pixie dust", "Sneak attack", "Swordplay"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Fairy warrior, gift to Thjazi at his wedding, partner in crime", "font": {"color": "white"}, "id": "char_thimble", "image": "https://static.wikia.nocookie.net/criticalrole/images/1/1a/Thimble_crop.jpeg", "label": "Thimble", "relationships": ["Thjazi\u0027s partner", "Wedding gift from Aranessa"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eThimble\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Fairy warrior, gift to Thjazi at his wedding, partner in crime\u003cbr\u003eRelationships: Thjazi\u0027s partner, Wedding gift from Aranessa\u003cbr\u003eAbilities: Flight, Pixie dust, Sneak attack, Swordplay\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/1/1a/Thimble_crop.jpeg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Thimble"}, {"abilities": ["Disguise Self", "Familiar (Pin)", "Guidance", "Necromancy"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Young member of House Tachonis, wizard, has undead fox familiar Pin", "font": {"color": "white"}, "id": "char_occtis", "image": "https://static.wikia.nocookie.net/criticalrole/images/c/c5/Occtis_Tachonis_-_Official.jpg", "label": "Occtis Tachonis", "relationships": ["Works with Thaisha", "Estranged from family", "Youngest child of Tachonis"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eOcctis Tachonis\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Young member of House Tachonis, wizard, has undead fox familiar Pin\u003cbr\u003eRelationships: Works with Thaisha, Estranged from family, Youngest child of Tachonis\u003cbr\u003eAbilities: Disguise Self, Familiar (Pin), Guidance, Necromancy\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/c/c5/Occtis_Tachonis_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Occtis_Tachonis"}, {"abilities": ["Detect Magic", "Luck points", "Investigation"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Arcane Marshal of Revolutionary Guard, former Torn Banner member", "font": {"color": "white"}, "id": "char_azune", "image": "https://static.wikia.nocookie.net/criticalrole/images/f/f0/Azune_Nayar_-_Official.jpg", "label": "Azune Nayar", "relationships": ["Comrade of Teor and Kattigan", "Served with Thjazi"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eAzune Nayar\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Arcane Marshal of Revolutionary Guard, former Torn Banner member\u003cbr\u003eRelationships: Comrade of Teor and Kattigan, Served with Thjazi\u003cbr\u003eAbilities: Detect Magic, Luck points, Investigation\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/f/f0/Azune_Nayar_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Azune_Nayar"}, {"characters": ["Azune", "Captain Edrian Fazir", "Sir Harondus Einfasen"], "color": "#FF6B6B", "description": "House Einfasen offers resources to Revolutionary Guard while consolidating power", "fixed": true, "font": {"color": "white"}, "id": "event_8", "label": "Revolutionary Guard Privatization", "location": "Brethren Hall, Rubble Cliff", "outcomes": ["Azune switches patrol to Caravan Hill", "Guard offices being closed", "Private security being introduced"], "shape": "dot", "size": 40, "title": "\u003cb\u003eRevolutionary Guard Privatization\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eDescription: House Einfasen offers resources to Revolutionary Guard while consolidating power\u003cbr\u003eLocation: Brethren Hall, Rubble Cliff\u003cbr\u003eCharacters: Azune, Captain Edrian Fazir, Sir Harondus Einfasen\u003cbr\u003eOutcomes: Azune switches patrol to Caravan Hill, Guard offices being closed, Private security being introduced", "type": "event", "x": 2100, "y": 0}, {"abilities": ["Lay on Hands", "Radiant light", "Medicine", "Shield and flail"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Lion-headed warrior, paladin, brother of Cyd, former Torn Banner", "font": {"color": "white"}, "id": "char_teor", "image": "https://static.wikia.nocookie.net/criticalrole/images/4/4b/Teor_Pridesire_-_Official.jpg", "label": "Teor Pridesire", "relationships": ["Brother of Cyd", "Comrade of Azune and Kattigan", "Served under Loza Blade"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eTeor Pridesire\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Lion-headed warrior, paladin, brother of Cyd, former Torn Banner\u003cbr\u003eRelationships: Brother of Cyd, Comrade of Azune and Kattigan, Served under Loza Blade\u003cbr\u003eAbilities: Lay on Hands, Radiant light, Medicine, Shield and flail\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/4/4b/Teor_Pridesire_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Teor_Pridesire"}, {"abilities": ["Spare the Dying", "Survival", "Combat", "Animal companion"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Ranger with wolf companion Wulfric, former Torn Banner member", "font": {"color": "white"}, "id": "char_kattigan", "image": "https://static.wikia.nocookie.net/criticalrole/images/0/0c/Kattigan_Vale_-_Official.jpg", "label": "Kattigan Vale", "relationships": ["Comrade of Teor and Azune", "Bonded to Wulfric"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eKattigan Vale\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Ranger with wolf companion Wulfric, former Torn Banner member\u003cbr\u003eRelationships: Comrade of Teor and Azune, Bonded to Wulfric\u003cbr\u003eAbilities: Spare the Dying, Survival, Combat, Animal companion\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/0/0c/Kattigan_Vale_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Kattigan_Vale"}, {"abilities": ["Cleric of Light", "Filament tattoos"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Young lord of House Halovar, Light Priest of Candescent Creed", "font": {"color": "white"}, "id": "char_wicander", "image": "https://static.wikia.nocookie.net/criticalrole/images/6/6f/Wicander_Halovar_-_Official.jpg", "label": "Wicander Halovar", "relationships": ["Grandson of Yanessa", "Son of Godard", "Nephew of Filoneus", "Mentors Tyranny"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eWicander Halovar\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Young lord of House Halovar, Light Priest of Candescent Creed\u003cbr\u003eRelationships: Grandson of Yanessa, Son of Godard, Nephew of Filoneus, Mentors Tyranny\u003cbr\u003eAbilities: Cleric of Light, Filament tattoos\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/6/6f/Wicander_Halovar_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Wicander_Halovar"}, {"abilities": ["Demon strength", "Demonic language"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Demon working toward redemption with Candescent Creed", "font": {"color": "white"}, "id": "char_tyranny", "image": "https://static.wikia.nocookie.net/criticalrole/images/c/c0/Tyranny_-_Official.jpg", "label": "Aspirant Tyranny", "relationships": ["Sisters: Enmity, Cruelty, Agony", "Serves Wicander", "Friend of Thaisha"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eAspirant Tyranny\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Demon working toward redemption with Candescent Creed\u003cbr\u003eRelationships: Sisters: Enmity, Cruelty, Agony, Serves Wicander, Friend of Thaisha\u003cbr\u003eAbilities: Demon strength, Demonic language\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/c/c0/Tyranny_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Tyranny"}, {"abilities": ["Swordplay", "Noble status"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Knight of House Davinos, escort of Lady Aranessa, captured Thjazi", "font": {"color": "white"}, "id": "char_julien", "image": "https://static.wikia.nocookie.net/criticalrole/images/9/90/Julien_Davinos_-_Official.jpg", "label": "Sir Julien Davinos", "relationships": ["Son of General Raimond", "Vassal of House Royce", "Cousin connection to Thjazi"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eSir Julien Davinos\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Knight of House Davinos, escort of Lady Aranessa, captured Thjazi\u003cbr\u003eRelationships: Son of General Raimond, Vassal of House Royce, Cousin connection to Thjazi\u003cbr\u003eAbilities: Swordplay, Noble status\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/9/90/Julien_Davinos_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Julien_Davinos"}, {"borderWidth": 3, "borderWidthSelected": 5, "characters": ["Julien", "General Raimond Davinos", "Aranessa"], "color": {"background": "#FF6B6B", "border": "#FF6B6B", "highlight": {"background": "#FF6B6B", "border": "#FF6B6B"}}, "description": "Julien summoned by his father about missing supply wagons", "fixed": true, "font": {"color": "white"}, "id": "event_7", "image": "https://static.wikia.nocookie.net/criticalrole/images/9/90/Julien_Davinos_-_Official.jpg", "label": "Davinos Family Meeting", "location": "The Tangled Sheet, Palazzo Davinos", "revelations": ["Supply wagons stopped at Dvalmar Pass", "Tachonis searching for family member", "Plan to find Occtis first", "Gala planned despite troubles"], "shape": "circularImage", "size": 80, "title": "\u003cb\u003eDavinos Family Meeting\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eMatch Confidence: 87%\u003cbr\u003eDescription: Julien summoned by his father about missing supply wagons\u003cbr\u003eLocation: The Tangled Sheet, Palazzo Davinos\u003cbr\u003eCharacters: Julien, General Raimond Davinos, Aranessa\u003cbr\u003eRevelations: Supply wagons stopped at Dvalmar Pass, Tachonis searching for family member, Plan to find Occtis first, Gala planned despite troubles\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/9/90/Julien_Davinos_-_Official.jpg\" width=\"200\" /\u003e", "type": "event", "url": "https://criticalrole.fandom.com/wiki/Julien_Davinos", "x": 1800, "y": 0}, {"abilities": ["Identify", "Mage Hand", "Arcana"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Dwarven wizard, Bursar of Penteveral, gemstone teeth", "font": {"color": "white"}, "id": "char_murray", "image": "https://static.wikia.nocookie.net/criticalrole/images/0/04/Murray_Mag%27Nesson_-_Official.jpg", "label": "Murray Mag\u0027Nesson", "relationships": ["Works with Bolaire", "Student/faculty of Penteveral"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eMurray Mag\u0027Nesson\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Dwarven wizard, Bursar of Penteveral, gemstone teeth\u003cbr\u003eRelationships: Works with Bolaire, Student/faculty of Penteveral\u003cbr\u003eAbilities: Identify, Mage Hand, Arcana\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/0/04/Murray_Mag%27Nesson_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Murray_Mag\u0027Nesson"}, {"characters": ["Murray", "Ellipides Tallbarrel", "Kora", "Lord Primus Tachonis", "Lord Einfasen"], "color": "#FF6B6B", "description": "Dean Tallbarrel forced to resign, Lords-Advisory taking control", "fixed": true, "font": {"color": "white"}, "id": "event_6", "label": "Penteveral Takeover", "location": "The Penteveral", "outcomes": ["Tallbarrel resigns", "Threat to revoke magic casting license", "Primus Tachonis searching for Occtis"], "shape": "dot", "size": 40, "title": "\u003cb\u003ePenteveral Takeover\u003c/b\u003e\u003cbr\u003eType: Event\u003cbr\u003eDescription: Dean Tallbarrel forced to resign, Lords-Advisory taking control\u003cbr\u003eLocation: The Penteveral\u003cbr\u003eCharacters: Murray, Ellipides Tallbarrel, Kora, Lord Primus Tachonis, Lord Einfasen\u003cbr\u003eOutcomes: Tallbarrel resigns, Threat to revoke magic casting license, Primus Tachonis searching for Occtis", "type": "event", "x": 1500, "y": 0}, {"abilities": ["Black box ability", "Arcana", "Alchemist tools"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Curator of Lloy Wing at The Archanade, warlock", "font": {"color": "white"}, "id": "char_bolaire", "image": "https://static.wikia.nocookie.net/criticalrole/images/8/86/Bolaire_Lathalia_-_Official.jpg", "label": "Bolaire Lloy", "relationships": ["Lloy family", "Worked with Thjazi", "Colleague of Murray"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eBolaire Lloy\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Curator of Lloy Wing at The Archanade, warlock\u003cbr\u003eRelationships: Lloy family, Worked with Thjazi, Colleague of Murray\u003cbr\u003eAbilities: Black box ability, Arcana, Alchemist tools\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/8/86/Bolaire_Lathalia_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Bolaire_Lathalia"}, {"color": "#95E1D3", "description": "Neighborhood in Dol-Makjar where Hal\u0027s home is located", "elevation": "High in city", "font": {"color": "white"}, "id": "location_rookery", "label": "The Rookery", "shape": "dot", "size": 25, "title": "\u003cb\u003eThe Rookery\u003c/b\u003e\u003cbr\u003eType: Location\u003cbr\u003eDescription: Neighborhood in Dol-Makjar where Hal\u0027s home is located\u003cbr\u003eElevation: High in city", "type": "location"}, {"color": "#95E1D3", "description": "Museum with multiple wings including Lloy Wing", "features": ["Lloy Wing with Pariah Blade", "Bolaire\u0027s office"], "font": {"color": "white"}, "id": "location_archanade", "label": "The Archanade", "neighborhood": "Lugzash", "shape": "dot", "size": 25, "title": "\u003cb\u003eThe Archanade\u003c/b\u003e\u003cbr\u003eType: Location\u003cbr\u003eMatch Confidence: 91%\u003cbr\u003eDescription: Museum with multiple wings including Lloy Wing\u003cbr\u003eNeighborhood: Lugzash\u003cbr\u003eFeatures: Lloy Wing with Pariah Blade, Bolaire\u0027s office\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e", "type": "location", "url": "https://criticalrole.fandom.com/wiki/Archanade"}, {"color": "#95E1D3", "description": "Home of Candescent Creed and House Halovar", "features": ["White stone construction", "Prismatic tower", "Secret basement", "War hounds"], "font": {"color": "white"}, "id": "location_villa_aurora", "label": "Villa Aurora", "neighborhood": "Mirzash", "shape": "dot", "size": 25, "title": "\u003cb\u003eVilla Aurora\u003c/b\u003e\u003cbr\u003eType: Location\u003cbr\u003eDescription: Home of Candescent Creed and House Halovar\u003cbr\u003eNeighborhood: Mirzash\u003cbr\u003eFeatures: White stone construction, Prismatic tower, Secret basement, War hounds", "type": "location"}, {"color": "#95E1D3", "description": "Magic college/university in Dol-Makjar", "features": ["Five founding deans", "Familiar bridges", "Under threat of takeover"], "font": {"color": "white"}, "id": "location_penteveral", "label": "The Penteveral", "neighborhood": "Border of Rozigar and the Embers", "shape": "dot", "size": 25, "title": "\u003cb\u003eThe Penteveral\u003c/b\u003e\u003cbr\u003eType: Location\u003cbr\u003eMatch Confidence: 91%\u003cbr\u003eDescription: Magic college/university in Dol-Makjar\u003cbr\u003eNeighborhood: Border of Rozigar and the Embers\u003cbr\u003eFeatures: Five founding deans, Familiar bridges, Under threat of takeover\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e", "type": "location", "url": "https://criticalrole.fandom.com/wiki/Penteveral"}, {"color": "#95E1D3", "description": "Lower neighborhood, merchant district, home to Crow Keepers", "features": ["The Guard Tower tavern", "Merchant caravans"], "font": {"color": "white"}, "id": "location_caravan_hill", "label": "Caravan Hill", "shape": "dot", "size": 25, "title": "\u003cb\u003eCaravan Hill\u003c/b\u003e\u003cbr\u003eType: Location\u003cbr\u003eDescription: Lower neighborhood, merchant district, home to Crow Keepers\u003cbr\u003eFeatures: The Guard Tower tavern, Merchant caravans", "type": "location"}, {"color": "#AA96DA", "description": "Mercenary group from Falconer\u0027s Rebellion", "font": {"color": "white"}, "id": "org_torn_banner", "label": "Torn Banner", "members": ["Loza Blade", "Teor", "Azune", "Kattigan", "Thjazi", "Casimir", "Cyd"], "shape": "dot", "size": 30, "status": "Disbanded 12 years ago", "title": "\u003cb\u003eTorn Banner\u003c/b\u003e\u003cbr\u003eType: Organization\u003cbr\u003eMatch Confidence: 83%\u003cbr\u003eDescription: Mercenary group from Falconer\u0027s Rebellion\u003cbr\u003eMembers: Loza Blade, Teor, Azune, Kattigan, Thjazi, Casimir, Cyd\u003cbr\u003eStatus: Disbanded 12 years ago\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e", "type": "organization", "url": "https://criticalrole.fandom.com/wiki/Torn_Banner"}, {"color": "#AA96DA", "description": "Oldest thieves\u0027 guild in Dol-Makjar", "font": {"color": "white"}, "id": "org_crow_keepers", "label": "Crow Keepers", "location": "The Guard Tower, Caravan Hill", "members": ["Solomon", "Casimir (possibly)", "Guards with crow feathers"], "shape": "dot", "size": 30, "title": "\u003cb\u003eCrow Keepers\u003c/b\u003e\u003cbr\u003eType: Organization\u003cbr\u003eMatch Confidence: 83%\u003cbr\u003eDescription: Oldest thieves\u0027 guild in Dol-Makjar\u003cbr\u003eLocation: The Guard Tower, Caravan Hill\u003cbr\u003eMembers: Solomon, Casimir (possibly), Guards with crow feathers\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e", "type": "organization", "url": "https://criticalrole.fandom.com/wiki/Crow_Keepers"}, {"color": "#AA96DA", "description": "Noble houses forming Chamber of Lords-Advisory", "font": {"color": "white"}, "houses": ["Halovar", "Tachonis", "Royce", "Davinos", "Einfasen", "Cormoray"], "id": "org_sundered_houses", "label": "Sundered Houses", "power": "Increasing control over city government", "shape": "dot", "size": 30, "title": "\u003cb\u003eSundered Houses\u003c/b\u003e\u003cbr\u003eType: Organization\u003cbr\u003eMatch Confidence: 83%\u003cbr\u003eDescription: Noble houses forming Chamber of Lords-Advisory\u003cbr\u003eHouses: Halovar, Tachonis, Royce, Davinos, Einfasen, Cormoray\u003cbr\u003ePower: Increasing control over city government\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e", "type": "organization", "url": "https://criticalrole.fandom.com/wiki/Sundered_Houses"}, {"color": "#F38181", "current_status": "Contains endless mist, temperature-affecting", "description": "Silver-plated coffin sized for halfling, contained mask fragments", "font": {"color": "white"}, "id": "artifact_box", "inscriptions": ["Kessian (halfling language)", "Celestial glyphs", "References to Obsidia"], "label": "Coffin of Olbalad", "origin": "Recently constructed from ancient materials", "shape": "dot", "size": 20, "title": "\u003cb\u003eCoffin of Olbalad\u003c/b\u003e\u003cbr\u003eType: Artifact\u003cbr\u003eDescription: Silver-plated coffin sized for halfling, contained mask fragments\u003cbr\u003eOrigin: Recently constructed from ancient materials\u003cbr\u003eInscriptions: Kessian (halfling language), Celestial glyphs, References to Obsidia\u003cbr\u003eWood Source: Fossilized from Wastes where Sylandri died\u003cbr\u003eCurrent Status: Contains endless mist, temperature-affecting", "type": "artifact", "wood_source": "Fossilized from Wastes where Sylandri died"}, {"color": "#F38181", "description": "Fake magical item meant to help Thjazi escape", "discovery": "Found on Thjazi\u0027s body by Azune", "font": {"color": "white"}, "id": "artifact_glyph", "label": "False Escape Glyph", "magic": "Illusion and conjuration, will fade by morning", "shape": "dot", "size": 20, "title": "\u003cb\u003eFalse Escape Glyph\u003c/b\u003e\u003cbr\u003eType: Artifact\u003cbr\u003eDescription: Fake magical item meant to help Thjazi escape\u003cbr\u003eDiscovery: Found on Thjazi\u0027s body by Azune\u003cbr\u003eMagic: Illusion and conjuration, will fade by morning", "type": "artifact"}, {"abilities": ["Combat with censer", "Doesn\u0027t need rest", "Immortal or near-immortal"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Elf warrior from Sisters of Sylandri, seeking Stone of Nightsong", "font": {"color": "white"}, "id": "char_vaelus", "image": "https://static.wikia.nocookie.net/criticalrole/images/8/85/Vaelus_-_Official.jpg", "label": "Vaelus", "relationships": ["Seeking artifact from Thjazi", "Introduced by Bolaire"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eVaelus\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Elf warrior from Sisters of Sylandri, seeking Stone of Nightsong\u003cbr\u003eRelationships: Seeking artifact from Thjazi, Introduced by Bolaire\u003cbr\u003eAbilities: Combat with censer, Doesn\u0027t need rest, Immortal or near-immortal\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/8/85/Vaelus_-_Official.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Vaelus"}, {"abilities": ["Combat", "Leadership", "Axe throwing"], "borderWidth": 3, "borderWidthSelected": 5, "color": {"background": "#4ECDC4", "border": "#4ECDC4", "highlight": {"background": "#4ECDC4", "border": "#4ECDC4"}}, "description": "Commander of Torn Banner, legendary warrior, retiring to Dol-Rungja", "font": {"color": "white"}, "id": "char_loza", "image": "https://static.wikia.nocookie.net/criticalrole/images/5/51/Loza_Blade_-_Art_By_Ed_Phalhares.jpg", "label": "Loza Blade", "relationships": ["Commander of Teor, Azune, Kattigan", "Friend of Thjazi", "Lloy family connection"], "shape": "circularImage", "size": 60, "title": "\u003cb\u003eLoza Blade\u003c/b\u003e\u003cbr\u003eType: Character\u003cbr\u003eMatch Confidence: 100%\u003cbr\u003eDescription: Commander of Torn Banner, legendary warrior, retiring to Dol-Rungja\u003cbr\u003eRelationships: Commander of Teor, Azune, Kattigan, Friend of Thjazi, Lloy family connection\u003cbr\u003eAbilities: Combat, Leadership, Axe throwing\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e\u003cbr\u003e\u003cimg src=\"https://static.wikia.nocookie.net/criticalrole/images/5/51/Loza_Blade_-_Art_By_Ed_Phalhares.jpg\" width=\"200\" /\u003e", "type": "character", "url": "https://criticalrole.fandom.com/wiki/Loza_Blade"}, {"color": "#F38181", "description": "Stolen artifact sought by Vaelus, taken from Thimble\u0027s hideout", "font": {"color": "white"}, "id": "artifact_stone", "label": "Stone of Nightsong", "shape": "dot", "size": 20, "status": "Missing, stolen by attackers", "title": "\u003cb\u003eStone of Nightsong\u003c/b\u003e\u003cbr\u003eType: Artifact\u003cbr\u003eMatch Confidence: 92%\u003cbr\u003eDescription: Stolen artifact sought by Vaelus, taken from Thimble\u0027s hideout\u003cbr\u003eStatus: Missing, stolen by attackers\u003cbr\u003e\u003cbr\u003e\u003ci\u003eClick to open wiki page\u003c/i\u003e", "type": "artifact", "url": "https://criticalrole.fandom.com/wiki/Stone_of_Nightsong"}, {"color": "#F38181", "description": "Half of the mercenary company banner", "font": {"color": "white"}, "given_to": "Teor by Loza Blade", "id": "artifact_banner", "label": "Torn Banner (Artifact)", "shape": "dot", "size": 20, "title": "\u003cb\u003eTorn Banner (Artifact)\u003c/b\u003e\u003cbr\u003eType: Artifact\u003cbr\u003eDescription: Half of the mercenary company banner\u003cbr\u003eGiven To: Teor by Loza Blade", "type": "artifact"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#999999", "description": "Memory triggered during funeral", "from": "event_1", "label": "flashback_to", "title": "flashback_to", "to": "event_2", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Box incident occurred during wake", "from": "event_2", "label": "contains", "title": "contains", "to": "event_3", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Wake discussions led to Crow Keepers investigation", "from": "event_2", "label": "leads_to", "title": "leads_to", "to": "event_9", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Box taken to museum for investigation", "from": "event_3", "label": "leads_to", "title": "leads_to", "to": "event_4", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Recruitment led to revelation in basement", "from": "event_5", "label": "leads_to", "title": "leads_to", "to": "event_10", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Hosted wake at his home", "from": "char_hal", "label": "hosted", "title": "hosted", "to": "event_2", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Parents of Shadia", "from": "char_hal", "label": "former_partners", "title": "former_partners", "to": "char_thaisha", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Opened the box and collapsed", "from": "char_thaisha", "label": "triggered", "title": "triggered", "to": "event_3", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Led group to tavern", "from": "char_thimble", "label": "initiated", "title": "initiated", "to": "event_9", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Went with Thimble disguised", "from": "char_occtis", "label": "accompanied", "title": "accompanied", "to": "event_9", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Met with Einfasen", "from": "char_azune", "label": "witnessed", "title": "witnessed", "to": "event_8", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Hired as bodyguard", "from": "char_teor", "label": "recruited", "title": "recruited", "to": "event_5", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Served together in Torn Banner", "from": "char_teor", "label": "comrades", "title": "comrades", "to": "char_azune", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Served together in Torn Banner", "from": "char_teor", "label": "comrades", "title": "comrades", "to": "char_kattigan", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Went with Thimble", "from": "char_kattigan", "label": "accompanied", "title": "accompanied", "to": "event_9", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Shown the Prismatic Retort", "from": "char_wicander", "label": "witnessed", "title": "witnessed", "to": "event_10", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Teaching Tyranny about the Creed", "from": "char_wicander", "label": "mentor", "title": "mentor", "to": "char_tyranny", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Present for revelation", "from": "char_tyranny", "label": "witnessed", "title": "witnessed", "to": "event_10", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Called to meeting by father", "from": "char_julien", "label": "summoned", "title": "summoned", "to": "event_7", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Cast Identify on coffin", "from": "char_murray", "label": "investigated", "title": "investigated", "to": "event_4", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Present for Tallbarrel\u0027s resignation", "from": "char_murray", "label": "witnessed", "title": "witnessed", "to": "event_6", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Examined coffin overnight", "from": "char_bolaire", "label": "investigated", "title": "investigated", "to": "event_4", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Location of wake", "from": "location_rookery", "label": "hosted", "title": "hosted", "to": "event_2", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Location of investigation", "from": "location_archanade", "label": "hosted", "title": "hosted", "to": "event_4", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Location of recruitment", "from": "location_villa_aurora", "label": "hosted", "title": "hosted", "to": "event_5", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Location of revelation", "from": "location_villa_aurora", "label": "hosted", "title": "hosted", "to": "event_10", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Location of takeover", "from": "location_penteveral", "label": "hosted", "title": "hosted", "to": "event_6", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Location of tavern confrontation", "from": "location_caravan_hill", "label": "hosted", "title": "hosted", "to": "event_9", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Members fought in flashback battle", "from": "org_torn_banner", "label": "involved_in", "title": "involved_in", "to": "event_1", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Met with investigating party", "from": "org_crow_keepers", "label": "confronted", "title": "confronted", "to": "event_9", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Taking control of Penteveral", "from": "org_sundered_houses", "label": "orchestrated", "title": "orchestrated", "to": "event_6", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Privatizing Revolutionary Guard", "from": "org_sundered_houses", "label": "expanding_power", "title": "expanding_power", "to": "event_8", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Opened during wake", "from": "artifact_box", "label": "central_to", "title": "central_to", "to": "event_3", "width": 1}, {"arrows": "to", "color": "#999999", "description": "Found on Thjazi\u0027s body", "from": "artifact_glyph", "label": "discovered_at", "title": "discovered_at", "to": "event_2", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.5,
+            "damping": 0.09,
+            "gravitationalConstant": -15000,
+            "springConstant": 0.01,
+            "springLength": 200
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    
+    <script type="text/javascript">
+    window.addEventListener('load', function() {
+        var legend = document.getElementById('legend');
+        var legendToggle = document.getElementById('legend-toggle');
+        var legendClose = document.getElementById('legend-close');
+        var legendVisible = true;
+
+        function toggleLegend() {
+            legendVisible = !legendVisible;
+            if (legendVisible) {
+                legend.style.display = 'block';
+                legendToggle.style.display = 'none';
+            } else {
+                legend.style.display = 'none';
+                legendToggle.style.display = 'block';
+            }
+        }
+
+        if (legendToggle) {
+            legendToggle.addEventListener('click', toggleLegend);
+        }
+        if (legendClose) {
+            legendClose.addEventListener('click', toggleLegend);
+        }
+
+        setTimeout(function() {
+            if (typeof network !== 'undefined' && typeof nodes !== 'undefined') {
+                var canvas = document.querySelector('#mynetwork canvas');
+
+                network.on("click", function(params) {
+                    if (params.nodes.length > 0) {
+                        var nodeId = params.nodes[0];
+                        var clickedNode = nodes.get(nodeId);
+                        if (clickedNode && clickedNode.url) {
+                            window.open(clickedNode.url, "_blank");
+                        }
+                    }
+                });
+
+                network.on("hoverNode", function(params) {
+                    var nodeId = params.node;
+                    var node = nodes.get(nodeId);
+                    if (node && node.url) {
+                        if (canvas) canvas.style.cursor = 'pointer';
+                    }
+                });
+
+                network.on("blurNode", function(params) {
+                    if (canvas) canvas.style.cursor = 'default';
+                });
+                
+                if (canvas) {
+                    canvas.addEventListener('mousemove', function(event) {
+                        var pointer = {
+                            x: event.offsetX || (event.pageX - canvas.offsetLeft),
+                            y: event.offsetY || (event.pageY - canvas.offsetTop)
+                        };
+                        var nodeId = network.getNodeAt(pointer);
+                        if (nodeId) {
+                            var node = nodes.get(nodeId);
+                            if (node && node.url) {
+                                canvas.style.cursor = 'pointer';
+                            } else {
+                                canvas.style.cursor = 'default';
+                            }
+                        } else {
+                            canvas.style.cursor = 'default';
+                        }
+                    });
+                }
+            }
+        }, 1000);
+    });
+    </script>
+    
+</body>
+</html>
